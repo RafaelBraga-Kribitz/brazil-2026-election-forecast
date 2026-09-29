@@ -31,6 +31,15 @@ from brfc import config
 PRIORS = {"sigma_rw": 0.5, "rho_log_sd": 0.75, "sigma_house": 2.0, "sigma_ns": 2.0, "init_sd": 10.0}
 
 
+def converged(diag: dict) -> bool:
+    """Pre-registered convergence criteria (PREREG.md section 4)."""
+    return (diag["rhat_max"] <= 1.01 and diag["ess_bulk_min"] >= 400 and diag["ess_tail_min"] >= 400
+            and diag["divergences"] <= 0.01 * diag["draws"])
+
+
+RETRY_SAMPLER = {"target_accept": 0.99, "tune": 2000}
+
+
 @dataclass
 class FitResult:
     series: list[str]
@@ -156,14 +165,17 @@ def fit(
         for s in range(S):
             prm.append({"series": series[s], "param": nm, "mean": v[:, s].mean(),
                         "q03": np.quantile(v[:, s], 0.03), "q97": np.quantile(v[:, s], 0.97)})
-    summ = az.summary(idata, var_names=names + ["init"], kind="diagnostics")
+    vn = names + ["init"]
     diag = {
-        "rhat_max": float(summ["r_hat"].max()),
-        "ess_bulk_min": float(summ["ess_bulk"].min()),
-        "ess_tail_min": float(summ["ess_tail"].min()),
+        "rhat_max": float(az.rhat(idata, var_names=vn).to_array().max()),
+        "ess_bulk_min": float(az.ess(idata, var_names=vn, method="bulk").to_array().min()),
+        "ess_tail_min": float(az.ess(idata, var_names=vn, method="tail").to_array().min()),
         "divergences": int(idata.sample_stats["diverging"].sum()),
         "draws": int(ed.shape[0]),
+        "target_accept": float(sk["target_accept"]),
+        "tune": int(sk["tune"]),
     }
+    diag["converged"] = converged(diag)
     return FitResult(
         series=series, days=days, election_day_draws=ed, path=path, house=pd.DataFrame(house_rows),
         params=pd.DataFrame(prm), diagnostics=diag, n_polls=int(wide["poll_id"].nunique()), cutoff=cutoff,

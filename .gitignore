@@ -14,3 +14,5 @@ data/raw/**
 # local caches
 data/cache/
 *.nc
+data/cache_fitlog.txt
+data/*.log

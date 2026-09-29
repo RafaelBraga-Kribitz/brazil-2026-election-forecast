@@ -1,0 +1,4 @@
+# LF everywhere so hashes (PREREG.sha256, freeze package) are identical on every OS and clone.
+* text=auto eol=lf
+*.png binary
+*.npy binary

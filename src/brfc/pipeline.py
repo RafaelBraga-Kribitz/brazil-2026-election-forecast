@@ -75,9 +75,12 @@ def fit_one(polls: pd.DataFrame, election: str, round_: int, horizon: int, varia
         meta["status"] = f"skipped: {n_polls} polls < {config.MIN_POLLS_PER_FIT}"
         (cache / f"{key}.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
         return None
-    fr = model.fit(wide, series, window_start=window_start(election, round_),
-                   election_day=config.ELECTION_DATES[(election, round_)], cutoff=cutoff,
-                   two_regime=VARIANTS[variant], priors=priors, sampler=sampler)
+    kw = dict(window_start=window_start(election, round_), election_day=config.ELECTION_DATES[(election, round_)],
+              cutoff=cutoff, two_regime=VARIANTS[variant], priors=priors)
+    fr = model.fit(wide, series, sampler=sampler, **kw)
+    if not fr.diagnostics["converged"]:  # pre-registered retry
+        meta["first_attempt_diagnostics"] = fr.diagnostics
+        fr = model.fit(wide, series, sampler={**(sampler or {}), **model.RETRY_SAMPLER}, **kw)
     meta["diagnostics"] = fr.diagnostics
     np.save(cache / f"{key}.npy", fr.election_day_draws.astype(np.float32))
     fr.path.to_csv(cache / f"{key}.path.csv", index=False)
@@ -147,23 +150,8 @@ def baseline_point(kind: str, fit: CachedFit, election: str, cutoff) -> dict | N
     return baselines.as_categories(p, categories_of(fit.meta, election), r) if p else None
 
 
-def evaluate_backtest(variant: str, results: pd.DataFrame, *, elections=config.HISTORICAL, error_prior=None,
-                      tag: str = "") -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Returns (scores, category_rows, deviations, error_model_summaries) for one RW variant."""
-    from datetime import date
-
-    from brfc.data import actual_shares
-
-    eve = {}
-    for e in elections:
-        for r in (1, 2):
-            f = load_fit(fit_key(e, r, 1, variant, tag)) if (CACHE / f"{fit_key(e, r, 1, variant, tag)}.json").exists() else None
-            if f is not None:
-                eve[(e, r)] = f
-    devs = eve_deviations(eve, results)
-
-    # historical point-baseline errors (all elections; filtered LOEO at use)
-    fits_all = {}
+def historical_fits(variant: str, tag: str = "", elections=config.HISTORICAL) -> dict[tuple[str, int, int], CachedFit]:
+    out = {}
     for e in elections:
         for r, hs in ((1, config.HORIZONS_R1), (2, config.HORIZONS_R2)):
             for h in hs:
@@ -171,7 +159,16 @@ def evaluate_backtest(variant: str, results: pd.DataFrame, *, elections=config.H
                 if (CACHE / f"{k}.json").exists():
                     f = load_fit(k)
                     if f is not None:
-                        fits_all[(e, r, h)] = f
+                        out[(e, r, h)] = f
+    return out
+
+
+def baseline_errors(fits_all: dict, results: pd.DataFrame) -> pd.DataFrame:
+    """Observed-minus-point errors of every point baseline in every historical cell (filtered LOEO at use)."""
+    from datetime import date
+
+    from brfc.data import actual_shares
+
     berr = []
     for (e, r, h), f in fits_all.items():
         cats = categories_of(f.meta, e)
@@ -181,7 +178,20 @@ def evaluate_backtest(variant: str, results: pd.DataFrame, *, elections=config.H
             if p:
                 berr += [{"baseline": b, "election": e, "round": r, "horizon": h, "category": c,
                           "error": act[c] - p[c]} for c in cats]
-    berr = pd.DataFrame(berr, columns=["baseline", "election", "round", "horizon", "category", "error"])
+    return pd.DataFrame(berr, columns=["baseline", "election", "round", "horizon", "category", "error"])
+
+
+def evaluate_backtest(variant: str, results: pd.DataFrame, *, elections=config.HISTORICAL, error_prior=None,
+                      tag: str = "") -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Returns (scores, category_rows, deviations, error_model_summaries) for one RW variant."""
+    from datetime import date
+
+    from brfc.data import actual_shares
+
+    fits_all = historical_fits(variant, tag, elections)
+    eve = {(e, r): f for (e, r, h), f in fits_all.items() if h == 1}
+    devs = eve_deviations(eve, results)
+    berr = baseline_errors(fits_all, results)
 
     scores, cat_rows, err_summ = [], [], []
     for (e, r, h), f in sorted(fits_all.items()):

@@ -1,0 +1,30 @@
+poll_id,election,round,pollster,field_start,field_end,sample_size,scenario,source_url
+2014-1-d0f3f6f476,2014,1,Ibope,2014-08-23,2014-08-25,2506,main,https://en.wikipedia.org/w/index.php?title=2014_Brazilian_general_election&oldid=1369923991
+2014-1-b45eee4d99,2014,1,Datafolha,2014-08-28,2014-08-29,2874,main,https://en.wikipedia.org/w/index.php?title=2014_Brazilian_general_election&oldid=1369923991
+2014-1-cd84978c85,2014,1,Ibope,2014-09-05,2014-09-08,2002,main,https://en.wikipedia.org/w/index.php?title=2014_Brazilian_general_election&oldid=1369923991
+2014-1-3d4612918e,2014,1,Ibope,2014-09-20,2014-09-22,3010,main,https://en.wikipedia.org/w/index.php?title=2014_Brazilian_general_election&oldid=1369923991
+2014-2-1475c049f4,2014,2,Datafolha,2014-10-20,2014-10-20,4389,Dilma Rousseff vs Aécio Neves,https://en.wikipedia.org/w/index.php?title=2014_Brazilian_general_election&oldid=1369923991
+2014-2-74a4e84908,2014,2,Datafolha,2014-10-21,2014-10-21,4355,Dilma Rousseff vs Aécio Neves,https://en.wikipedia.org/w/index.php?title=2014_Brazilian_general_election&oldid=1369923991
+2018-1-9b9dddb2f8,2018,1,Ibope,2018-09-22,2018-09-23,2506,with Haddad,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2018&oldid=73055947
+2018-1-2be066d000,2018,1,Real Time Big Data,2018-09-28,2018-09-29,3200,with Haddad,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2018&oldid=73055947
+2018-1-bc22fac03b,2018,1,Datafolha,2018-10-02,2018-10-02,3240,with Haddad,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2018&oldid=73055947
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2022-2-8d7b718e89,2022,2,AtlasIntel,2022-10-26,2022-10-29,7500,Jair Bolsonaro vs Lula,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2022-2-137249edbc,2022,2,Brasmarket,2022-10-23,2022-10-27,2400,Jair Bolsonaro vs Lula,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2022-2-91ae9b1b6d,2022,2,Futura,2022-10-10,2022-10-12,2000,Jair Bolsonaro vs Lula,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2022&oldid=73055949
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2026&oldid=73082572
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2026&oldid=73082572
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2026&oldid=73082572
+2026-1-de343fc6e2,2026,1,Veritá,2026-09-04,2026-09-12,40500,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2026&oldid=73082572
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2026&oldid=73082572
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2026&oldid=73082572
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2026&oldid=73082572
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,https://pt.wikipedia.org/w/index.php?title=Pesquisas_de_opini%C3%A3o_para_a_elei%C3%A7%C3%A3o_presidencial_no_Brasil_em_2026&oldid=73082572

@@ -18,6 +18,10 @@ def load_polls(elections: tuple[str, ...] = ("2014", "2018", "2022")) -> pd.Data
         d = pd.read_csv(POLL_FILES[e], dtype={"election": str, "tse_br_id": str, "publication_date": str})
         d["election"] = d["election"].astype(str)
         frames.append(d)
+    rel = config.DATA / "interim" / "polls_releases.csv"
+    if rel.exists():  # final polls missing from Wikipedia, added from release records (PREREG Addendum 02)
+        r = pd.read_csv(rel, dtype={"election": str, "tse_br_id": str, "publication_date": str})
+        frames.append(r[r["election"].astype(str).isin(elections)])
     d = pd.concat(frames, ignore_index=True)
     d["round"] = d["round"].astype(int)
     d["sample_size"] = pd.to_numeric(d["sample_size"], errors="coerce")

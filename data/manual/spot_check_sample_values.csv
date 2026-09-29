@@ -1,0 +1,249 @@
+poll_id,election,round,pollster,field_start,field_end,sample_size,scenario,candidate,share_reported,blank_null
+2014-1-d0f3f6f476,2014,1,Ibope,2014-08-23,2014-08-25,2506,main,Aécio Neves,19.0,15.0
+2014-1-d0f3f6f476,2014,1,Ibope,2014-08-23,2014-08-25,2506,main,Dilma Rousseff,34.0,15.0
+2014-1-d0f3f6f476,2014,1,Ibope,2014-08-23,2014-08-25,2506,main,Luciana Genro,1.0,15.0
+2014-1-d0f3f6f476,2014,1,Ibope,2014-08-23,2014-08-25,2506,main,Marina Silva,29.0,15.0
+2014-1-d0f3f6f476,2014,1,Ibope,2014-08-23,2014-08-25,2506,main,Pastor Everaldo,1.0,15.0
+2014-1-b45eee4d99,2014,1,Datafolha,2014-08-28,2014-08-29,2874,main,Aécio Neves,15.0,14.0
+2014-1-b45eee4d99,2014,1,Datafolha,2014-08-28,2014-08-29,2874,main,Dilma Rousseff,34.0,14.0
+2014-1-b45eee4d99,2014,1,Datafolha,2014-08-28,2014-08-29,2874,main,Marina Silva,34.0,14.0
+2014-1-b45eee4d99,2014,1,Datafolha,2014-08-28,2014-08-29,2874,main,Pastor Everaldo,2.0,14.0
+2014-1-cd84978c85,2014,1,Ibope,2014-09-05,2014-09-08,2002,main,Aécio Neves,15.0,13.0
+2014-1-cd84978c85,2014,1,Ibope,2014-09-05,2014-09-08,2002,main,Dilma Rousseff,39.0,13.0
+2014-1-cd84978c85,2014,1,Ibope,2014-09-05,2014-09-08,2002,main,Marina Silva,31.0,13.0
+2014-1-cd84978c85,2014,1,Ibope,2014-09-05,2014-09-08,2002,main,Pastor Everaldo,1.0,13.0
+2014-1-3d4612918e,2014,1,Ibope,2014-09-20,2014-09-22,3010,main,Aécio Neves,19.0,12.0
+2014-1-3d4612918e,2014,1,Ibope,2014-09-20,2014-09-22,3010,main,Dilma Rousseff,38.0,12.0
+2014-1-3d4612918e,2014,1,Ibope,2014-09-20,2014-09-22,3010,main,Marina Silva,29.0,12.0
+2014-1-3d4612918e,2014,1,Ibope,2014-09-20,2014-09-22,3010,main,Pastor Everaldo,1.0,12.0
+2014-2-1475c049f4,2014,2,Datafolha,2014-10-20,2014-10-20,4389,Dilma Rousseff vs Aécio Neves,Aécio Neves,43.0,11.0
+2014-2-1475c049f4,2014,2,Datafolha,2014-10-20,2014-10-20,4389,Dilma Rousseff vs Aécio Neves,Dilma Rousseff,46.0,11.0
+2014-2-74a4e84908,2014,2,Datafolha,2014-10-21,2014-10-21,4355,Dilma Rousseff vs Aécio Neves,Aécio Neves,43.0,10.0
+2014-2-74a4e84908,2014,2,Datafolha,2014-10-21,2014-10-21,4355,Dilma Rousseff vs Aécio Neves,Dilma Rousseff,47.0,10.0
+2018-1-9b9dddb2f8,2018,1,Ibope,2018-09-22,2018-09-23,2506,with Haddad,Alvaro Dias,2.0,18.0
+2018-1-9b9dddb2f8,2018,1,Ibope,2018-09-22,2018-09-23,2506,with Haddad,Ciro Gomes,11.0,18.0
+2018-1-9b9dddb2f8,2018,1,Ibope,2018-09-22,2018-09-23,2506,with Haddad,Fernando Haddad,22.0,18.0
+2018-1-9b9dddb2f8,2018,1,Ibope,2018-09-22,2018-09-23,2506,with Haddad,Geraldo Alckmin,8.0,18.0
+2018-1-9b9dddb2f8,2018,1,Ibope,2018-09-22,2018-09-23,2506,with Haddad,Henrique Meirelles,2.0,18.0
+2018-1-9b9dddb2f8,2018,1,Ibope,2018-09-22,2018-09-23,2506,with Haddad,Jair Bolsonaro,28.0,18.0
+2018-1-9b9dddb2f8,2018,1,Ibope,2018-09-22,2018-09-23,2506,with Haddad,João Amoêdo,3.0,18.0
+2018-1-9b9dddb2f8,2018,1,Ibope,2018-09-22,2018-09-23,2506,with Haddad,Marina Silva,5.0,18.0
+2018-1-9b9dddb2f8,2018,1,Ibope,2018-09-22,2018-09-23,2506,with Haddad,__others__,1.0,18.0
+2018-1-2be066d000,2018,1,Real Time Big Data,2018-09-28,2018-09-29,3200,with Haddad,Alvaro Dias,2.0,15.0
+2018-1-2be066d000,2018,1,Real Time Big Data,2018-09-28,2018-09-29,3200,with Haddad,Ciro Gomes,11.0,15.0
+2018-1-2be066d000,2018,1,Real Time Big Data,2018-09-28,2018-09-29,3200,with Haddad,Fernando Haddad,24.0,15.0
+2018-1-2be066d000,2018,1,Real Time Big Data,2018-09-28,2018-09-29,3200,with Haddad,Geraldo Alckmin,7.0,15.0
+2018-1-2be066d000,2018,1,Real Time Big Data,2018-09-28,2018-09-29,3200,with Haddad,Henrique Meirelles,3.0,15.0
+2018-1-2be066d000,2018,1,Real Time Big Data,2018-09-28,2018-09-29,3200,with Haddad,Jair Bolsonaro,29.0,15.0
+2018-1-2be066d000,2018,1,Real Time Big Data,2018-09-28,2018-09-29,3200,with Haddad,João Amoêdo,3.0,15.0
+2018-1-2be066d000,2018,1,Real Time Big Data,2018-09-28,2018-09-29,3200,with Haddad,Marina Silva,5.0,15.0
+2018-1-2be066d000,2018,1,Real Time Big Data,2018-09-28,2018-09-29,3200,with Haddad,__others__,1.0,15.0
+2018-1-bc22fac03b,2018,1,Datafolha,2018-10-02,2018-10-02,3240,with Haddad,Alvaro Dias,2.0,13.0
+2018-1-bc22fac03b,2018,1,Datafolha,2018-10-02,2018-10-02,3240,with Haddad,Ciro Gomes,11.0,13.0
+2018-1-bc22fac03b,2018,1,Datafolha,2018-10-02,2018-10-02,3240,with Haddad,Fernando Haddad,21.0,13.0
+2018-1-bc22fac03b,2018,1,Datafolha,2018-10-02,2018-10-02,3240,with Haddad,Geraldo Alckmin,9.0,13.0
+2018-1-bc22fac03b,2018,1,Datafolha,2018-10-02,2018-10-02,3240,with Haddad,Henrique Meirelles,2.0,13.0
+2018-1-bc22fac03b,2018,1,Datafolha,2018-10-02,2018-10-02,3240,with Haddad,Jair Bolsonaro,32.0,13.0
+2018-1-bc22fac03b,2018,1,Datafolha,2018-10-02,2018-10-02,3240,with Haddad,João Amoêdo,3.0,13.0
+2018-1-bc22fac03b,2018,1,Datafolha,2018-10-02,2018-10-02,3240,with Haddad,Marina Silva,4.0,13.0
+2018-1-bc22fac03b,2018,1,Datafolha,2018-10-02,2018-10-02,3240,with Haddad,__others__,2.0,13.0
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,Jair Bolsonaro,34.0,5.0
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,Lula,48.0,5.0
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,Ciro Gomes,5.0,5.0
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,Simone Tebet,6.0,5.0
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,Soraya Thronicke,1.0,5.0
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,Felipe d'Avila,1.0,5.0
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,José Maria Eymael,0.0,5.0
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,Sofia Manzano,0.0,5.0
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,Léo Péricles,0.0,5.0
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,Vera Lúcia,0.0,5.0
+2022-1-b0e4d26a69,2022,1,Datafolha,2022-09-30,2022-10-01,12800,main,Padre Kelmon,0.0,5.0
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,Jair Bolsonaro,40.7,1.0
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,Lula,49.8,1.0
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,Ciro Gomes,3.9,1.0
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,Simone Tebet,2.6,1.0
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,Soraya Thronicke,0.7,1.0
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,Felipe d'Avila,0.8,1.0
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,José Maria Eymael,0.0,1.0
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,Sofia Manzano,0.0,1.0
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,Léo Péricles,0.0,1.0
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,Vera Lúcia,0.0,1.0
+2022-1-1b8b76875a,2022,1,AtlasIntel,2022-09-28,2022-09-30,4500,main,Padre Kelmon,0.3,1.0
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,Jair Bolsonaro,44.6,2.4
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,Lula,41.6,2.4
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,Ciro Gomes,4.1,2.4
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,Simone Tebet,4.2,2.4
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,Soraya Thronicke,0.9,2.4
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,Felipe d'Avila,1.4,2.4
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,José Maria Eymael,0.3,2.4
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,Sofia Manzano,0.0,2.4
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,Léo Péricles,0.1,2.4
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,Vera Lúcia,0.0,2.4
+2022-1-635b1dc0e4,2022,1,Veritá,2022-09-24,2022-09-29,51169,main,Padre Kelmon,0.4,2.4
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,Jair Bolsonaro,35.0,7.0
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,Lula,46.0,7.0
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,Ciro Gomes,7.0,7.0
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,Simone Tebet,4.0,7.0
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,Soraya Thronicke,1.0,7.0
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,Felipe d'Avila,0.0,7.0
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,José Maria Eymael,0.0,7.0
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,Sofia Manzano,0.0,7.0
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,Léo Péricles,0.0,7.0
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,Vera Lúcia,0.0,7.0
+2022-1-aac99ab2b0,2022,1,Ipespe,2022-09-19,2022-09-21,2000,main,Padre Kelmon,0.0,7.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,Jair Bolsonaro,35.0,5.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,Lula,44.0,5.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,Ciro Gomes,9.0,5.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,Simone Tebet,5.0,5.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,Soraya Thronicke,1.0,5.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,Felipe d'Avila,1.0,5.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,José Maria Eymael,0.0,5.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,Sofia Manzano,0.0,5.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,Léo Péricles,0.0,5.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,Vera Lúcia,0.0,5.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,Pablo Marçal,0.0,5.0
+2022-1-260f2716be,2022,1,Ipespe,2022-08-31,2022-09-01,1100,main,Roberto Jefferson,0.0,5.0
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,Jair Bolsonaro,34.1,12.8
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,Lula,42.3,12.8
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,Ciro Gomes,7.3,12.8
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,Simone Tebet,2.1,12.8
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,Soraya Thronicke,0.0,12.8
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,Felipe d'Avila,0.3,12.8
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,José Maria Eymael,0.0,12.8
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,Sofia Manzano,0.0,12.8
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,Léo Péricles,0.1,12.8
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,Vera Lúcia,0.1,12.8
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,Pablo Marçal,0.4,12.8
+2022-1-be5b3a9427,2022,1,MDA,2022-08-25,2022-08-28,2002,main,Roberto Jefferson,0.2,12.8
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,Jair Bolsonaro,36.0,5.0
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,Lula,44.0,5.0
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,Ciro Gomes,9.0,5.0
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,Simone Tebet,4.0,5.0
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,Soraya Thronicke,0.1,5.0
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,Felipe d'Avila,1.0,5.0
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,José Maria Eymael,0.1,5.0
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,Sofia Manzano,0.1,5.0
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,Léo Péricles,0.2,5.0
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,Vera Lúcia,1.0,5.0
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,Pablo Marçal,1.0,5.0
+2022-1-4f7f9f09cd,2022,1,Ideia,2022-08-19,2022-08-24,1500,main,Roberto Jefferson,0.1,5.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,Jair Bolsonaro,37.0,7.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,Lula,44.0,7.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,Ciro Gomes,6.0,7.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,Simone Tebet,4.0,7.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,Soraya Thronicke,0.0,7.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,Felipe d'Avila,0.0,7.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,José Maria Eymael,0.0,7.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,Sofia Manzano,1.0,7.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,Léo Péricles,0.0,7.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,Vera Lúcia,0.0,7.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,Pablo Marçal,0.0,7.0
+2022-1-4322ca8a47,2022,1,PoderData,2022-08-14,2022-08-16,3500,main,Roberto Jefferson,0.0,7.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,Jair Bolsonaro,34.0,8.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,Lula,45.0,8.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,Ciro Gomes,8.0,8.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,Simone Tebet,2.0,8.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,Soraya Thronicke,0.0,8.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,Felipe d'Avila,0.0,8.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,José Maria Eymael,0.0,8.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,Sofia Manzano,0.0,8.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,Léo Péricles,0.0,8.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,Vera Lúcia,0.0,8.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,Pablo Marçal,0.0,8.0
+2022-1-70c5bcdcd9,2022,1,FSB,2022-08-12,2022-08-14,2000,main,Roberto Jefferson,0.0,8.0
+2022-2-8d7b718e89,2022,2,AtlasIntel,2022-10-26,2022-10-29,7500,Jair Bolsonaro vs Lula,Jair Bolsonaro,45.7,1.9
+2022-2-8d7b718e89,2022,2,AtlasIntel,2022-10-26,2022-10-29,7500,Jair Bolsonaro vs Lula,Lula,52.4,1.9
+2022-2-137249edbc,2022,2,Brasmarket,2022-10-23,2022-10-27,2400,Jair Bolsonaro vs Lula,Jair Bolsonaro,48.2,9.1
+2022-2-137249edbc,2022,2,Brasmarket,2022-10-23,2022-10-27,2400,Jair Bolsonaro vs Lula,Lula,42.7,9.1
+2022-2-91ae9b1b6d,2022,2,Futura,2022-10-10,2022-10-12,2000,Jair Bolsonaro vs Lula,Jair Bolsonaro,46.5,6.6
+2022-2-91ae9b1b6d,2022,2,Futura,2022-10-10,2022-10-12,2000,Jair Bolsonaro vs Lula,Lula,46.9,6.6
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Lula,42.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Flávio Bolsonaro,37.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Augusto Cury,5.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Renan Santos,4.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Ronaldo Caiado,5.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Romeu Zema,1.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Samara Martins,1.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Leonardo Avalanche,0.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Wilson Grassi,0.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Clariana Barão,0.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Hertz Dias,0.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Edmilson Costa,0.0,5.0
+2026-1-40855b367a,2026,1,Nexus,2026-09-25,2026-09-27,2000,main,Rui Costa Pimenta,0.0,5.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Lula,39.0,9.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Flávio Bolsonaro,36.0,9.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Augusto Cury,6.0,9.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Renan Santos,3.0,9.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Ronaldo Caiado,4.0,9.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Romeu Zema,2.0,9.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Samara Martins,1.0,9.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Wilson Grassi,0.0,9.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Clariana Barão,0.0,9.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Hertz Dias,0.0,9.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Edmilson Costa,0.0,9.0
+2026-1-4dfdd759f8,2026,1,Datafolha,2026-09-15,2026-09-16,2002,main,Rui Costa Pimenta,1.0,9.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Lula,36.0,17.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Flávio Bolsonaro,31.0,17.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Augusto Cury,7.0,17.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Renan Santos,4.0,17.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Ronaldo Caiado,4.0,17.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Romeu Zema,1.0,17.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Samara Martins,0.0,17.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Wilson Grassi,0.0,17.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Clariana Barão,0.0,17.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Hertz Dias,0.0,17.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Edmilson Costa,0.0,17.0
+2026-1-235486b0b9,2026,1,Quaest,2026-09-10,2026-09-13,2004,main,Rui Costa Pimenta,0.0,17.0
+2026-1-de343fc6e2,2026,1,Veritá,2026-09-04,2026-09-12,40500,main,Lula,41.5,
+2026-1-de343fc6e2,2026,1,Veritá,2026-09-04,2026-09-12,40500,main,Flávio Bolsonaro,43.9,
+2026-1-de343fc6e2,2026,1,Veritá,2026-09-04,2026-09-12,40500,main,__others__,14.5,
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Lula,38.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Flávio Bolsonaro,36.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Augusto Cury,10.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Renan Santos,3.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Ronaldo Caiado,2.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Romeu Zema,1.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Samara Martins,0.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Wilson Grassi,0.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Clariana Barão,0.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Hertz Dias,1.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Edmilson Costa,1.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Rui Costa Pimenta,1.0,4.0
+2026-1-d10f3a0f3c,2026,1,PoderData,2026-09-06,2026-09-09,3000,main,Pablo Marçal,2.0,4.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Lula,37.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Flávio Bolsonaro,34.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Augusto Cury,10.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Renan Santos,3.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Ronaldo Caiado,2.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Romeu Zema,1.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Samara Martins,1.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Wilson Grassi,0.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Clariana Barão,1.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Hertz Dias,2.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Edmilson Costa,1.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Rui Costa Pimenta,1.0,7.0
+2026-1-fb0ad4acc8,2026,1,PoderData,2026-08-30,2026-09-02,3000,main,Pablo Marçal,2.0,7.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Lula,41.0,8.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Flávio Bolsonaro,37.0,8.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Ronaldo Caiado,5.0,8.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Romeu Zema,3.0,8.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Renan Santos,3.0,8.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Augusto Cury,2.0,8.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Samara Martins,1.0,8.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Wilson Grassi,0.0,8.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Clariana Barão,0.0,8.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Hertz Dias,0.0,8.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Edmilson Costa,0.0,8.0
+2026-1-7a0844b9da,2026,1,Nexus,2026-08-21,2026-08-23,2006,without Pablo Marçal,Rui Costa Pimenta,0.0,8.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Lula,39.0,10.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Flávio Bolsonaro,33.0,10.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Ronaldo Caiado,5.0,10.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Romeu Zema,3.0,10.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Renan Santos,4.0,10.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Augusto Cury,2.0,10.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Samara Martins,1.0,10.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Wilson Grassi,1.0,10.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Clariana Barão,0.0,10.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Hertz Dias,0.0,10.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Edmilson Costa,1.0,10.0
+2026-1-f25b09cd46,2026,1,Datafolha,2026-08-18,2026-08-20,2058,without Pablo Marçal,Rui Costa Pimenta,1.0,10.0
