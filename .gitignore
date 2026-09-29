@@ -16,3 +16,6 @@ data/cache/
 *.nc
 data/cache_fitlog.txt
 data/*.log
+scripts/_finish_backtest.py
+data/_finish.sh
+data/finish_log.txt

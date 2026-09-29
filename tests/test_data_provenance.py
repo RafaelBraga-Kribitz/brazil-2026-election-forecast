@@ -40,3 +40,18 @@ def test_results_have_provenance_and_consistent_totals():
     tot = r.groupby(["election", "round"]).agg(v=("votes", "sum"), t=("total_valid_votes", "first"))
     assert (tot["v"] == tot["t"]).all()
     assert set(tot.index) == {(e, k) for e in ("2014", "2018", "2022") for k in (1, 2)}
+
+
+def test_corrections_apply_only_to_logged_fields():
+    from brfc.data import apply_corrections, load_polls
+
+    raw = pd.concat(pd.read_csv(p, dtype={"election": str}) for p in POLL_FILES if "2026" in p.name)
+    fixed = load_polls(("2026",))
+    c = pd.read_csv(ROOT / "data" / "manual" / "corrections.csv", dtype=str)
+    for x in c.itertuples():
+        if not (raw["poll_id"] == x.poll_id).any():  # a later revision may already carry the corrected dates
+            continue
+        assert (raw.loc[raw["poll_id"] == x.poll_id, x.field].astype(str) == x.wikipedia_value).all()
+        assert (fixed.loc[fixed["poll_id"] == x.poll_id, x.field].astype(str) == x.corrected_value).all()
+        assert (fixed.loc[fixed["poll_id"] == x.poll_id, "verification_status"] == "corrected").all()
+    assert apply_corrections(fixed).equals(fixed)

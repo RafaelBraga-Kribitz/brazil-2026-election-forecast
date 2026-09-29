@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import zlib
 from dataclasses import dataclass
+from datetime import timedelta
 from pathlib import Path
 
 import numpy as np
@@ -42,9 +43,15 @@ def information_set(
     *,
     dependence_rule: bool = True,
     min_polls_per_pollster: int = 1,
+    allocation: str = "proportional",
+    final_days: int | None = None,
 ):
-    valid = prepare(polls, election, round_)
+    valid = prepare(polls, election, round_, allocation)
     cutoff = cutoff_for(election, round_, horizon)
+    if final_days:  # sensitivity: only polls with fieldwork ending in the final `final_days` days before cutoff
+        from datetime import timedelta
+
+        valid = valid[pd.to_datetime(valid["field_end"]).dt.date > cutoff - timedelta(days=final_days)]
     named = [config.RUNOFF_PAIRS[election][0]] if round_ == 2 else None
     if min_polls_per_pollster > 1:
         from brfc.transform import available_at
@@ -76,13 +83,22 @@ def fit_one(
     force: bool = False,
     cache: Path = CACHE,
     start_attempt: int = 0,
+    allocation: str = "proportional",
+    final_days: int | None = None,
 ) -> CachedFit | None:
     key = fit_key(election, round_, horizon, variant, tag)
     cache.mkdir(parents=True, exist_ok=True)
     if not force and (cache / f"{key}.json").exists():
         return load_fit(key, cache)
     wide, named, dropped, kept, cutoff = information_set(
-        polls, election, round_, horizon, dependence_rule=dependence_rule, min_polls_per_pollster=min_polls_per_pollster
+        polls,
+        election,
+        round_,
+        horizon,
+        dependence_rule=dependence_rule,
+        min_polls_per_pollster=min_polls_per_pollster,
+        allocation=allocation,
+        final_days=final_days,
     )
     series = named + ([config.OTHERS_LABEL] if len(named) > 1 else [])
     n_polls = int(wide["poll_id"].nunique())
@@ -102,6 +118,12 @@ def fit_one(
         "max_field_end": str(wide["field_end"].max()) if n_polls else None,
         "poll_ids": sorted(wide["poll_id"].tolist()),
         "priors": priors or {},
+        "options": {
+            "dependence_rule": dependence_rule,
+            "min_polls_per_pollster": min_polls_per_pollster,
+            "allocation": allocation,
+            "final_days": final_days,
+        },
         "status": "ok",
     }
     if n_polls < config.MIN_POLLS_PER_FIT:
@@ -109,7 +131,9 @@ def fit_one(
         (cache / f"{key}.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
         return None
     kw = {
-        "window_start": window_start(election, round_),
+        "window_start": window_start(election, round_)
+        if not final_days
+        else max(window_start(election, round_), cutoff - timedelta(days=final_days - 1)),
         "election_day": config.ELECTION_DATES[(election, round_)],
         "cutoff": cutoff,
         "two_regime": VARIANTS[variant],

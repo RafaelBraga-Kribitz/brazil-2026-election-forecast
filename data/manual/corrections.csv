@@ -1,0 +1,3 @@
+poll_id,field,wikipedia_value,corrected_value,source_url,source_type,retrieved_utc,reason
+2026-1-de343fc6e2,field_start,2026-09-04,2026-09-06,https://folhadepatrocinio.com/noticias/pesquisa-verita-primeiro-turno/,media_report,2026-09-29T15:54Z,spot-check: the report whose shares match the parsed row gives fieldwork 6-11 Sep (precedence release > Wikipedia)
+2026-1-de343fc6e2,field_end,2026-09-12,2026-09-11,https://folhadepatrocinio.com/noticias/pesquisa-verita-primeiro-turno/,media_report,2026-09-29T15:54Z,spot-check: see field_start

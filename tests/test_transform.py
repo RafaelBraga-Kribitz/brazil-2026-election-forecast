@@ -118,3 +118,14 @@ def test_simplex_projection_valid_shares():
     r2 = election_day.apply(rng.normal(52, 2, size=(1000, 1)), ["A"], {}, None, 2)
     np.testing.assert_allclose(r2.sum(axis=1), 100.0)
     assert ((r2 >= 0) & (r2 <= 100)).all()
+
+
+def test_leader_weighted_allocation_sums_to_100_and_favours_leaders():
+    d = pd.DataFrame(
+        poll_rows("2022", 1, "P", "2022-09-01", "2022-09-02", 2000, {"A": 45, "B": 33, "C": 7}, blank_null=15)
+    )
+    prop = transform.to_valid_votes(d).set_index("candidate")["valid_vote_share"]
+    lead = transform.to_valid_votes(d, "leader_weighted").set_index("candidate")["valid_vote_share"]
+    assert abs(lead.sum() - 100) < 1e-9
+    assert lead["A"] > prop["A"] and lead["C"] < prop["C"]
+    assert list(lead.sort_values().index) == list(prop.sort_values().index)

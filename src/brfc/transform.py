@@ -20,7 +20,7 @@ def normalise_names(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def to_valid_votes(df: pd.DataFrame) -> pd.DataFrame:
+def to_valid_votes(df: pd.DataFrame, allocation: str = "proportional") -> pd.DataFrame:
     """Valid-vote share = candidate share / sum of all candidate shares in the same poll-scenario.
 
     Modelling assumption (not an observed fact): undecided respondents are allocated proportionally to the
@@ -29,8 +29,18 @@ def to_valid_votes(df: pd.DataFrame) -> pd.DataFrame:
     Rows already on a valid basis are rescaled to sum to exactly 100 (removes rounding drift only).
     """
     out = df.copy()
-    denom = out.groupby(["poll_id", "scenario"])["share_reported"].transform("sum")
-    out["valid_vote_share"] = np.where(denom > 0, 100.0 * out["share_reported"] / denom, np.nan)
+    g = out.groupby(["poll_id", "scenario"])["share_reported"]
+    denom = g.transform("sum")
+    if allocation == "proportional":
+        out["valid_vote_share"] = np.where(denom > 0, 100.0 * out["share_reported"] / denom, np.nan)
+    elif allocation == "leader_weighted":  # sensitivity (PREREG s.10): non-candidate pool allocated ~ share^2
+        pool = np.clip(100.0 - denom, 0.0, None)
+        sq = out["share_reported"] ** 2
+        w = sq / sq.groupby([out["poll_id"], out["scenario"]]).transform("sum")
+        raw = out["share_reported"] + pool * w
+        out["valid_vote_share"] = 100.0 * raw / raw.groupby([out["poll_id"], out["scenario"]]).transform("sum")
+    else:
+        raise ValueError(allocation)
     return out
 
 
@@ -165,7 +175,7 @@ def series_table(df_valid: pd.DataFrame, named: list[str]) -> pd.DataFrame:
     return out.sort_values(["field_end", "pollster", "poll_id"]).reset_index(drop=True)
 
 
-def prepare(df_all: pd.DataFrame, election: str, round_: int) -> pd.DataFrame:
+def prepare(df_all: pd.DataFrame, election: str, round_: int, allocation: str = "proportional") -> pd.DataFrame:
     """Deterministic path from canonical parser rows to valid-vote rows for one round (whole window).
 
     Information-time filtering and the dependence rule are applied later, per forecast cutoff
@@ -177,7 +187,7 @@ def prepare(df_all: pd.DataFrame, election: str, round_: int) -> pd.DataFrame:
     hi = config.ELECTION_DATES[(election, round_)] - timedelta(days=1)
     fe = pd.to_datetime(d["field_end"]).dt.date
     d = d[(fe >= lo) & (fe <= hi)]
-    return to_valid_votes(d).reset_index(drop=True)
+    return to_valid_votes(d, allocation).reset_index(drop=True)
 
 
 def polls_for_forecast(valid_rows: pd.DataFrame, cutoff: date, named: list[str] | None = None):

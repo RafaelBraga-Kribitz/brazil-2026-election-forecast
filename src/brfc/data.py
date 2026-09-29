@@ -31,6 +31,25 @@ def load_polls(elections: tuple[str, ...] = ("2014", "2018", "2022")) -> pd.Data
     d = d.dropna(subset=["sample_size", "share_reported", "field_end"])
     d["pollster"] = d["pollster"].map(canonical_pollster)
     d["candidate"] = d["candidate"].map(canonical_candidate)
+    return apply_corrections(d)
+
+
+CORRECTIONS_FILE = config.DATA / "manual" / "corrections.csv"
+
+
+def apply_corrections(d: pd.DataFrame) -> pd.DataFrame:
+    """Apply logged field corrections from verification against releases (precedence: release > Wikipedia).
+
+    Parsed source tables stay untouched; corrected rows are marked `verification_status = corrected`."""
+    if not CORRECTIONS_FILE.exists():
+        return d
+    c = pd.read_csv(CORRECTIONS_FILE, dtype=str)
+    d = d.copy()
+    for x in c.itertuples():
+        m = (d["poll_id"] == x.poll_id) & (d[x.field].astype(str) == x.wikipedia_value)
+        d.loc[m, x.field] = x.corrected_value
+        d.loc[m, "verification_status"] = "corrected"
+        d.loc[m, "verification_source"] = x.source_url
     return d
 
 
