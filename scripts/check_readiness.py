@@ -66,7 +66,7 @@ def main() -> int:
         mism = rec[(rec["difference"].fillna(1) != 0)]
         report["reconciliation"][f.name] = {"sha256": sha256_file(f), "rows": len(rec), "mismatches": len(mism)}
     pes = (
-        sorted((config.DATA / "raw" / "tse").glob("pesquisas_eleitorais_2026*"))
+        sorted((config.DATA / "raw" / "tse").glob("pesquisa*_eleitora*_2026*"))
         if (config.DATA / "raw" / "tse").exists()
         else []
     )

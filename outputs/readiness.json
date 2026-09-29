@@ -1,5 +1,5 @@
 {
- "checked_utc": "2026-09-29T15:34:19Z",
+ "checked_utc": "2026-09-29T17:00:40Z",
  "required": {
   "polls_wiki_2014.csv": "OK",
   "polls_wiki_2018.csv": "OK",
@@ -9,12 +9,29 @@
   "ballot_2026.csv": "OK"
  },
  "reconciliation": {
-  "votacao_candidato_munzona_2014.zip": "PENDING manual download",
-  "votacao_candidato_munzona_2018.zip": "PENDING manual download",
-  "votacao_candidato_munzona_2022.zip": "PENDING manual download"
+  "votacao_candidato_munzona_2014.zip": {
+   "sha256": "f41bceb427820c068b2b14b87befa69d8c333638644eea0e8337534f9b349fd3",
+   "rows": 13,
+   "mismatches": 0
+  },
+  "votacao_candidato_munzona_2018.zip": {
+   "sha256": "f880848ef4ba340b15cb91ff0754aa370d34ca7b7e605d6607c0f2a75009adc8",
+   "rows": 15,
+   "mismatches": 0
+  },
+  "votacao_candidato_munzona_2022.zip": {
+   "sha256": "19b9b2efe8035a537c02c49d080bffeb9156755707bcf5d8c4fd42197cb08b6a",
+   "rows": 13,
+   "mismatches": 0
+  }
  },
  "optional": {
-  "pesqele_2026": "not provided"
+  "pesqele_2026": [
+   {
+    "file": "pesquisa_eleitoral_2026.zip",
+    "sha256": "fba5daad670cd214b7e774efab31315e80c58737a92f626fce55f391a720f6bd"
+   }
+  ]
  },
  "ready": true
 }

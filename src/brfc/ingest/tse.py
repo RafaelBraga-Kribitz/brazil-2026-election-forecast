@@ -74,6 +74,9 @@ def reconcile(election: str, secondary: pd.DataFrame) -> pd.DataFrame:
         t = tse[tse["NR_TURNO"].astype(int) == rnd]
         for c in sec.itertuples():
             match = t[t["NM_URNA_CANDIDATO"].map(lambda n, c=c: bool(_norm(n) & _norm(c.candidate)))]
+            if len(match) > 1:  # ambiguous first names (e.g. "Maria", "Joao"): prefer the ballot name with the surname
+                surname = sorted(_norm(c.candidate.split()[-1]))
+                match = match[match["NM_URNA_CANDIDATO"].map(lambda n, s=surname: bool(set(s) & _norm(n)))]
             tv = int(match["votes"].sum()) if len(match) == 1 else None
             rows.append(
                 {
