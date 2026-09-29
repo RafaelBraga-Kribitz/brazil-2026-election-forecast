@@ -1,0 +1,96 @@
+{
+  "output": "C:\\Users\\Benutzer1\\Dev\\brazil_presidential_election_prediction_2026\\docs\\assets\\hero.png",
+  "width": 1600,
+  "height": 640,
+  "mode": "light",
+  "fonts": "Söhne from C:\\Users\\Benutzer1\\Dev\\braga-design-system-template\\system\\assets\\fonts",
+  "title_size": 104,
+  "descriptor_size": 36,
+  "attempts": 7,
+  "blocks": {
+    "kind": {
+      "bbox": [
+        72,
+        72,
+        488,
+        104
+      ],
+      "lines": [
+        "BRAGA · ANALYTICAL PROJECT"
+      ],
+      "font": "SohneMono-Buch.otf"
+    },
+    "status": {
+      "bbox": [
+        1304,
+        72,
+        1528,
+        104
+      ],
+      "lines": [
+        "IN DEVELOPMENT"
+      ],
+      "font": "SohneMono-Buch.otf"
+    },
+    "facts": {
+      "bbox": [
+        72,
+        542,
+        953,
+        570
+      ],
+      "lines": [
+        "LICENSE  MIT  ·  RUNTIME  Python >=3.12,<3.13  ·  CI  GitHub Actions"
+      ],
+      "font": "SohneMono-Buch.otf"
+    },
+    "title": {
+      "bbox": [
+        72,
+        136,
+        1500,
+        242
+      ],
+      "lines": [
+        "Brazil 2026 Election Forecast"
+      ],
+      "font": "Sohne-Fett.otf"
+    },
+    "tagline": {
+      "bbox": [
+        72,
+        262,
+        612,
+        295
+      ],
+      "lines": [
+        "PRE-REGISTER. BACKTEST. SCORE."
+      ],
+      "font": "SohneMono-Buch.otf"
+    },
+    "descriptor": {
+      "bbox": [
+        72,
+        327,
+        1128,
+        471
+      ],
+      "lines": [
+        "Pre-registered Bayesian aggregation of public polls, validated",
+        "leave-one-election-out on 2014-2022 and scored against the 2026",
+        "result."
+      ],
+      "font": "Sohne-Buch.otf"
+    }
+  },
+  "guardrails": [
+    "safe-area",
+    "wrap-and-shrink",
+    "line-length",
+    "no-overlap",
+    "glyph-coverage-per-char",
+    "contrast>=4.5",
+    "pixel-scan"
+  ],
+  "validated": true
+}
