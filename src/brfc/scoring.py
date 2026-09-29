@@ -12,8 +12,13 @@ def _event_prob(count: int, n: int) -> float:
     return (count + 0.5) / (n + 1.0)
 
 
-def score(draws: np.ndarray | None, point: dict[str, float] | None, categories: list[str], actual: dict[str, float],
-          round_: int) -> dict:
+def score(
+    draws: np.ndarray | None,
+    point: dict[str, float] | None,
+    categories: list[str],
+    actual: dict[str, float],
+    round_: int,
+) -> dict:
     """Score one forecast. Pass `draws` (N, K) for probabilistic forecasts, or `point` for point-only baselines.
 
     Returns share MAE (pp, over all categories incl. Others), signed/absolute top-two margin error (pp, top two
@@ -31,7 +36,7 @@ def score(draws: np.ndarray | None, point: dict[str, float] | None, categories: 
         for lvl in config.INTERVALS:
             lo = np.quantile(draws, (1 - lvl) / 2, axis=0)
             hi = np.quantile(draws, 1 - (1 - lvl) / 2, axis=0)
-            tag = int(round(lvl * 100))
+            tag = round(lvl * 100)
             out[f"coverage_{tag}"] = float(np.mean((y >= lo) & (y <= hi)))
             out[f"width_{tag}_mean"] = float(np.mean(hi - lo))
         pred_margin = float(np.mean(draws[:, i1] - draws[:, i2]))
@@ -61,15 +66,16 @@ def score(draws: np.ndarray | None, point: dict[str, float] | None, categories: 
     return out
 
 
-def category_rows(draws: np.ndarray | None, point: dict[str, float] | None, categories: list[str],
-                  actual: dict[str, float]) -> list[dict]:
+def category_rows(
+    draws: np.ndarray | None, point: dict[str, float] | None, categories: list[str], actual: dict[str, float]
+) -> list[dict]:
     rows = []
     for k, c in enumerate(categories):
         r = {"category": c, "actual": actual[c]}
         if draws is not None:
             r["mean"] = float(draws[:, k].mean())
             for lvl in config.INTERVALS:
-                tag = int(round(lvl * 100))
+                tag = round(lvl * 100)
                 r[f"lo{tag}"] = float(np.quantile(draws[:, k], (1 - lvl) / 2))
                 r[f"hi{tag}"] = float(np.quantile(draws[:, k], 1 - (1 - lvl) / 2))
                 r[f"in{tag}"] = bool(r[f"lo{tag}"] <= actual[c] <= r[f"hi{tag}"])

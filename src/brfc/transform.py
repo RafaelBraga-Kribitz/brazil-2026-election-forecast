@@ -37,7 +37,8 @@ def to_valid_votes(df: pd.DataFrame) -> pd.DataFrame:
 def select_scenarios(df: pd.DataFrame, election: str, round_: int) -> pd.DataFrame:
     """Keep one scenario per poll: the one matching the registered ballot (round 1) or the actual runoff pair.
 
-    Round 1: drop scenarios that include a material (>= 3%) candidate not on the registered ballot; among the rest prefer
+    Round 1: drop scenarios that include a material (>= 3%) candidate not on the registered ballot; among the rest
+    prefer
     total-basis tables (so one conversion rule applies to all rows), then fewest off-ballot names, then the
     scenario with most ballot candidates,
     then the lexicographically first label (deterministic tie-break).
@@ -63,8 +64,9 @@ def select_scenarios(df: pd.DataFrame, election: str, round_: int) -> pd.DataFra
         cand = cand[~cand["off"].astype(bool)].reset_index()
         cand["basis_rank"] = (cand["basis"] != "total").astype(int)
         # PREREG_ADDENDUM_01: fewest off-ballot names first (e.g. prefer "without X" when X's candidacy was revoked)
-        cand = cand.sort_values(["poll_id", "basis_rank", "n_off", "n", "scenario"],
-                                ascending=[True, True, True, False, True])
+        cand = cand.sort_values(
+            ["poll_id", "basis_rank", "n_off", "n", "scenario"], ascending=[True, True, True, False, True]
+        )
         keep = cand.drop_duplicates("poll_id")[["poll_id", "scenario"]]
     else:
         pair = set(config.RUNOFF_PAIRS[election]) if election in config.RUNOFF_PAIRS else None
@@ -75,7 +77,9 @@ def select_scenarios(df: pd.DataFrame, election: str, round_: int) -> pd.DataFra
         cand = pd.DataFrame({"set": sets, "basis": basis}).reset_index()
         cand = cand[cand["set"] == frozenset(pair)]
         cand["basis_rank"] = (cand["basis"] != "total").astype(int)
-        keep = cand.sort_values(["poll_id", "basis_rank", "scenario"]).drop_duplicates("poll_id")[["poll_id", "scenario"]]
+        keep = cand.sort_values(["poll_id", "basis_rank", "scenario"]).drop_duplicates("poll_id")[
+            ["poll_id", "scenario"]
+        ]
     return d.merge(keep, on=["poll_id", "scenario"], how="inner")
 
 

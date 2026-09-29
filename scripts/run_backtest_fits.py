@@ -14,13 +14,24 @@ from brfc import config
 
 
 def _job(args):
-    e, r, h, variant, force, tag, priors, dep, minp, start = (*args, 0)[:10] if len(args) == 9 else args
+    e, r, h, variant, force, tag, priors, dep, minp, start = args
     from brfc.data import load_polls
     from brfc.pipeline import fit_one
 
     t = time.time()
-    f = fit_one(load_polls(config.HISTORICAL), e, r, h, variant, force=force, tag=tag, priors=priors,
-                dependence_rule=dep, min_polls_per_pollster=minp, start_attempt=start)
+    f = fit_one(
+        load_polls(config.HISTORICAL),
+        e,
+        r,
+        h,
+        variant,
+        force=force,
+        tag=tag,
+        priors=priors,
+        dependence_rule=dep,
+        min_polls_per_pollster=minp,
+        start_attempt=start,
+    )
     status = "skipped" if f is None else f"{f.meta['n_polls']} polls, {f.meta.get('diagnostics')}"
     return f"{e} r{r} h{h:02d} {variant} {tag}: {status} [{time.time() - t:.0f}s]"
 
@@ -31,8 +42,20 @@ def jobs(variants, elections, horizons_r1=config.HORIZONS_R1, horizons_r2=config
         for e in elections:
             for r, hs in ((1, horizons_r1), (2, horizons_r2)):
                 for h in sorted(hs):
-                    out.append((e, r, h, variant, kw.get("force", False), kw.get("tag", ""), kw.get("priors"),
-                                kw.get("dependence_rule", True), kw.get("min_polls_per_pollster", 1)))
+                    out.append(
+                        (
+                            e,
+                            r,
+                            h,
+                            variant,
+                            kw.get("force", False),
+                            kw.get("tag", ""),
+                            kw.get("priors"),
+                            kw.get("dependence_rule", True),
+                            kw.get("min_polls_per_pollster", 1),
+                            0,
+                        )
+                    )
     return out
 
 

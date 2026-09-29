@@ -39,8 +39,15 @@ def summarise_draws(draws: np.ndarray, cats: list[str]) -> pd.DataFrame:
     rows = []
     for k, c in enumerate(cats):
         x = draws[:, k]
-        r = {"category": c, "mean": x.mean(), "median": np.median(x), "q03": np.quantile(x, 0.03),
-             "q10": np.quantile(x, 0.10), "q90": np.quantile(x, 0.90), "q97": np.quantile(x, 0.97)}
+        r = {
+            "category": c,
+            "mean": x.mean(),
+            "median": np.median(x),
+            "q03": np.quantile(x, 0.03),
+            "q10": np.quantile(x, 0.10),
+            "q90": np.quantile(x, 0.90),
+            "q97": np.quantile(x, 0.97),
+        }
         if c in named:
             j = named.index(c)
             r["p_first"] = float(np.mean(first == c))
@@ -50,8 +57,16 @@ def summarise_draws(draws: np.ndarray, cats: list[str]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def run(polls_2026: pd.DataFrame, results_hist: pd.DataFrame, cutoff: date, *, variant: str, tag: str,
-        error_prior: dict | None = None, rw_priors: dict | None = None) -> dict:
+def run(
+    polls_2026: pd.DataFrame,
+    results_hist: pd.DataFrame,
+    cutoff: date,
+    *,
+    variant: str,
+    tag: str,
+    error_prior: dict | None = None,
+    rw_priors: dict | None = None,
+) -> dict:
     """Returns a dict of DataFrames/values; caller writes the artefacts."""
     if set(results_hist["election"]) - set(config.HISTORICAL):
         raise ValueError("only historical results may be passed to the 2026 forecast")
@@ -67,11 +82,21 @@ def run(polls_2026: pd.DataFrame, results_hist: pd.DataFrame, cutoff: date, *, v
     hist = historical_fits(variant)
     devs = eve_deviations({(e, r): f for (e, r, hh), f in hist.items() if hh == 1}, results_hist)
     train = election_day.loeo_training_set(devs, ELECTION, 1)
-    out = {"fit": fit, "categories": cats, "roles": roles, "horizon": h, "cutoff": cutoff, "variant": variant,
-           "train_elections": sorted(train["election"].unique().tolist()), "draws": {"E0": latent}, "error_models": {}}
+    out = {
+        "fit": fit,
+        "categories": cats,
+        "roles": roles,
+        "horizon": h,
+        "cutoff": cutoff,
+        "variant": variant,
+        "train_elections": sorted(train["election"].unique().tolist()),
+        "draws": {"E0": latent},
+        "error_models": {},
+    }
     for v in ("E", "F"):
-        post = election_day.fit_error_model(train, v, ["rank1", "rank2", "rest"], seed=20261004 + (v == "F"),
-                                            prior=error_prior)
+        post = election_day.fit_error_model(
+            train, v, ["rank1", "rank2", "rest"], seed=20261004 + (v == "F"), prior=error_prior
+        )
         out["error_models"][v] = post.summary()
         out["draws"][v] = election_day.apply(fit.draws, fit.meta["series"], roles, post, 1, seed=20261004)
     out["summaries"] = {m: summarise_draws(d, cats) for m, d in out["draws"].items()}
@@ -82,8 +107,13 @@ def run(polls_2026: pd.DataFrame, results_hist: pd.DataFrame, cutoff: date, *, v
     for b in POINT_BASELINES:
         p = baseline_point(b, fit, ELECTION, cutoff)
         rmse = baselines.loeo_rmse(berr, b, ELECTION, 1, hh)
-        row = {"baseline": b, "cutoff": str(cutoff), "error_horizon_used": hh, "loeo_rmse": rmse,
-               "status": "N/A: no qualifying poll in the 14 days to cutoff" if p is None else "ok"}
+        row = {
+            "baseline": b,
+            "cutoff": str(cutoff),
+            "error_horizon_used": hh,
+            "loeo_rmse": rmse,
+            "status": "N/A: no qualifying poll in the 14 days to cutoff" if p is None else "ok",
+        }
         if p is not None:
             row |= {f"point_{c}": p[c] for c in cats}
             if rmse is not None:

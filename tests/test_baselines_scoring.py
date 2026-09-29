@@ -21,10 +21,18 @@ def _kept(rows):
 def test_latest_per_pollster_weights_pollsters_equally():
     rows = []
     for k in range(5):  # a frequent publisher
-        rows += poll_rows("2022", 1, "Freq", f"2022-09-{20 + k:02d}", f"2022-09-{20 + k:02d}", 1000,
-                          {"Lula": 50, "Jair Bolsonaro": 40, "Ciro Gomes": 10})
-    rows += poll_rows("2022", 1, "Rare", "2022-09-25", "2022-09-25", 1000,
-                      {"Lula": 40, "Jair Bolsonaro": 50, "Ciro Gomes": 10})
+        rows += poll_rows(
+            "2022",
+            1,
+            "Freq",
+            f"2022-09-{20 + k:02d}",
+            f"2022-09-{20 + k:02d}",
+            1000,
+            {"Lula": 50, "Jair Bolsonaro": 40, "Ciro Gomes": 10},
+        )
+    rows += poll_rows(
+        "2022", 1, "Rare", "2022-09-25", "2022-09-25", 1000, {"Lula": 40, "Jair Bolsonaro": 50, "Ciro Gomes": 10}
+    )
     p = baselines.latest_per_pollster(_kept(rows), ["Lula", "Jair Bolsonaro", "Ciro Gomes"], date(2022, 9, 30), 1)
     assert p["_n_pollsters"] == 2
     assert p["Lula"] == pytest.approx(45.0) and p["Jair Bolsonaro"] == pytest.approx(45.0)

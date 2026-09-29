@@ -11,31 +11,52 @@ import json
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.dates as mdates  # noqa: E402
-import matplotlib.pyplot as plt  # noqa: E402
-import numpy as np  # noqa: E402
-import pandas as pd  # noqa: E402
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
-from brfc import config  # noqa: E402
+from brfc import config
 
 SURFACE, INK, INK2, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3de"
 PALETTE = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"]
 GREY = "#8c8b86"
 MODEL_COLORS = {"F": "#2a78d6", "E": "#eb6834", "E0": "#1baf7a", "B": "#52514e", "C": "#4a3aa7", "D": "#e87ba4"}
-MODEL_SHORT = {"F": "F: RW + election-day term", "E": "E: RW, zero-mean day error", "E0": "E0: RW latent only",
-               "B": "B: 14-day latest per pollster", "C": "C: final Datafolha", "D": "D: final AtlasIntel"}
+MODEL_SHORT = {
+    "F": "F: RW + election-day term",
+    "E": "E: RW, zero-mean day error",
+    "E0": "E0: RW latent only",
+    "B": "B: 14-day latest per pollster",
+    "C": "C: final Datafolha",
+    "D": "D: final AtlasIntel",
+}
 SOURCE = "Source: Wikipedia poll tables (pinned revisions); official results via TSE-citing secondary sources."
 
 
 def _style() -> None:
-    plt.rcParams.update({
-        "figure.facecolor": SURFACE, "axes.facecolor": SURFACE, "savefig.facecolor": SURFACE,
-        "axes.edgecolor": GRID, "axes.labelcolor": INK2, "xtick.color": INK2, "ytick.color": INK2,
-        "text.color": INK, "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.8,
-        "axes.spines.top": False, "axes.spines.right": False, "font.size": 10, "axes.titlesize": 12,
-        "axes.titleweight": "bold", "axes.titlelocation": "left", "legend.frameon": False,
-        "lines.linewidth": 1.8,
-    })
+    plt.rcParams.update(
+        {
+            "figure.facecolor": SURFACE,
+            "axes.facecolor": SURFACE,
+            "savefig.facecolor": SURFACE,
+            "axes.edgecolor": GRID,
+            "axes.labelcolor": INK2,
+            "xtick.color": INK2,
+            "ytick.color": INK2,
+            "text.color": INK,
+            "axes.grid": True,
+            "grid.color": GRID,
+            "grid.linewidth": 0.8,
+            "axes.spines.top": False,
+            "axes.spines.right": False,
+            "font.size": 10,
+            "axes.titlesize": 12,
+            "axes.titleweight": "bold",
+            "axes.titlelocation": "left",
+            "legend.frameon": False,
+            "lines.linewidth": 1.8,
+        }
+    )
 
 
 def candidate_colors(names: list[str]) -> dict[str, str]:
@@ -81,17 +102,31 @@ def posterior_forecast(out_dir=config.FIGURES) -> None:
         ax.plot([x, x], [f[c]["q03"], f[c]["q97"]], color=col[c], lw=1.2)
         ax.plot([x, x], [f[c]["q10"], f[c]["q90"]], color=col[c], lw=4, solid_capstyle="round")
         ax.scatter([x], [f[c]["median"]], s=36, color=SURFACE, edgecolor=col[c], zorder=5, lw=1.6)
-        ax.annotate(f"{c}  {f[c]['median']:.1f}%", (eday + pd.Timedelta(days=1.2), f[c]["median"]),
-                    va="center", fontsize=9, color=INK, annotation_clip=False)
+        ax.annotate(
+            f"{c}  {f[c]['median']:.1f}%",
+            (eday + pd.Timedelta(days=1.2), f[c]["median"]),
+            va="center",
+            fontsize=9,
+            color=INK,
+            annotation_clip=False,
+        )
     ax.axvline(cutoff, color=INK2, lw=0.8, ls=":")
     ax.text(cutoff, ax.get_ylim()[1], " information cutoff", fontsize=8, color=INK2, va="top")
     ax.set_xlim(path["date"].min(), eday + pd.Timedelta(days=1))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b"))
     ax.set_ylabel("Valid-vote share (%)")
     ax.set_title(f"2026 first round: poll aggregation and election-day forecast ({doc['status']})")
-    ax.text(0, 1.01, f"Lines: posterior median; bands: 80% and 94% intervals; dots: polls (valid-vote basis). "
-            f"Election-day markers: model F, 80% (thick) and 94% (thin). Cutoff {doc['information_cutoff_date']}, "
-            f"{doc['n_polls']} polls.", transform=ax.transAxes, fontsize=8, color=INK2, va="bottom")
+    ax.text(
+        0,
+        1.01,
+        f"Lines: posterior median; bands: 80% and 94% intervals; dots: polls (valid-vote basis). "
+        f"Election-day markers: model F, 80% (thick) and 94% (thin). Cutoff {doc['information_cutoff_date']}, "
+        f"{doc['n_polls']} polls.",
+        transform=ax.transAxes,
+        fontsize=8,
+        color=INK2,
+        va="bottom",
+    )
     _finish(fig, out_dir / "posterior_forecast.png")
 
 
@@ -118,9 +153,16 @@ def uncertainty_intervals(out_dir=config.FIGURES) -> None:
     ax.set_title(f"2026 first-round forecast by model ({doc['status']}, cutoff {doc['information_cutoff_date']})")
     handles = [plt.Line2D([], [], color=MODEL_COLORS[m], lw=4, label=MODEL_SHORT[m]) for m in models]
     ax.legend(handles=handles, loc="lower right", fontsize=8)
-    ax.text(0, 1.01, "80% (thick) and 94% (thin) equal-tailed intervals. B/C/D intervals are a calibrated "
-            "probabilistic conversion of point baselines (not published by them).", transform=ax.transAxes,
-            fontsize=8, color=INK2, va="bottom")
+    ax.text(
+        0,
+        1.01,
+        "80% (thick) and 94% (thin) equal-tailed intervals. B/C/D intervals are a calibrated "
+        "probabilistic conversion of point baselines (not published by them).",
+        transform=ax.transAxes,
+        fontsize=8,
+        color=INK2,
+        va="bottom",
+    )
     _finish(fig, out_dir / "uncertainty_intervals.png")
 
 
@@ -139,14 +181,26 @@ def historical_backtest(out_dir=config.FIGURES) -> None:
                 continue
             ax.plot(g["horizon"], g["mae"], marker="o", ms=5, color=MODEL_COLORS[m], label=MODEL_SHORT[m])
             last = g.iloc[-1]
-            ax.annotate(f"{m}", (last["horizon"], last["mae"]), xytext=(4, 0), textcoords="offset points",
-                        fontsize=8, va="center", color=INK)
+            ax.annotate(
+                f"{m}",
+                (last["horizon"], last["mae"]),
+                xytext=(4, 0),
+                textcoords="offset points",
+                fontsize=8,
+                va="center",
+                color=INK,
+            )
         ax.set_xscale("symlog", linthresh=2)
         ax.set_xticks([30, 14, 7, 1], ["T-30", "T-14", "T-7", "eve"])
         ax.invert_xaxis()
         n = d.groupby("horizon")["n_rounds"].max().to_dict()
         ax.set_title(f"{rt.capitalize()}")
-        ax.set_xlabel("Forecast horizon (rounds scored: " + ", ".join(f"{k}d={v}" for k, v in sorted(n.items(), reverse=True)) + ")", fontsize=8)
+        ax.set_xlabel(
+            "Forecast horizon (rounds scored: "
+            + ", ".join(f"{k}d={v}" for k, v in sorted(n.items(), reverse=True))
+            + ")",
+            fontsize=8,
+        )
     axes[0].set_ylabel("Mean absolute share error (pp)")
     axes[1].legend(fontsize=8, loc="upper right")
     fig.suptitle("Historical retrodiction 2014-2022, leave-one-election-out", x=0.01, ha="left", fontweight="bold")
@@ -171,10 +225,23 @@ def calibration(out_dir=config.FIGURES) -> None:
             mid = (p + z**2 / (2 * n)) / den
             half = z * np.sqrt(p * (1 - p) / n + z**2 / (4 * n**2)) / den
             ax.plot([i + off, i + off], [100 * (mid - half), 100 * (mid + half)], color=MODEL_COLORS[m], lw=1.2)
-            ax.scatter([i + off], [100 * p], s=40, color=MODEL_COLORS[m] if lvl == 94 else SURFACE,
-                       edgecolor=MODEL_COLORS[m], lw=1.5, zorder=5)
-            ax.annotate(f"{100 * p:.0f}%", (i + off, 100 * p), xytext=(5, 0), textcoords="offset points",
-                        fontsize=7.5, va="center")
+            ax.scatter(
+                [i + off],
+                [100 * p],
+                s=40,
+                color=MODEL_COLORS[m] if lvl == 94 else SURFACE,
+                edgecolor=MODEL_COLORS[m],
+                lw=1.5,
+                zorder=5,
+            )
+            ax.annotate(
+                f"{100 * p:.0f}%",
+                (i + off, 100 * p),
+                xytext=(5, 0),
+                textcoords="offset points",
+                fontsize=7.5,
+                va="center",
+            )
         ax.axhline(lvl, color=INK2, lw=0.8, ls=(0, (4, 3)))
         ax.text(len(models) - 0.5, lvl, f" nominal {lvl}%", fontsize=8, color=INK2, va="center")
     ax.set_xticks(range(len(models)), [MODEL_SHORT[m] for m in models], fontsize=8, rotation=12)
@@ -182,9 +249,16 @@ def calibration(out_dir=config.FIGURES) -> None:
     ax.set_ylim(0, 105)
     n_all = int((c["model"] == "F").sum())
     ax.set_title("Interval coverage in the historical retrodiction (open = 80%, filled = 94%)")
-    ax.text(0, 1.01, f"Pooled over rounds, horizons and candidates (n = {n_all} per model; outcomes within an election are "
-            "correlated, so the effective sample is smaller). Whiskers: Wilson 95%.", transform=ax.transAxes,
-            fontsize=8, color=INK2, va="bottom")
+    ax.text(
+        0,
+        1.01,
+        f"Pooled over rounds, horizons and candidates (n = {n_all} per model; outcomes within an election are "
+        "correlated, so the effective sample is smaller). Whiskers: Wilson 95%.",
+        transform=ax.transAxes,
+        fontsize=8,
+        color=INK2,
+        va="bottom",
+    )
     _finish(fig, out_dir / "calibration.png")
 
 
@@ -192,7 +266,8 @@ def house_effects(out_dir=config.FIGURES) -> None:
     """2026: estimated house effects (relative deviation from model consensus) for the top two candidates."""
     _style()
     doc = json.loads((config.OUTPUTS / "forecast_latest.json").read_text(encoding="utf-8"))
-    key = f"2026_r1_h{doc['horizon_days']:02d}_{doc['rw_variant']}_{doc['status'].lower()}_pt{doc['poll_source']['pt_oldid']}"
+    tag = f"{doc['status'].lower()}_pt{doc['poll_source']['pt_oldid']}"
+    key = f"2026_r1_h{doc['horizon_days']:02d}_{doc['rw_variant']}_{tag}"
     h = pd.read_csv(config.DATA / "cache" / "fits" / f"{key}.house.csv")
     f = sorted(doc["models"]["F"]["categories"], key=lambda r: -r["mean"])
     top = [r["category"] for r in f if r["category"] != config.OTHERS_LABEL][:2]
@@ -205,12 +280,21 @@ def house_effects(out_dir=config.FIGURES) -> None:
         ax.hlines(y, d["q03"], d["q97"], color=col[c], lw=1.4)
         ax.scatter(d["mean"], y, s=30, color=col[c], zorder=5, label=c)
     ax.axvline(0, color=INK2, lw=0.8)
-    ax.set_yticks(range(len(order)), [f"{p} (n={int(h[(h.pollster == p)]['n_polls'].iloc[0])})" for p in order],
-                  fontsize=8)
+    ax.set_yticks(
+        range(len(order)), [f"{p} (n={int(h[(h.pollster == p)]['n_polls'].iloc[0])})" for p in order], fontsize=8
+    )
     ax.set_xlabel("Estimated house effect: deviation from the model consensus (pp, valid votes)")
     ax.set_title("2026 estimated house effects, relative to the all-pollster consensus")
-    ax.text(0, 1.01, "Mean and 94% posterior interval. Effects sum to zero across pollsters by construction: they measure "
-            "relative deviation, not accuracy.", transform=ax.transAxes, fontsize=8, color=INK2, va="bottom")
+    ax.text(
+        0,
+        1.01,
+        "Mean and 94% posterior interval. Effects sum to zero across pollsters by construction: they measure "
+        "relative deviation, not accuracy.",
+        transform=ax.transAxes,
+        fontsize=8,
+        color=INK2,
+        va="bottom",
+    )
     ax.legend(fontsize=8, loc="lower right")
     _finish(fig, out_dir / "house_effects.png")
 
@@ -229,9 +313,17 @@ def election_day_deviation(out_dir=config.FIGURES) -> None:
         for i, role in enumerate(roles):
             for e, mk in marks.items():
                 x = g[(g["role"] == role) & (g["election"] == e)]
-                ax.scatter(x["deviation"], np.full(len(x), i) + {"2014": -0.15, "2018": 0, "2022": 0.15}[e],
-                           marker=mk, s=40, color=PALETTE[list(marks).index(e)], label=e if i == 0 else None,
-                           edgecolor=SURFACE, lw=0.8, zorder=5)
+                ax.scatter(
+                    x["deviation"],
+                    np.full(len(x), i) + {"2014": -0.15, "2018": 0, "2022": 0.15}[e],
+                    marker=mk,
+                    s=40,
+                    color=PALETTE[list(marks).index(e)],
+                    label=e if i == 0 else None,
+                    edgecolor=SURFACE,
+                    lw=0.8,
+                    zorder=5,
+                )
         ax.axvline(0, color=INK2, lw=0.8)
         role_label = {"rank1": "forecast #1", "rank2": "forecast #2", "rest": "all others"}
         ax.set_yticks(range(len(roles)), [role_label[x] for x in roles])
@@ -239,8 +331,12 @@ def election_day_deviation(out_dir=config.FIGURES) -> None:
         ax.set_title("First round" if r == 1 else "Runoff")
         ax.set_xlabel("Observed minus eve forecast (pp)")
     axes[0].legend(fontsize=8, loc="lower right", title="election", title_fontsize=8)
-    fig.suptitle("Election-day deviation of the eve forecast, by forecast rank (not by candidate)", x=0.01,
-                 ha="left", fontweight="bold")
+    fig.suptitle(
+        "Election-day deviation of the eve forecast, by forecast rank (not by candidate)",
+        x=0.01,
+        ha="left",
+        fontweight="bold",
+    )
     _finish(fig, out_dir / "election_day_deviation.png")
 
 

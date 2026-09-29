@@ -47,18 +47,38 @@ def main() -> None:
                     status = "release_has_valid_only"
                 else:
                     status = "verified_match" if abs(wv - x.total_share_pct) <= 0.5 else "verified_conflict"
-            rows.append({"election": e, "round": r, "pollster": p, "release_field_end": x.field_end, "poll_id": pid,
-                         "candidate": x.candidate, "wikipedia_total_share": wv,
-                         "release_total_share": x.total_share_pct, "release_valid_share": x.valid_share_pct,
-                         "status": status, "release_source": x.source_url})
+            rows.append(
+                {
+                    "election": e,
+                    "round": r,
+                    "pollster": p,
+                    "release_field_end": x.field_end,
+                    "poll_id": pid,
+                    "candidate": x.candidate,
+                    "wikipedia_total_share": wv,
+                    "release_total_share": x.total_share_pct,
+                    "release_valid_share": x.valid_share_pct,
+                    "status": status,
+                    "release_source": x.source_url,
+                }
+            )
     chk = pd.DataFrame(rows)
     chk.to_csv(config.OUTPUTS / "final_poll_verification_check.csv", index=False)
 
     err = rel.merge(res[["election", "round", "candidate", "valid_share"]], on=["election", "round", "candidate"])
     err["release_minus_official_pp"] = err["valid_share_pct"] - err["valid_share"]
-    err = err[["election", "round", "pollster", "field_end", "candidate", "valid_share_pct", "valid_share",
-               "release_minus_official_pp"]].rename(columns={"valid_share_pct": "release_valid_share",
-                                                             "valid_share": "official_valid_share"})
+    err = err[
+        [
+            "election",
+            "round",
+            "pollster",
+            "field_end",
+            "candidate",
+            "valid_share_pct",
+            "valid_share",
+            "release_minus_official_pp",
+        ]
+    ].rename(columns={"valid_share_pct": "release_valid_share", "valid_share": "official_valid_share"})
     err.to_csv(config.OUTPUTS / "final_poll_error_table.csv", index=False)
     print(chk["status"].value_counts().to_string())
     print(err[err["pollster"] == "Datafolha"].round(2).to_string(index=False))

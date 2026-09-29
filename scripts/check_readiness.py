@@ -65,7 +65,11 @@ def main() -> int:
         rec.to_csv(out, index=False)
         mism = rec[(rec["difference"].fillna(1) != 0)]
         report["reconciliation"][f.name] = {"sha256": sha256_file(f), "rows": len(rec), "mismatches": len(mism)}
-    pes = sorted((config.DATA / "raw" / "tse").glob("pesquisas_eleitorais_2026*")) if (config.DATA / "raw" / "tse").exists() else []
+    pes = (
+        sorted((config.DATA / "raw" / "tse").glob("pesquisas_eleitorais_2026*"))
+        if (config.DATA / "raw" / "tse").exists()
+        else []
+    )
     report["optional"]["pesqele_2026"] = [{"file": p.name, "sha256": sha256_file(p)} for p in pes] or "not provided"
     report["ready"] = ok
     config.OUTPUTS.mkdir(exist_ok=True)

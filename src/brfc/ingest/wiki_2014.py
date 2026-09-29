@@ -66,11 +66,30 @@ POLLSTERS: dict[str, tuple[str, str]] = {
     "cnt/mda": ("MDA", "CNT"),
     "istoé/sensus": ("Sensus", "IstoÉ"),
 }
-EN_MONTHS = {m: i for i, m in enumerate(
-    ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], start=1)}
-PT_MONTHS = {m: i for i, m in enumerate(
-    ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro",
-     "novembro", "dezembro"], start=1)}
+EN_MONTHS = {
+    m: i
+    for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], start=1)
+}
+PT_MONTHS = {
+    m: i
+    for i, m in enumerate(
+        [
+            "janeiro",
+            "fevereiro",
+            "março",
+            "abril",
+            "maio",
+            "junho",
+            "julho",
+            "agosto",
+            "setembro",
+            "outubro",
+            "novembro",
+            "dezembro",
+        ],
+        start=1,
+    )
+}
 EN_DASH, EM_DASH, MINUS = chr(0x2013), chr(0x2014), chr(0x2212)
 DASHES = {"", EN_DASH, EM_DASH, "-", MINUS, "n/a"}
 
@@ -294,17 +313,36 @@ def parse(html: str, rec: SourceRecord) -> pd.DataFrame:
                 if below:
                     notes.append("lt1pct_omitted=" + "|".join(below))
                 for cand, v in cands:
-                    rows.append({
-                        "poll_id": poll_id, "election": ELECTION, "round": round_, "tse_br_id": "",
-                        "pollster": pollster, "contractor": contractor, "field_start": fs, "field_end": fe,
-                        "publication_date": "", "sample_size": n, "methodology": "", "scenario": lab,
-                        "candidate": cand, "share_reported": v, "share_basis": basis,
-                        "blank_null": bn if bn is not None else np.nan, "undecided": np.nan,
-                        "valid_vote_share": np.nan, "source_url": rec.url, "source_type": rec.source_type,
-                        "source_revision": rec.revision, "retrieval_timestamp": rec.retrieval_timestamp,
-                        "verification_status": "unverified", "verification_source": "",
-                        "source_hash": rec.sha256, "notes": ";".join(notes),
-                    })
+                    rows.append(
+                        {
+                            "poll_id": poll_id,
+                            "election": ELECTION,
+                            "round": round_,
+                            "tse_br_id": "",
+                            "pollster": pollster,
+                            "contractor": contractor,
+                            "field_start": fs,
+                            "field_end": fe,
+                            "publication_date": "",
+                            "sample_size": n,
+                            "methodology": "",
+                            "scenario": lab,
+                            "candidate": cand,
+                            "share_reported": v,
+                            "share_basis": basis,
+                            "blank_null": bn if bn is not None else np.nan,
+                            "undecided": np.nan,
+                            "valid_vote_share": np.nan,
+                            "source_url": rec.url,
+                            "source_type": rec.source_type,
+                            "source_revision": rec.revision,
+                            "retrieval_timestamp": rec.retrieval_timestamp,
+                            "verification_status": "unverified",
+                            "verification_source": "",
+                            "source_hash": rec.sha256,
+                            "notes": ";".join(notes),
+                        }
+                    )
     df = pd.DataFrame(rows, columns=CANONICAL_COLUMNS)
     # flag (do not alter) total-basis poll-scenarios whose reported numbers sum above 101.5%
     tot = df[df["share_basis"] == "total"].groupby(["poll_id", "scenario"])
@@ -338,8 +376,9 @@ def parse_pt_reference(html: str) -> pd.DataFrame:
                 if all(c.tag == "th" for c in r) or len(r) <= i_inst:
                     continue
                 fs, fe = _pt_dates(_text(r[i_date]))
-                out.append({"round": round_, "pollster": _pollster(_text(r[i_inst]))[0], "field_start": fs,
-                            "field_end": fe})
+                out.append(
+                    {"round": round_, "pollster": _pollster(_text(r[i_inst]))[0], "field_start": fs, "field_end": fe}
+                )
     return pd.DataFrame(out)
 
 
@@ -374,16 +413,31 @@ def main() -> None:
     polls = df.drop_duplicates("poll_id")
     for rnd in (1, 2):
         p = polls[polls["round"] == rnd]
-        print(f"round {rnd}: rows={int((df['round'] == rnd).sum())} polls={len(p)} "
-              f"pollsters={sorted(p['pollster'].unique())} range={p['field_start'].min()}..{p['field_end'].max()}")
+        print(
+            f"round {rnd}: rows={int((df['round'] == rnd).sum())} polls={len(p)} "
+            f"pollsters={sorted(p['pollster'].unique())} range={p['field_start'].min()}..{p['field_end'].max()}"
+        )
     r1_late = polls[(polls["round"] == 1) & (polls["field_start"] >= "2014-08-20")]
     r2_late = polls[(polls["round"] == 2) & (polls["field_start"] >= "2014-10-05")]
-    print(f"round 1 polls with field_start >= 2014-08-20: {len(r1_late)}"
-          + ("  ** THIN (<10) **" if len(r1_late) < 10 else ""))
-    print(f"round 2 polls with field_start >= 2014-10-05: {len(r2_late)}"
-          + ("  ** THIN (<5) **" if len(r2_late) < 5 else ""))
-    cols = ["pollster", "field_start", "field_end", "sample_size", "scenario", "candidate", "share_reported",
-            "share_basis", "blank_null"]
+    print(
+        f"round 1 polls with field_start >= 2014-08-20: {len(r1_late)}"
+        + ("  ** THIN (<10) **" if len(r1_late) < 10 else "")
+    )
+    print(
+        f"round 2 polls with field_start >= 2014-10-05: {len(r2_late)}"
+        + ("  ** THIN (<5) **" if len(r2_late) < 5 else "")
+    )
+    cols = [
+        "pollster",
+        "field_start",
+        "field_end",
+        "sample_size",
+        "scenario",
+        "candidate",
+        "share_reported",
+        "share_basis",
+        "blank_null",
+    ]
     for rnd, lo in ((1, "2014-09-29"), (2, "2014-10-22")):
         last = df[(df["round"] == rnd) & (df["field_end"] >= lo) & (df["candidate"] != OTHERS)]
         print(f"final round-{rnd} polls (field_end >= {lo}):")
@@ -393,10 +447,14 @@ def main() -> None:
     html, _ = fetch_revision(lang, title, oldid)
     ref = parse_pt_reference(html)
     gaps = coverage_gaps(df, ref)
-    ref_late = ref[((ref["round"] == 1) & (ref["field_start"] >= "2014-08-20"))
-                   | ((ref["round"] == 2) & (ref["field_start"] >= "2014-10-05"))]
-    print(f"coverage reference {lang}:{title}@{oldid}: {len(ref)} polls listed, none with sample size "
-          f"(all would be skipped); {len(ref_late)} in the late windows")
+    ref_late = ref[
+        ((ref["round"] == 1) & (ref["field_start"] >= "2014-08-20"))
+        | ((ref["round"] == 2) & (ref["field_start"] >= "2014-10-05"))
+    ]
+    print(
+        f"coverage reference {lang}:{title}@{oldid}: {len(ref)} polls listed, none with sample size "
+        f"(all would be skipped); {len(ref_late)} in the late windows"
+    )
     if len(gaps):
         print(f"reference polls absent from the parsed source ({len(gaps)}):")
         print(gaps.sort_values(["round", "field_end"]).to_string(index=False))

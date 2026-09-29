@@ -47,6 +47,8 @@ def make_poll_id(election: str, round_: int, pollster: str, field_start: str, fi
 
     key = f"{election}|{int(round_)}|{pollster.strip().lower()}|{field_start}|{field_end}|{int(sample_size)}"
     return f"{election}-{int(round_)}-" + hashlib.sha1(key.encode("utf-8")).hexdigest()[:10]
+
+
 BASIS_VALUES = {"total", "valid"}
 VERIFICATION_VALUES = {"unverified", "verified_match", "verified_conflict", "corrected"}
 
@@ -89,8 +91,10 @@ def validate_polls(df: pd.DataFrame, *, require_valid_share: bool = False) -> li
     bad(df.duplicated(key, keep=False), "duplicate (poll_id, scenario, candidate)")
 
     # per poll-scenario totals: candidates + blank/null + undecided should be ~100 on total basis
-    tot = df[df["share_basis"] == "total"].groupby(["poll_id", "scenario"]).agg(
-        cand=("share_reported", "sum"), bn=("blank_null", "first"), und=("undecided", "first")
+    tot = (
+        df[df["share_basis"] == "total"]
+        .groupby(["poll_id", "scenario"])
+        .agg(cand=("share_reported", "sum"), bn=("blank_null", "first"), und=("undecided", "first"))
     )
     total = tot["cand"] + tot["bn"].fillna(0) + tot["und"].fillna(0)
     over = total > 101.5

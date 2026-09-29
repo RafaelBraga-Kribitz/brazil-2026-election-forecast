@@ -46,8 +46,18 @@ def revision_at(lang: str, title: str, timestamp_utc: str) -> tuple[int, str]:
     """Latest revision id at or before `timestamp_utc` (ISO, e.g. 2026-10-04T01:00:00Z) and its timestamp."""
     r = requests.get(
         _api(lang),
-        params={"action": "query", "titles": title, "prop": "revisions", "rvprop": "ids|timestamp", "rvlimit": 1,
-                "rvstart": timestamp_utc, "rvdir": "older", "format": "json", "formatversion": 2, "redirects": 1},
+        params={
+            "action": "query",
+            "titles": title,
+            "prop": "revisions",
+            "rvprop": "ids|timestamp",
+            "rvlimit": 1,
+            "rvstart": timestamp_utc,
+            "rvdir": "older",
+            "format": "json",
+            "formatversion": 2,
+            "redirects": 1,
+        },
         headers={"User-Agent": USER_AGENT},
         timeout=60,
     )
@@ -56,7 +66,9 @@ def revision_at(lang: str, title: str, timestamp_utc: str) -> tuple[int, str]:
     return int(rev["revid"]), rev["timestamp"]
 
 
-def fetch_revision(lang: str, title: str, oldid: int | None = None, raw_dir: Path = RAW_DIR) -> tuple[str, SourceRecord]:
+def fetch_revision(
+    lang: str, title: str, oldid: int | None = None, raw_dir: Path = RAW_DIR
+) -> tuple[str, SourceRecord]:
     """Return (html, provenance) for `title` at revision `oldid` (latest if None). Cached on disk."""
     if oldid is None:
         oldid = latest_revision(lang, title)
@@ -69,7 +81,13 @@ def fetch_revision(lang: str, title: str, oldid: int | None = None, raw_dir: Pat
 
     r = requests.get(
         _api(lang),
-        params={"action": "parse", "oldid": oldid, "prop": "text|revid|displaytitle", "format": "json", "formatversion": 2},
+        params={
+            "action": "parse",
+            "oldid": oldid,
+            "prop": "text|revid|displaytitle",
+            "format": "json",
+            "formatversion": 2,
+        },
         headers={"User-Agent": USER_AGENT},
         timeout=120,
     )

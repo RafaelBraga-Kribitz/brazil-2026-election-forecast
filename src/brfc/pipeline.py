@@ -34,8 +34,15 @@ class CachedFit:
     kept_rows: pd.DataFrame  # long valid-vote rows in the information set (after dependence rule)
 
 
-def information_set(polls: pd.DataFrame, election: str, round_: int, horizon: int, *, dependence_rule: bool = True,
-                    min_polls_per_pollster: int = 1):
+def information_set(
+    polls: pd.DataFrame,
+    election: str,
+    round_: int,
+    horizon: int,
+    *,
+    dependence_rule: bool = True,
+    min_polls_per_pollster: int = 1,
+):
     valid = prepare(polls, election, round_)
     cutoff = cutoff_for(election, round_, horizon)
     named = [config.RUNOFF_PAIRS[election][0]] if round_ == 2 else None
@@ -54,30 +61,60 @@ def information_set(polls: pd.DataFrame, election: str, round_: int, horizon: in
     return wide, named, dropped, kept, cutoff
 
 
-def fit_one(polls: pd.DataFrame, election: str, round_: int, horizon: int, variant: str = "two_regime", *,
-            tag: str = "", priors: dict | None = None, sampler: dict | None = None, dependence_rule: bool = True,
-            min_polls_per_pollster: int = 1, force: bool = False, cache: Path = CACHE,
-            start_attempt: int = 0) -> CachedFit | None:
+def fit_one(
+    polls: pd.DataFrame,
+    election: str,
+    round_: int,
+    horizon: int,
+    variant: str = "two_regime",
+    *,
+    tag: str = "",
+    priors: dict | None = None,
+    sampler: dict | None = None,
+    dependence_rule: bool = True,
+    min_polls_per_pollster: int = 1,
+    force: bool = False,
+    cache: Path = CACHE,
+    start_attempt: int = 0,
+) -> CachedFit | None:
     key = fit_key(election, round_, horizon, variant, tag)
     cache.mkdir(parents=True, exist_ok=True)
     if not force and (cache / f"{key}.json").exists():
         return load_fit(key, cache)
     wide, named, dropped, kept, cutoff = information_set(
-        polls, election, round_, horizon, dependence_rule=dependence_rule,
-        min_polls_per_pollster=min_polls_per_pollster)
+        polls, election, round_, horizon, dependence_rule=dependence_rule, min_polls_per_pollster=min_polls_per_pollster
+    )
     series = named + ([config.OTHERS_LABEL] if len(named) > 1 else [])
     n_polls = int(wide["poll_id"].nunique())
-    meta = {"key": key, "election": election, "round": round_, "horizon": horizon, "variant": variant, "tag": tag,
-            "cutoff": str(cutoff), "named": named, "series": series, "n_polls": n_polls,
-            "n_pollsters": int(wide["pollster"].nunique()), "n_dropped_overlap": int(len(dropped)),
-            "max_field_end": str(wide["field_end"].max()) if n_polls else None,
-            "poll_ids": sorted(wide["poll_id"].tolist()), "priors": priors or {}, "status": "ok"}
+    meta = {
+        "key": key,
+        "election": election,
+        "round": round_,
+        "horizon": horizon,
+        "variant": variant,
+        "tag": tag,
+        "cutoff": str(cutoff),
+        "named": named,
+        "series": series,
+        "n_polls": n_polls,
+        "n_pollsters": int(wide["pollster"].nunique()),
+        "n_dropped_overlap": len(dropped),
+        "max_field_end": str(wide["field_end"].max()) if n_polls else None,
+        "poll_ids": sorted(wide["poll_id"].tolist()),
+        "priors": priors or {},
+        "status": "ok",
+    }
     if n_polls < config.MIN_POLLS_PER_FIT:
         meta["status"] = f"skipped: {n_polls} polls < {config.MIN_POLLS_PER_FIT}"
         (cache / f"{key}.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
         return None
-    kw = dict(window_start=window_start(election, round_), election_day=config.ELECTION_DATES[(election, round_)],
-              cutoff=cutoff, two_regime=VARIANTS[variant], priors=priors)
+    kw = {
+        "window_start": window_start(election, round_),
+        "election_day": config.ELECTION_DATES[(election, round_)],
+        "cutoff": cutoff,
+        "two_regime": VARIANTS[variant],
+        "priors": priors,
+    }
     attempts = []
     for k in range(start_attempt, len(model.ATTEMPTS)):  # pre-registered retries (PREREG s.4, Addendum 03)
         fr = model.fit(wide, series, sampler={**(sampler or {}), **model.ATTEMPTS[k]}, **kw)
@@ -129,8 +166,17 @@ def eve_deviations(fits: dict[tuple[str, int], CachedFit], results: pd.DataFrame
         act = actual_shares(results, e, r, cats)
         for c in cats:
             if c in roles:
-                rows.append({"election": e, "round": r, "category": c, "role": roles[c], "forecast": mean[c],
-                             "actual": act[c], "deviation": act[c] - mean[c]})
+                rows.append(
+                    {
+                        "election": e,
+                        "round": r,
+                        "category": c,
+                        "role": roles[c],
+                        "forecast": mean[c],
+                        "actual": act[c],
+                        "deviation": act[c] - mean[c],
+                    }
+                )
     return pd.DataFrame(rows)
 
 
@@ -180,13 +226,16 @@ def baseline_errors(fits_all: dict, results: pd.DataFrame) -> pd.DataFrame:
         for b in POINT_BASELINES:
             p = baseline_point(b, f, e, date.fromisoformat(f.meta["cutoff"]))
             if p:
-                berr += [{"baseline": b, "election": e, "round": r, "horizon": h, "category": c,
-                          "error": act[c] - p[c]} for c in cats]
+                berr += [
+                    {"baseline": b, "election": e, "round": r, "horizon": h, "category": c, "error": act[c] - p[c]}
+                    for c in cats
+                ]
     return pd.DataFrame(berr, columns=["baseline", "election", "round", "horizon", "category", "error"])
 
 
-def evaluate_backtest(variant: str, results: pd.DataFrame, *, elections=config.HISTORICAL, error_prior=None,
-                      tag: str = "") -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def evaluate_backtest(
+    variant: str, results: pd.DataFrame, *, elections=config.HISTORICAL, error_prior=None, tag: str = ""
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Returns (scores, category_rows, deviations, error_model_summaries) for one RW variant."""
     from datetime import date
 
@@ -206,17 +255,29 @@ def evaluate_backtest(variant: str, results: pd.DataFrame, *, elections=config.H
         roles = election_day.assign_roles(cats, mean, r)
         role_list = ["rank1"] if r == 2 else ["rank1", "rank2", "rest"]
         train = election_day.loeo_training_set(devs, e, r)
-        base = {"election": e, "round": r, "horizon": h, "cutoff": f.meta["cutoff"], "variant": variant,
-                "n_polls": f.meta["n_polls"], "categories": "|".join(cats)}
+        base = {
+            "election": e,
+            "round": r,
+            "horizon": h,
+            "cutoff": f.meta["cutoff"],
+            "variant": variant,
+            "n_polls": f.meta["n_polls"],
+            "categories": "|".join(cats),
+        }
         forecasts = {"E0": latent}
         for v in ("E", "F"):
-            post = election_day.fit_error_model(train, v, role_list, seed=zlib.crc32(f'{e}|{r}|{h}|{v}'.encode()), prior=error_prior)
+            post = election_day.fit_error_model(
+                train, v, role_list, seed=zlib.crc32(f"{e}|{r}|{h}|{v}".encode()), prior=error_prior
+            )
             forecasts[v] = election_day.apply(f.draws, f.meta["series"], roles, post, r, seed=1)
             err_summ.append(base | {"model": v} | post.summary())
         for m, d in forecasts.items():
             s = scoring.score(d, None, cats, act, r)
-            scores.append(base | {"model": m, "train_elections": "+".join(sorted(set(config.HISTORICAL) - {e}))
-                                  if m != "E0" else ""} | s)
+            scores.append(
+                base
+                | {"model": m, "train_elections": "+".join(sorted(set(config.HISTORICAL) - {e})) if m != "E0" else ""}
+                | s
+            )
             cat_rows += [base | {"model": m} | x for x in scoring.category_rows(d, None, cats, act)]
         for b in POINT_BASELINES:
             p = baseline_point(b, f, e, date.fromisoformat(f.meta["cutoff"]))
@@ -233,11 +294,27 @@ def evaluate_backtest(variant: str, results: pd.DataFrame, *, elections=config.H
             s = scoring.score(d, None, cats, act, r)
             s["mae"] = scoring.score(None, p, cats, act, r)["mae"]  # point MAE, not the conversion's mean
             pm = scoring.score(None, p, cats, act, r)
-            s["margin_error"], s["margin_abs_error"], s["margin_pred"] = pm["margin_error"], pm["margin_abs_error"], pm["margin_pred"]
-            train_e = sorted(berr.loc[(berr["baseline"] == b) & (berr["round"] == r) & (berr["horizon"] == h)
-                                      & (berr["election"] != e), "election"].unique())
-            scores.append(base | {"model": b, "loeo_rmse": rmse, "train_elections": "+".join(train_e),
-                                  "status": "calibrated probabilistic conversion of point baseline"} | s)
+            s["margin_error"], s["margin_abs_error"], s["margin_pred"] = (
+                pm["margin_error"],
+                pm["margin_abs_error"],
+                pm["margin_pred"],
+            )
+            train_e = sorted(
+                berr.loc[
+                    (berr["baseline"] == b) & (berr["round"] == r) & (berr["horizon"] == h) & (berr["election"] != e),
+                    "election",
+                ].unique()
+            )
+            scores.append(
+                base
+                | {
+                    "model": b,
+                    "loeo_rmse": rmse,
+                    "train_elections": "+".join(train_e),
+                    "status": "calibrated probabilistic conversion of point baseline",
+                }
+                | s
+            )
             for x in scoring.category_rows(d, None, cats, act):  # point value as the estimate, conversion intervals
                 x["mean"], x["error"] = p[x["category"]], p[x["category"]] - act[x["category"]]
                 cat_rows.append(base | {"model": b} | x)

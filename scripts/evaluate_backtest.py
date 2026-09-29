@@ -29,9 +29,13 @@ def summarise(scores: pd.DataFrame) -> pd.DataFrame:
     s = scores[scores.get("mae").notna()].copy()
     s["round_type"] = s["round"].map({1: "first round", 2: "runoff"})
     agg = s.groupby(["variant", "model", "round_type", "horizon"]).agg(
-        n_rounds=("mae", "size"), mae=("mae", "mean"), margin_abs_error=("margin_abs_error", "mean"),
-        brier_first=("brier_first", "mean"), log_first=("log_first", "mean"),
-        coverage_80=("coverage_80", "mean"), coverage_94=("coverage_94", "mean"),
+        n_rounds=("mae", "size"),
+        mae=("mae", "mean"),
+        margin_abs_error=("margin_abs_error", "mean"),
+        brier_first=("brier_first", "mean"),
+        log_first=("log_first", "mean"),
+        coverage_80=("coverage_80", "mean"),
+        coverage_94=("coverage_94", "mean"),
     )
     return agg.reset_index()
 
@@ -41,11 +45,17 @@ def calibration(cats: pd.DataFrame) -> pd.DataFrame:
     c["in80"] = c["in80"].astype(bool)
     c["in94"] = c["in94"].astype(bool)
     c["round_type"] = c["round"].map({1: "first round", 2: "runoff"})
-    return (c.groupby(["variant", "model", "round_type", "horizon"])
-             .agg(n_categories=("in80", "size"), coverage_80=("in80", "mean"), coverage_94=("in94", "mean"),
-                  width_80=("hi80", lambda x: float((x - c.loc[x.index, "lo80"]).mean())),
-                  width_94=("hi94", lambda x: float((x - c.loc[x.index, "lo94"]).mean())))
-             .reset_index())
+    return (
+        c.groupby(["variant", "model", "round_type", "horizon"])
+        .agg(
+            n_categories=("in80", "size"),
+            coverage_80=("in80", "mean"),
+            coverage_94=("in94", "mean"),
+            width_80=("hi80", lambda x: float((x - c.loc[x.index, "lo80"]).mean())),
+            width_94=("hi94", lambda x: float((x - c.loc[x.index, "lo94"]).mean())),
+        )
+        .reset_index()
+    )
 
 
 def regime_rule(all_scores: pd.DataFrame) -> dict:
@@ -55,11 +65,14 @@ def regime_rule(all_scores: pd.DataFrame) -> dict:
     m = f.groupby("variant").agg(log_first=("log_first", "mean"), mae=("mae", "mean"), n=("mae", "size"))
     two, one = m.loc["two_regime"], m.loc["single_regime"]
     choose_two = (two["log_first"] - one["log_first"] > 0.05) and (two["mae"] - one["mae"] <= 0.1)
-    return {"rule": "PREREG.md section 9.1", "n_rounds": int(two["n"]),
-            "two_regime": {"mean_log_first": float(two["log_first"]), "mean_mae": float(two["mae"])},
-            "single_regime": {"mean_log_first": float(one["log_first"]), "mean_mae": float(one["mae"])},
-            "production_variant": "two_regime" if choose_two else "single_regime",
-            "note": "in-sample structural choice across all three historical elections; both variants published"}
+    return {
+        "rule": "PREREG.md section 9.1",
+        "n_rounds": int(two["n"]),
+        "two_regime": {"mean_log_first": float(two["log_first"]), "mean_mae": float(two["mae"])},
+        "single_regime": {"mean_log_first": float(one["log_first"]), "mean_mae": float(one["mae"])},
+        "production_variant": "two_regime" if choose_two else "single_regime",
+        "note": "in-sample structural choice across all three historical elections; both variants published",
+    }
 
 
 def diagnostics() -> pd.DataFrame:
@@ -69,10 +82,22 @@ def diagnostics() -> pd.DataFrame:
         if m.get("tag"):
             continue
         d = m.get("diagnostics") or {}
-        rows.append({"key": m["key"], "election": m["election"], "round": m["round"], "horizon": m["horizon"],
-                     "variant": m["variant"], "status": m["status"], "n_polls": m["n_polls"],
-                     "n_pollsters": m["n_pollsters"], "n_dropped_overlap": m["n_dropped_overlap"],
-                     "named": "|".join(m["named"]), "retried": "first_attempt_diagnostics" in m, **d})
+        rows.append(
+            {
+                "key": m["key"],
+                "election": m["election"],
+                "round": m["round"],
+                "horizon": m["horizon"],
+                "variant": m["variant"],
+                "status": m["status"],
+                "n_polls": m["n_polls"],
+                "n_pollsters": m["n_pollsters"],
+                "n_dropped_overlap": m["n_dropped_overlap"],
+                "named": "|".join(m["named"]),
+                "retried": "first_attempt_diagnostics" in m,
+                **d,
+            }
+        )
     return pd.DataFrame(rows)
 
 

@@ -41,8 +41,11 @@ def main() -> None:
     a = ap.parse_args()
     cutoff = date.fromisoformat(a.cutoff)
     variant = a.variant or json.loads((config.OUTPUTS / "regime_selection.json").read_text())["production_variant"]
-    rev = json.loads((config.DATA / "interim" / "polls_wiki_2026.revision.json").read_text()) \
-        if (config.DATA / "interim" / "polls_wiki_2026.revision.json").exists() else {"pt_oldid": 73082572}
+    rev = (
+        json.loads((config.DATA / "interim" / "polls_wiki_2026.revision.json").read_text())
+        if (config.DATA / "interim" / "polls_wiki_2026.revision.json").exists()
+        else {"pt_oldid": 73082572}
+    )
     tag = f"{a.status.lower()}_pt{rev['pt_oldid']}"
     polls = load_polls(("2026",))
     res = forecast.run(polls, load_results(), cutoff, variant=variant, tag=tag)
@@ -69,21 +72,30 @@ def main() -> None:
         "interval_type": "equal-tailed posterior predictive intervals (q10-q90 = 80%, q03-q97 = 94%)",
         "share_basis": "valid votes (blank and null excluded; undecided allocated proportionally - an assumption)",
         "poll_source": rev,
-        "n_polls": fit.meta["n_polls"], "n_pollsters": fit.meta["n_pollsters"],
-        "named_candidates": fit.meta["named"], "roles": res["roles"],
+        "n_polls": fit.meta["n_polls"],
+        "n_pollsters": fit.meta["n_pollsters"],
+        "named_candidates": fit.meta["named"],
+        "roles": res["roles"],
         "election_day_term_trained_on": res["train_elections"],
         "error_models": res["error_models"],
         "fit_diagnostics": fit.meta["diagnostics"],
         "models": models,
         "baselines_note": "B/C/D probabilities are a calibrated probabilistic conversion of point baselines "
-                          "(point + Normal(0, LOEO historical RMSE)); the baselines did not publish them.",
+        "(point + Normal(0, LOEO historical RMSE)); the baselines did not publish them.",
         "neutrality_note": "An aggregation of publicly registered polls; not a poll, not a recommendation.",
     }
     config.OUTPUTS.mkdir(exist_ok=True)
-    (config.OUTPUTS / "forecast_latest.json").write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n",
-                                                         encoding="utf-8")
-    f_sum = res["summaries"]["F"].assign(model="F", status=a.status, cutoff=str(cutoff), generated_utc=generated,
-                                         pt_oldid=rev["pt_oldid"], rw_variant=variant)
+    (config.OUTPUTS / "forecast_latest.json").write_text(
+        json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    f_sum = res["summaries"]["F"].assign(
+        model="F",
+        status=a.status,
+        cutoff=str(cutoff),
+        generated_utc=generated,
+        pt_oldid=rev["pt_oldid"],
+        rw_variant=variant,
+    )
     hist_path = config.OUTPUTS / "forecast_history.csv"
     hist = pd.concat([pd.read_csv(hist_path), f_sum]) if hist_path.exists() else f_sum
     hist.to_csv(hist_path, index=False)
@@ -96,20 +108,32 @@ def main() -> None:
         fz = config.OUTPUTS / "freeze"
         fz.mkdir(exist_ok=True)
         (fz / "forecast.json").write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
-        pd.concat([res["summaries"][m].assign(model=m) for m in ("F", "E", "E0")]).to_csv(fz / "forecast.csv",
-                                                                                          index=False)
+        pd.concat([res["summaries"][m].assign(model=m) for m in ("F", "E", "E0")]).to_csv(
+            fz / "forecast.csv", index=False
+        )
         fit.kept_rows.to_csv(fz / "poll_snapshot.csv", index=False)
         bench = config.DATA / "manual" / "benchmarks_2026_freeze.csv"
         bsnap = res["baselines"]
         if bench.exists():
             bsnap = pd.concat([bsnap, pd.read_csv(bench)], ignore_index=True)
         bsnap.to_csv(fz / "baseline_snapshot.csv", index=False)
-        (fz / "MODEL_VERSION.txt").write_text(f"{MODEL_VERSION}\ngit {git_commit()}\nvariant {variant}\n",
-                                              encoding="utf-8")
+        (fz / "MODEL_VERSION.txt").write_text(
+            f"{MODEL_VERSION}\ngit {git_commit()}\nvariant {variant}\n", encoding="utf-8"
+        )
         hashes = [f"{sha256_file(p)}  {p.name}" for p in sorted(fz.iterdir()) if p.name != "forecast_hash.txt"]
         (fz / "forecast_hash.txt").write_text("\n".join(hashes) + "\n", encoding="utf-8")
-    print(json.dumps({"status": a.status, "cutoff": str(cutoff), "n_polls": fit.meta["n_polls"],
-                      "F": res["summaries"]["F"].round(2).to_dict(orient="records")}, indent=1, ensure_ascii=False))
+    print(
+        json.dumps(
+            {
+                "status": a.status,
+                "cutoff": str(cutoff),
+                "n_polls": fit.meta["n_polls"],
+                "F": res["summaries"]["F"].round(2).to_dict(orient="records"),
+            },
+            indent=1,
+            ensure_ascii=False,
+        )
+    )
 
 
 if __name__ == "__main__":

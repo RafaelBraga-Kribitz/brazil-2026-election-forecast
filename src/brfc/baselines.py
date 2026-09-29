@@ -33,7 +33,7 @@ def latest_per_pollster(kept_rows: pd.DataFrame, named: list[str], cutoff: date,
     if w.empty:
         return None
     w = w.sort_values(["field_end", "field_start", "poll_id"]).groupby("pollster").tail(1)
-    return _point(w, named, round_) | {"_n_pollsters": int(len(w))}
+    return _point(w, named, round_) | {"_n_pollsters": len(w)}
 
 
 def final_poll_of(kept_rows: pd.DataFrame, named: list[str], cutoff: date, pollster: str, round_: int) -> dict | None:
@@ -51,7 +51,7 @@ def _point(w: pd.DataFrame, named: list[str], round_: int) -> dict:
     cols = named + ([config.OTHERS_LABEL] if len(named) > 1 else [])
     vals = {c: float(w[c].mean(skipna=True)) for c in cols}
     if any(np.isnan(v) for v in vals.values()):
-        return {c: np.nan for c in cols}
+        return dict.fromkeys(cols, np.nan)
     if round_ == 2:
         a = vals[named[0]]
         return {named[0]: a, "_other": 100.0 - a}
@@ -70,8 +70,9 @@ def as_categories(point: dict, categories: list[str], round_: int) -> dict[str, 
     return None if any(np.isnan(v) for v in vals.values()) else vals
 
 
-def probabilistic(point: dict[str, float], categories: list[str], rmse: float, round_: int, n: int = 4000,
-                  seed: int = 0) -> np.ndarray:
+def probabilistic(
+    point: dict[str, float], categories: list[str], rmse: float, round_: int, n: int = 4000, seed: int = 0
+) -> np.ndarray:
     rng = np.random.default_rng(seed)
     if round_ == 2:
         a = np.clip(point[categories[0]] + rmse * rng.standard_normal(n), 0.0, 100.0)
@@ -83,8 +84,12 @@ def probabilistic(point: dict[str, float], categories: list[str], rmse: float, r
 
 def loeo_rmse(errors: pd.DataFrame, baseline: str, target_election: str, round_: int, horizon: int) -> float | None:
     """RMSE of `baseline` across categories of the OTHER elections, same round type and horizon."""
-    e = errors[(errors["baseline"] == baseline) & (errors["round"] == round_) & (errors["horizon"] == horizon)
-               & (errors["election"] != target_election)]
+    e = errors[
+        (errors["baseline"] == baseline)
+        & (errors["round"] == round_)
+        & (errors["horizon"] == horizon)
+        & (errors["election"] != target_election)
+    ]
     if e.empty:
         return None
     return float(np.sqrt(np.mean(e["error"].to_numpy() ** 2)))

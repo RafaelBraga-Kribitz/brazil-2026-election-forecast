@@ -48,13 +48,13 @@ def test_stage1_fit_path_never_calls_result_loader(monkeypatch, fixture_2022_r1)
 
     monkeypatch.setattr(data, "load_results", boom)
     monkeypatch.setattr(data, "actual_shares", boom)
-    wide, named, dropped, kept, cutoff = information_set(fixture_2022_r1, "2022", 1, 7)
+    wide, *_ = information_set(fixture_2022_r1, "2022", 1, 7)
     assert len(wide) > 0
 
 
 @pytest.mark.parametrize("h", [30, 14, 7, 1])
 def test_information_set_contains_no_future_poll(fixture_2022_r1, h):
-    wide, named, dropped, kept, cutoff = information_set(fixture_2022_r1, "2022", 1, h)
+    wide, _, _, kept, cutoff = information_set(fixture_2022_r1, "2022", 1, h)
     assert pd.to_datetime(wide["field_end"]).dt.date.max() <= cutoff
     assert pd.to_datetime(kept["field_end"]).dt.date.max() <= cutoff
 
@@ -88,9 +88,17 @@ def test_future_polls_cannot_change_information_set(fixture_2022_r1):
 
 
 def test_model_fit_rejects_poll_after_cutoff():
-    wide = pd.DataFrame({"poll_id": ["a"], "pollster": ["P"], "field_start": ["2022-09-01"],
-                         "field_end": ["2022-09-30"], "sample_size": [1000], "field_mid": [date(2022, 9, 29)],
-                         "A": [40.0]})
+    wide = pd.DataFrame(
+        {
+            "poll_id": ["a"],
+            "pollster": ["P"],
+            "field_start": ["2022-09-01"],
+            "field_end": ["2022-09-30"],
+            "sample_size": [1000],
+            "field_mid": [date(2022, 9, 29)],
+            "A": [40.0],
+        }
+    )
     with pytest.raises(ValueError, match="information leak"):
         model.fit(wide, ["A"], window_start=date(2022, 8, 3), election_day=date(2022, 10, 2), cutoff=date(2022, 9, 20))
 
@@ -98,9 +106,14 @@ def test_model_fit_rejects_poll_after_cutoff():
 def test_election_day_application_is_deterministic():
     rng = np.random.default_rng(0)
     latent = rng.normal([45, 35, 20], 1, size=(500, 3))
-    train = pd.DataFrame({"election": ["2014", "2018"] * 3, "round": 1,
-                          "role": ["rank1", "rank1", "rank2", "rank2", "rest", "rest"],
-                          "deviation": [1.0, -1.0, 5.0, 4.0, -2.0, -3.0]})
+    train = pd.DataFrame(
+        {
+            "election": ["2014", "2018"] * 3,
+            "round": 1,
+            "role": ["rank1", "rank1", "rank2", "rank2", "rest", "rest"],
+            "deviation": [1.0, -1.0, 5.0, 4.0, -2.0, -3.0],
+        }
+    )
     post = election_day.fit_error_model(train, "F", ["rank1", "rank2", "rest"], seed=1)
     roles = {"A": "rank1", "B": "rank2", "Others": "rest"}
     a = election_day.apply(latent, ["A", "B", "Others"], roles, post, 1, seed=3)

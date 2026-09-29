@@ -33,7 +33,7 @@ def assign_roles(categories: list[str], forecast_mean: dict[str, float], round_:
     order = sorted(named, key=lambda c: -forecast_mean[c])
     if round_ == 2:
         return {order[0]: "rank1"}
-    roles = {c: "rest" for c in categories}
+    roles = dict.fromkeys(categories, "rest")
     roles[order[0]] = "rank1"
     if len(order) > 1:
         roles[order[1]] = "rank2"
@@ -55,8 +55,12 @@ class ErrorPosterior:
     train_elections: list[str]
 
     def summary(self) -> dict:
-        out = {"variant": self.variant, "n_train": self.n_train, "train_elections": "+".join(self.train_elections),
-               "sigma_mean": float(self.sigma_draws.mean())}
+        out = {
+            "variant": self.variant,
+            "n_train": self.n_train,
+            "train_elections": "+".join(self.train_elections),
+            "sigma_mean": float(self.sigma_draws.mean()),
+        }
         for r, v in self.mu_draws.items():
             out[f"mu_{r}_mean"] = float(v.mean())
             out[f"mu_{r}_q03"] = float(np.quantile(v, 0.03))
@@ -64,8 +68,15 @@ class ErrorPosterior:
         return out
 
 
-def fit_error_model(train: pd.DataFrame, variant: str, roles: list[str], *, n_draws: int = 4000, seed: int = 0,
-                    prior: dict | None = None) -> ErrorPosterior:
+def fit_error_model(
+    train: pd.DataFrame,
+    variant: str,
+    roles: list[str],
+    *,
+    n_draws: int = 4000,
+    seed: int = 0,
+    prior: dict | None = None,
+) -> ErrorPosterior:
     pr = {**PRIOR, **(prior or {})}
     tau, s = pr["tau"], pr["sigma_scale"]
     rng = np.random.default_rng(seed)
@@ -95,12 +106,24 @@ def fit_error_model(train: pd.DataFrame, variant: str, roles: list[str], *, n_dr
         prec = len(d) / sigma**2 + 1.0 / tau**2
         mean = (np.sum(d) / sigma**2) / prec
         mu[r] = mean + rng.standard_normal(n_draws) / np.sqrt(prec)
-    return ErrorPosterior(variant=variant, roles=roles, sigma_draws=sigma, mu_draws=mu, n_train=len(train),
-                          train_elections=sorted(train["election"].unique().tolist()))
+    return ErrorPosterior(
+        variant=variant,
+        roles=roles,
+        sigma_draws=sigma,
+        mu_draws=mu,
+        n_train=len(train),
+        train_elections=sorted(train["election"].unique().tolist()),
+    )
 
 
-def apply(latent: np.ndarray, categories: list[str], roles: dict[str, str], post: ErrorPosterior | None,
-          round_: int, seed: int = 0) -> np.ndarray:
+def apply(
+    latent: np.ndarray,
+    categories: list[str],
+    roles: dict[str, str],
+    post: ErrorPosterior | None,
+    round_: int,
+    seed: int = 0,
+) -> np.ndarray:
     """Forecast draws of valid shares: latent consensus + election-day deviation, projected onto the simplex.
 
     latent: (N, K) draws of the latent share for each category. Round 2 has K == 1 (first runoff candidate);

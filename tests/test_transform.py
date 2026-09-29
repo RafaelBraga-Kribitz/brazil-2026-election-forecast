@@ -13,7 +13,9 @@ from tests.conftest import poll_rows
 
 
 def _digest(df: pd.DataFrame) -> str:
-    return hashlib.sha256(pd.util.hash_pandas_object(df.reset_index(drop=True), index=False).values.tobytes()).hexdigest()
+    return hashlib.sha256(
+        pd.util.hash_pandas_object(df.reset_index(drop=True), index=False).values.tobytes()
+    ).hexdigest()
 
 
 def test_prepare_is_deterministic(fixture_2022_r1):
@@ -26,8 +28,18 @@ def test_prepare_is_deterministic(fixture_2022_r1):
 
 
 def test_valid_vote_conversion_sums_to_100_and_preserves_reported():
-    d = pd.DataFrame(poll_rows("2022", 1, "P", "2022-09-01", "2022-09-02", 2000,
-                               {"Lula": 45, "Jair Bolsonaro": 33, "Ciro Gomes": 7, OTHERS: 3}, blank_null=12))
+    d = pd.DataFrame(
+        poll_rows(
+            "2022",
+            1,
+            "P",
+            "2022-09-01",
+            "2022-09-02",
+            2000,
+            {"Lula": 45, "Jair Bolsonaro": 33, "Ciro Gomes": 7, OTHERS: 3},
+            blank_null=12,
+        )
+    )
     v = transform.to_valid_votes(d)
     assert abs(v["valid_vote_share"].sum() - 100) < 1e-9
     assert (v["share_reported"] == d["share_reported"]).all()
@@ -36,10 +48,26 @@ def test_valid_vote_conversion_sums_to_100_and_preserves_reported():
 
 def test_scenario_rule_prefers_ballot_and_drops_material_off_ballot():
     rows = []
-    rows += poll_rows("2018", 1, "P", "2018-09-01", "2018-09-02", 2000,
-                      {"Lula": 39, "Jair Bolsonaro": 22, "Ciro Gomes": 8}, scenario="with Lula")
-    rows += poll_rows("2018", 1, "P", "2018-09-01", "2018-09-02", 2000,
-                      {"Fernando Haddad": 6, "Jair Bolsonaro": 22, "Ciro Gomes": 12}, scenario="with Haddad")
+    rows += poll_rows(
+        "2018",
+        1,
+        "P",
+        "2018-09-01",
+        "2018-09-02",
+        2000,
+        {"Lula": 39, "Jair Bolsonaro": 22, "Ciro Gomes": 8},
+        scenario="with Lula",
+    )
+    rows += poll_rows(
+        "2018",
+        1,
+        "P",
+        "2018-09-01",
+        "2018-09-02",
+        2000,
+        {"Fernando Haddad": 6, "Jair Bolsonaro": 22, "Ciro Gomes": 12},
+        scenario="with Haddad",
+    )
     d = pd.DataFrame(rows)
     out = transform.select_scenarios(d, "2018", 1)
     assert set(out["scenario"]) == {"with Haddad"}
@@ -47,10 +75,26 @@ def test_scenario_rule_prefers_ballot_and_drops_material_off_ballot():
 
 def test_scenario_rule_prefers_fewest_off_ballot_names():
     rows = []
-    rows += poll_rows("2026", 1, "P", "2026-09-01", "2026-09-02", 2000,
-                      {"Lula": 40, "Flávio Bolsonaro": 36, "Pablo Marçal": 2}, scenario="full")
-    rows += poll_rows("2026", 1, "P", "2026-09-01", "2026-09-02", 2000,
-                      {"Lula": 41, "Flávio Bolsonaro": 37}, scenario="without Pablo Marçal")
+    rows += poll_rows(
+        "2026",
+        1,
+        "P",
+        "2026-09-01",
+        "2026-09-02",
+        2000,
+        {"Lula": 40, "Flávio Bolsonaro": 36, "Pablo Marçal": 2},
+        scenario="full",
+    )
+    rows += poll_rows(
+        "2026",
+        1,
+        "P",
+        "2026-09-01",
+        "2026-09-02",
+        2000,
+        {"Lula": 41, "Flávio Bolsonaro": 37},
+        scenario="without Pablo Marçal",
+    )
     out = transform.select_scenarios(pd.DataFrame(rows), "2026", 1)
     assert set(out["scenario"]) == {"without Pablo Marçal"}
 

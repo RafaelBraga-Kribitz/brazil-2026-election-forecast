@@ -33,8 +33,12 @@ PRIORS = {"sigma_rw": 0.5, "rho_log_sd": 0.75, "sigma_house": 2.0, "sigma_ns": 2
 
 def converged(diag: dict) -> bool:
     """Pre-registered convergence criteria (PREREG.md section 4)."""
-    return (diag["rhat_max"] <= 1.01 and diag["ess_bulk_min"] >= 400 and diag["ess_tail_min"] >= 400
-            and diag["divergences"] <= 0.01 * diag["draws"])
+    return (
+        diag["rhat_max"] <= 1.01
+        and diag["ess_bulk_min"] >= 400
+        and diag["ess_tail_min"] >= 400
+        and diag["divergences"] <= 0.01 * diag["draws"]
+    )
 
 
 RETRY_SAMPLER = {"target_accept": 0.99, "tune": 2000}  # PREREG section 4
@@ -62,7 +66,9 @@ def _long_obs(wide: pd.DataFrame, series: list[str], start: date, pollsters: lis
     for s_idx, s in enumerate(series):
         sub = wide[["field_mid", "pollster", "sample_size", s]].dropna(subset=[s])
         for r in sub.itertuples(index=False):
-            rows.append((s_idx, (r.field_mid - start).days, pollsters.index(r.pollster), float(r.sample_size), float(r[3])))
+            rows.append(
+                (s_idx, (r.field_mid - start).days, pollsters.index(r.pollster), float(r.sample_size), float(r[3]))
+            )
     arr = np.array(rows, dtype=float)
     p = np.clip(arr[:, 4] / 100.0, 0.005, 0.995)
     return {
@@ -104,14 +110,17 @@ def fit(
     obs = _long_obs(wide, series, window_start, pollsters)
 
     m0 = np.array(
-        [np.nanmean(wide.loc[wide["field_mid"] <= window_start + timedelta(days=13), s].to_numpy(dtype=float))
-         if wide.loc[wide["field_mid"] <= window_start + timedelta(days=13), s].notna().any()
-         else np.nanmean(wide[s].to_numpy(dtype=float)) for s in series]
+        [
+            np.nanmean(wide.loc[wide["field_mid"] <= window_start + timedelta(days=13), s].to_numpy(dtype=float))
+            if wide.loc[wide["field_mid"] <= window_start + timedelta(days=13), s].notna().any()
+            else np.nanmean(wide[s].to_numpy(dtype=float))
+            for s in series
+        ]
     )
     late = np.zeros(T - 1)
-    late[-config.LATE_REGIME_DAYS:] = 1.0  # innovations entering the final LATE_REGIME_DAYS days
+    late[-config.LATE_REGIME_DAYS :] = 1.0  # innovations entering the final LATE_REGIME_DAYS days
 
-    with pm.Model() as model:
+    with pm.Model():
         sigma_rw = pm.HalfNormal("sigma_rw", pr["sigma_rw"], shape=S)
         if two_regime:
             rho = pm.LogNormal("rho", 0.0, pr["rho_log_sd"], shape=S)
@@ -134,8 +143,14 @@ def fit(
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             idata = pm.sample(
-                draws=sk["draws"], tune=sk["tune"], chains=sk["chains"], cores=1, target_accept=sk["target_accept"],
-                random_seed=sk["random_seed"], progressbar=False, compile_kwargs={"mode": "NUMBA"},
+                draws=sk["draws"],
+                tune=sk["tune"],
+                chains=sk["chains"],
+                cores=1,
+                target_accept=sk["target_accept"],
+                random_seed=sk["random_seed"],
+                progressbar=False,
+                compile_kwargs={"mode": "NUMBA"},
             )
 
     post = idata.posterior
@@ -145,9 +160,18 @@ def fit(
     q = np.quantile(mu_d, [0.03, 0.10, 0.5, 0.90, 0.97], axis=0)  # (5, S, T)
     path = pd.DataFrame(
         [
-            {"date": days[t], "series": series[s], "mean": mu_d[:, s, t].mean(), "q03": q[0, s, t], "q10": q[1, s, t],
-             "median": q[2, s, t], "q90": q[3, s, t], "q97": q[4, s, t]}
-            for s in range(S) for t in range(T)
+            {
+                "date": days[t],
+                "series": series[s],
+                "mean": mu_d[:, s, t].mean(),
+                "q03": q[0, s, t],
+                "q10": q[1, s, t],
+                "median": q[2, s, t],
+                "q90": q[3, s, t],
+                "q97": q[4, s, t],
+            }
+            for s in range(S)
+            for t in range(T)
         ]
     )
     n_by_p = wide.groupby("pollster")["poll_id"].nunique()
@@ -157,17 +181,31 @@ def fit(
         for s in range(S):
             for j, pname in enumerate(pollsters):
                 v = hd[:, s, j]
-                house_rows.append({"series": series[s], "pollster": pname, "mean": v.mean(),
-                                   "q03": np.quantile(v, 0.03), "q97": np.quantile(v, 0.97),
-                                   "n_polls": int(n_by_p.get(pname, 0))})
+                house_rows.append(
+                    {
+                        "series": series[s],
+                        "pollster": pname,
+                        "mean": v.mean(),
+                        "q03": np.quantile(v, 0.03),
+                        "q97": np.quantile(v, 0.97),
+                        "n_polls": int(n_by_p.get(pname, 0)),
+                    }
+                )
     names = ["sigma_rw", "sigma_ns"] + (["sigma_house"] if P > 1 else []) + (["rho"] if two_regime else [])
     prm = []
     for nm in names:
         v = post[nm].stack(sample=("chain", "draw")).transpose("sample", ...).to_numpy()
         for s in range(S):
-            prm.append({"series": series[s], "param": nm, "mean": v[:, s].mean(),
-                        "q03": np.quantile(v[:, s], 0.03), "q97": np.quantile(v[:, s], 0.97)})
-    vn = names + ["init"]
+            prm.append(
+                {
+                    "series": series[s],
+                    "param": nm,
+                    "mean": v[:, s].mean(),
+                    "q03": np.quantile(v[:, s], 0.03),
+                    "q97": np.quantile(v[:, s], 0.97),
+                }
+            )
+    vn = [*names, "init"]
     diag = {
         "rhat_max": float(az.rhat(idata, var_names=vn).to_array().max()),
         "ess_bulk_min": float(az.ess(idata, var_names=vn, method="bulk").to_array().min()),
@@ -179,7 +217,15 @@ def fit(
     }
     diag["converged"] = converged(diag)
     return FitResult(
-        series=series, days=days, election_day_draws=ed, path=path, house=pd.DataFrame(house_rows),
-        params=pd.DataFrame(prm), diagnostics=diag, n_polls=int(wide["poll_id"].nunique()), cutoff=cutoff,
-        variant="two_regime" if two_regime else "single_regime", polls=wide,
+        series=series,
+        days=days,
+        election_day_draws=ed,
+        path=path,
+        house=pd.DataFrame(house_rows),
+        params=pd.DataFrame(prm),
+        diagnostics=diag,
+        n_polls=int(wide["poll_id"].nunique()),
+        cutoff=cutoff,
+        variant="two_regime" if two_regime else "single_regime",
+        polls=wide,
     )

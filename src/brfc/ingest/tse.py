@@ -30,7 +30,9 @@ def _norm(s: str) -> set[str]:
 
 
 def national_totals(zip_path: Path) -> pd.DataFrame:
-    """Sum presidential nominal votes by round and ballot name. Uses the _BR file if present (avoids double counting)."""
+    """Sum presidential nominal votes by round and ballot name.
+
+    Uses the _BR file if present, to avoid double counting."""
     with zipfile.ZipFile(zip_path) as z:
         names = [n for n in z.namelist() if n.lower().endswith(".csv")]
         br = [n for n in names if re.search(r"_BR\.csv$", n, re.I)]
@@ -38,10 +40,25 @@ def national_totals(zip_path: Path) -> pd.DataFrame:
         frames = []
         for n in use:
             with z.open(n) as fh:
-                d = pd.read_csv(io.TextIOWrapper(fh, encoding="latin-1"), sep=";", dtype=str,
-                                usecols=lambda c: c in {"DS_CARGO", "CD_CARGO", "NR_TURNO", "NM_URNA_CANDIDATO",
-                                                        "NR_CANDIDATO", "QT_VOTOS_NOMINAIS"})
-            cargo = d["DS_CARGO"].str.upper().str.contains("PRESIDENTE") & ~d["DS_CARGO"].str.upper().str.contains("VICE")
+                d = pd.read_csv(
+                    io.TextIOWrapper(fh, encoding="latin-1"),
+                    sep=";",
+                    dtype=str,
+                    usecols=lambda c: (
+                        c
+                        in {
+                            "DS_CARGO",
+                            "CD_CARGO",
+                            "NR_TURNO",
+                            "NM_URNA_CANDIDATO",
+                            "NR_CANDIDATO",
+                            "QT_VOTOS_NOMINAIS",
+                        }
+                    ),
+                )
+            cargo = d["DS_CARGO"].str.upper().str.contains("PRESIDENTE") & ~d["DS_CARGO"].str.upper().str.contains(
+                "VICE"
+            )
             frames.append(d[cargo])
     d = pd.concat(frames)
     d["votes"] = pd.to_numeric(d["QT_VOTOS_NOMINAIS"], errors="coerce").fillna(0).astype(int)
@@ -58,7 +75,15 @@ def reconcile(election: str, secondary: pd.DataFrame) -> pd.DataFrame:
         for c in sec.itertuples():
             match = t[t["NM_URNA_CANDIDATO"].map(lambda n, c=c: bool(_norm(n) & _norm(c.candidate)))]
             tv = int(match["votes"].sum()) if len(match) == 1 else None
-            rows.append({"election": election, "round": rnd, "candidate": c.candidate, "secondary_votes": int(c.votes),
-                         "tse_votes": tv, "tse_name": ";".join(match["NM_URNA_CANDIDATO"]),
-                         "difference": None if tv is None else int(c.votes) - tv})
+            rows.append(
+                {
+                    "election": election,
+                    "round": rnd,
+                    "candidate": c.candidate,
+                    "secondary_votes": int(c.votes),
+                    "tse_votes": tv,
+                    "tse_name": ";".join(match["NM_URNA_CANDIDATO"]),
+                    "difference": None if tv is None else int(c.votes) - tv,
+                }
+            )
     return pd.DataFrame(rows)
