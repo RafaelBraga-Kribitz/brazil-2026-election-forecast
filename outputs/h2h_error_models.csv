@@ -1,0 +1,13 @@
+election,r1_horizon,cutoff,variant,pair,n_polls,fit_key,converged,model,n_train,train_elections,sigma_mean,mu_rank1_mean,mu_rank1_q03,mu_rank1_q97
+2014,1,2014-10-04,E,Aécio Neves vs Dilma Rousseff,28,2014_h2h_aecio-neves_vs_dilma-rousseff_r1h01_single_regime,True,E,2,2018+2022,3.611183219406468,0.0,0.0,0.0
+2014,1,2014-10-04,F,Aécio Neves vs Dilma Rousseff,28,2014_h2h_aecio-neves_vs_dilma-rousseff_r1h01_single_regime,True,F,2,2018+2022,3.865943881293764,0.03190749788104597,-3.6976347987607707,3.6868576529348394
+2014,7,2014-09-28,E,Aécio Neves vs Dilma Rousseff,18,2014_h2h_aecio-neves_vs_dilma-rousseff_r1h07_single_regime,True,E,2,2018+2022,3.612091734744915,0.0,0.0,0.0
+2014,7,2014-09-28,F,Aécio Neves vs Dilma Rousseff,18,2014_h2h_aecio-neves_vs_dilma-rousseff_r1h07_single_regime,True,F,2,2018+2022,3.890988496165388,0.0065366738183218745,-3.8386738816164896,3.643024681470038
+2018,1,2018-10-06,E,Fernando Haddad vs Jair Bolsonaro,43,2018_h2h_fernando-haddad_vs_jair-bolsonaro_r1h01_single_regime,True,E,2,2014+2022,3.434639621540513,0.0,0.0,0.0
+2018,1,2018-10-06,F,Fernando Haddad vs Jair Bolsonaro,43,2018_h2h_fernando-haddad_vs_jair-bolsonaro_r1h01_single_regime,True,F,2,2014+2022,1.5687996123707901,-2.752569147653774,-4.709250041736305,0.23190539591343293
+2018,7,2018-09-30,E,Fernando Haddad vs Jair Bolsonaro,32,2018_h2h_fernando-haddad_vs_jair-bolsonaro_r1h07_single_regime,True,E,2,2014+2022,3.4429645631877284,0.0,0.0,0.0
+2018,7,2018-09-30,F,Fernando Haddad vs Jair Bolsonaro,32,2018_h2h_fernando-haddad_vs_jair-bolsonaro_r1h07_single_regime,True,F,2,2014+2022,1.5917517755918635,-2.721659493880095,-4.599958473880061,0.2475816330955709
+2022,1,2022-10-01,E,Jair Bolsonaro vs Lula,64,2022_h2h_jair-bolsonaro_vs_lula_r1h01_single_regime,True,E,2,2014+2018,3.4161789388129367,0.0,0.0,0.0
+2022,1,2022-10-01,F,Jair Bolsonaro vs Lula,64,2022_h2h_jair-bolsonaro_vs_lula_r1h01_single_regime,True,F,2,2014+2018,3.6386605118372786,0.23844694933488414,-3.506387201267992,3.900902500100488
+2022,7,2022-09-25,E,Jair Bolsonaro vs Lula,51,2022_h2h_jair-bolsonaro_vs_lula_r1h07_single_regime,True,E,2,2014+2018,3.4123118289429804,0.0,0.0,0.0
+2022,7,2022-09-25,F,Jair Bolsonaro vs Lula,51,2022_h2h_jair-bolsonaro_vs_lula_r1h07_single_regime,True,F,2,2014+2018,3.6681517422474155,0.16270496995488776,-3.4897245666367507,3.7439060914006617

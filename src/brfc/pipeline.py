@@ -224,12 +224,16 @@ def baseline_point(kind: str, fit: CachedFit, election: str, cutoff) -> dict | N
     return baselines.as_categories(p, categories_of(fit.meta, election), r) if p else None
 
 
-def historical_fits(variant: str, tag: str = "", elections=config.HISTORICAL) -> dict[tuple[str, int, int], CachedFit]:
+def historical_fits(
+    variant: str, tag: str = "", elections=config.HISTORICAL, tag_by_cell: dict | None = None
+) -> dict[tuple[str, int, int], CachedFit]:
+    """Cached historical fits. `tag_by_cell` maps (election, round) to a tag that overrides `tag` for those cells
+    (used only by the labelled post-result revision report)."""
     out = {}
     for e in elections:
         for r, hs in ((1, config.HORIZONS_R1), (2, config.HORIZONS_R2)):
             for h in hs:
-                k = fit_key(e, r, h, variant, tag)
+                k = fit_key(e, r, h, variant, (tag_by_cell or {}).get((e, r), tag))
                 if (CACHE / f"{k}.json").exists():
                     f = load_fit(k)
                     if f is not None:
@@ -258,14 +262,20 @@ def baseline_errors(fits_all: dict, results: pd.DataFrame) -> pd.DataFrame:
 
 
 def evaluate_backtest(
-    variant: str, results: pd.DataFrame, *, elections=config.HISTORICAL, error_prior=None, tag: str = ""
+    variant: str,
+    results: pd.DataFrame,
+    *,
+    elections=config.HISTORICAL,
+    error_prior=None,
+    tag: str = "",
+    tag_by_cell: dict | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Returns (scores, category_rows, deviations, error_model_summaries) for one RW variant."""
     from datetime import date
 
     from brfc.data import actual_shares
 
-    fits_all = historical_fits(variant, tag, elections)
+    fits_all = historical_fits(variant, tag, elections, tag_by_cell)
     eve = {(e, r): f for (e, r, h), f in fits_all.items() if h == 1}
     devs = eve_deviations(eve, results)
     berr = baseline_errors(fits_all, results)

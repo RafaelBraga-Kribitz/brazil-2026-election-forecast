@@ -1,0 +1,4 @@
+election,round,pair,category,role,forecast,actual,deviation,cutoff,r1_horizon,n_polls,fit_key,converged,variant
+2014,h2h,Aécio Neves vs Dilma Rousseff,Dilma Rousseff,rank1,54.47260624885559,51.639136102365356,-2.833470146490235,2014-10-04,1,28,2014_h2h_aecio-neves_vs_dilma-rousseff_r1h01_single_regime,True,single_regime
+2018,h2h,Fernando Haddad vs Jair Bolsonaro,Jair Bolsonaro,rank1,51.63403194522858,55.13023128003058,3.496199334802,2018-10-06,1,43,2018_h2h_fernando-haddad_vs_jair-bolsonaro_r1h01_single_regime,True,single_regime
+2022,h2h,Jair Bolsonaro vs Lula,Lula,rank1,54.42167643165588,50.90240511717216,-3.519271314483724,2022-10-01,1,64,2022_h2h_jair-bolsonaro_vs_lula_r1h01_single_regime,True,single_regime

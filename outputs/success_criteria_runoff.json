@@ -1,0 +1,43 @@
+{
+ "rule": "PREREG_ADDENDUM_04.md section 5",
+ "HR1_E_h2h_mae_le_B": {
+  "criterion": "head-to-head model E share MAE <= baseline B at the first-round eve cutoff (actual pair)",
+  "E": 3.2660525472015665,
+  "B": 3.7420817196628655,
+  "elections": [
+   "2014",
+   "2018",
+   "2022"
+  ],
+  "met": true,
+  "result": "met"
+ },
+ "HR2_E_94_interval": {
+  "criterion": "actual runoff share inside model E's 94% interval in at least 2 of 3 elections (eve)",
+  "inside_94": 3,
+  "n_elections": 3,
+  "required": 2,
+  "by_election": {
+   "2014": true,
+   "2018": true,
+   "2022": true
+  },
+  "met": true,
+  "result": "met"
+ },
+ "HR3_FxE_brier_le_B": {
+  "criterion": "Brier of \"who was elected\", first-round F x head-to-head E <= baseline B (eve)",
+  "F_E": 0.10904768501020168,
+  "B": 0.11474595941190883,
+  "elections": [
+   "2014",
+   "2018",
+   "2022"
+  ],
+  "met": true,
+  "result": "met"
+ },
+ "variant": "single_regime",
+ "scope": "historical elections, first-round eve cutoff, production random-walk variant",
+ "note": "three elections is very weak evidence"
+}
