@@ -20,3 +20,5 @@ scripts/_finish_backtest.py
 data/_finish.sh
 data/finish_log.txt
 data/manual/benchmarks_2026_test.csv
+data/sensitivity_log.txt
+data/*_log.txt
