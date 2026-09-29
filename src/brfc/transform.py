@@ -38,7 +38,8 @@ def select_scenarios(df: pd.DataFrame, election: str, round_: int) -> pd.DataFra
     """Keep one scenario per poll: the one matching the registered ballot (round 1) or the actual runoff pair.
 
     Round 1: drop scenarios that include a material (>= 3%) candidate not on the registered ballot; among the rest prefer
-    total-basis tables (so one conversion rule applies to all rows), then the scenario with most ballot candidates,
+    total-basis tables (so one conversion rule applies to all rows), then fewest off-ballot names, then the
+    scenario with most ballot candidates,
     then the lexicographically first label (deterministic tie-break).
     Round 2: keep only the scenario whose candidate set equals the runoff pair.
     """
@@ -55,11 +56,15 @@ def select_scenarios(df: pd.DataFrame, election: str, round_: int) -> pd.DataFra
         material = ~named["candidate"].isin(ballot) & (named["share_reported"] >= config.NAMED_THRESHOLD_PCT)
         off_ballot = named.assign(off=material).groupby(["poll_id", "scenario"])["off"].any()
         n_ballot = named[named["candidate"].isin(ballot)].groupby(["poll_id", "scenario"])["candidate"].nunique()
+        n_off = named[~named["candidate"].isin(ballot)].groupby(["poll_id", "scenario"])["candidate"].nunique()
         basis = d.groupby(["poll_id", "scenario"])["share_basis"].first()
-        cand = pd.DataFrame({"off": off_ballot, "n": n_ballot, "basis": basis}).fillna({"off": True, "n": 0})
+        cand = pd.DataFrame({"off": off_ballot, "n": n_ballot, "n_off": n_off, "basis": basis})
+        cand = cand.fillna({"off": True, "n": 0, "n_off": 0})
         cand = cand[~cand["off"].astype(bool)].reset_index()
         cand["basis_rank"] = (cand["basis"] != "total").astype(int)
-        cand = cand.sort_values(["poll_id", "basis_rank", "n", "scenario"], ascending=[True, True, False, True])
+        # PREREG_ADDENDUM_01: fewest off-ballot names first (e.g. prefer "without X" when X's candidacy was revoked)
+        cand = cand.sort_values(["poll_id", "basis_rank", "n_off", "n", "scenario"],
+                                ascending=[True, True, True, False, True])
         keep = cand.drop_duplicates("poll_id")[["poll_id", "scenario"]]
     else:
         pair = set(config.RUNOFF_PAIRS[election]) if election in config.RUNOFF_PAIRS else None

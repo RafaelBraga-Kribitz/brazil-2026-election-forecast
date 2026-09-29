@@ -40,8 +40,11 @@ BALLOTS: dict[str, list[str]] = {
         "Lula", "Jair Bolsonaro", "Simone Tebet", "Ciro Gomes", "Soraya Thronicke", "Felipe d'Avila", "Padre Kelmon",
         "Léo Péricles", "Sofia Manzano", "Vera Lúcia", "José Maria Eymael",
     ],
-    # 2026: filled from the TSE registered-candidate list before the freeze (see PREREG.md section 2).
-    "2026": [],
+    # 2026: registered candidates per data/manual/ballot_2026.csv (Wikipedia PT oldid 73078529).
+    "2026": [
+        "Lula", "Flávio Bolsonaro", "Ronaldo Caiado", "Romeu Zema", "Renan Santos", "Augusto Cury", "Samara Martins",
+        "Rui Costa Pimenta", "Wilson Grassi", "Hertz Dias", "Edmilson Costa", "Clariana Barão", "Leonardo Avalanche",
+    ],
 }
 
 # Runoff pairings: known once the first round is counted (information-fair for runoff forecasts).

@@ -1,0 +1,23 @@
+poll_id,pollster,field_end,candidate,pt_value,en_value,pt_revision,en_revision,kind,pt_scenario,en_scenario,en_poll_id,match_tier
+2026-1-778909e290,Vox Brasil,2026-09-28,Lula,41.0,41.4,73082572,1377453715,share,main,main,2026-1-778909e290,exact
+2026-1-778909e290,Vox Brasil,2026-09-28,__blank_null__,9.3,10.3,73082572,1377453715,blank_null,main,main,2026-1-778909e290,exact
+2026-1-37a6b8c433,Indexa,2026-09-13,Flávio Bolsonaro,36.0,34.0,73082572,1377453715,share,main,main,2026-1-37a6b8c433,exact
+2026-1-37a6b8c433,Indexa,2026-09-13,Romeu Zema,0.0,1.0,73082572,1377453715,share,main,main,2026-1-37a6b8c433,exact
+2026-1-5d52253839,Palver,2026-09-07,Romeu Zema,0.0,1.0,73082572,1377453715,share,without Pablo Marçal,main,2026-1-5d52253839,exact
+2026-1-8f7c5340f4,Datafolha,2026-09-02,__others_aggregate__,5.0,3.0,73082572,1377453715,others_aggregate,main,main,2026-1-8f7c5340f4,exact
+2026-1-32e7f23c0b,AtlasIntel,2026-08-30,__others_aggregate__,3.0,4.0,73082572,1377453715,others_aggregate,main,main,2026-1-32e7f23c0b,exact
+2026-1-ded3a46419,Futura,2026-07-11,Lula,37.1,37.8,73082572,1377453715,share,"with Flávio Bolsonaro, Ronaldo Caiado",without Augusto Cury,2026-1-ded3a46419,exact
+2026-1-b522ebde3b,Nexus,2026-06-28,Flávio Bolsonaro,35.0,34.0,73082572,1377453715,share,full,full,2026-1-b522ebde3b,exact
+2026-1-bf16d6d21d,Vox Brasil,2026-06-25,Romeu Zema,3.8,2.8,73082572,1377453715,share,main,main,2026-1-bf16d6d21d,exact
+2026-1-cad08769b7,Futura,2026-09-23,__field_start__,2026-09-19,2026-09-18,73082572,1377453715,field_start,,,2026-1-525982cfd7,field_end_pm1
+2026-1-cad08769b7,Futura,2026-09-23,__field_end__,2026-09-23,2026-09-24,73082572,1377453715,field_end,,,2026-1-525982cfd7,field_end_pm1
+2026-1-ab87daa748,Datafolha,2026-09-11,__field_end__,2026-09-11,2026-09-10,73082572,1377453715,field_end,,,2026-1-878813309d,field_end_pm1
+2026-1-e517709f7b,PoderData,2026-07-28,__field_end__,2026-07-28,2026-07-29,73082572,1377453715,field_end,,,2026-1-20e5820c85,field_end_pm1
+2026-1-73ef1d83fd,Datafolha,2026-07-24,__field_end__,2026-07-24,2026-07-23,73082572,1377453715,field_end,,,2026-1-80895d2ffd,field_end_pm1
+2026-1-932cab5ba7,Datafolha,2026-06-19,__field_end__,2026-06-19,2026-06-18,73082572,1377453715,field_end,,,2026-1-36c5a027e2,field_end_pm1
+2026-1-544937bbb3,Palver,2026-09-23,__sample_size__,3000,5000,73082572,1377453715,sample_size,,,2026-1-26d55b6e51,same_dates_n_differs
+2026-1-64e331dd02,Nexus,2026-09-20,__sample_size__,2000,2006,73082572,1377453715,sample_size,,,2026-1-b613f47d3e,same_dates_n_differs
+2026-1-64e331dd02,Nexus,2026-09-20,__blank_null__,7.0,6.0,73082572,1377453715,blank_null,main,main,2026-1-b613f47d3e,same_dates_n_differs
+2026-1-b8216efae8,Ideia,2026-07-06,__sample_size__,2000,1500,73082572,1377453715,sample_size,,,2026-1-a5917d5c62,same_dates_n_differs
+2026-1-0db3edeb1d,Palver,2026-09-18,__field_end__,2026-09-18,2026-09-20,73082572,1377453715,field_end,,,2026-1-dc71a9d65c,overlap_same_n
+2026-1-847fa79aec,Vox Brasil,2026-06-06,__field_end__,2026-06-06,2026-06-03,73082572,1377453715,field_end,,,2026-1-e6b64a8b76,overlap_same_n
