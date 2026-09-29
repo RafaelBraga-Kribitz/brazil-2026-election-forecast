@@ -1,0 +1,80 @@
+"""Fetch Wikipedia pages pinned to an exact revision (oldid) via the MediaWiki API.
+
+Raw HTML is cached under data/raw/wikipedia/ (not redistributed) with a provenance
+record next to it, so every parsed poll row can cite page, revision and hash.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from urllib.parse import quote
+
+import requests
+
+from brfc.provenance import SourceRecord, read_record, sha256_bytes, utc_now_iso, write_record
+
+USER_AGENT = "brazil-2026-forecast/0.1 (research project; https://github.com/RafaelBraga-Kribitz)"
+RAW_DIR = Path(__file__).resolve().parents[3] / "data" / "raw" / "wikipedia"
+
+
+def _api(lang: str) -> str:
+    return f"https://{lang}.wikipedia.org/w/api.php"
+
+
+def latest_revision(lang: str, title: str) -> int:
+    r = requests.get(
+        _api(lang),
+        params={
+            "action": "query",
+            "titles": title,
+            "prop": "revisions",
+            "rvprop": "ids",
+            "format": "json",
+            "formatversion": 2,
+            "redirects": 1,
+        },
+        headers={"User-Agent": USER_AGENT},
+        timeout=60,
+    )
+    r.raise_for_status()
+    page = r.json()["query"]["pages"][0]
+    return int(page["revisions"][0]["revid"])
+
+
+def fetch_revision(lang: str, title: str, oldid: int | None = None, raw_dir: Path = RAW_DIR) -> tuple[str, SourceRecord]:
+    """Return (html, provenance) for `title` at revision `oldid` (latest if None). Cached on disk."""
+    if oldid is None:
+        oldid = latest_revision(lang, title)
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    stem = f"{lang}_{oldid}"
+    html_path = raw_dir / f"{stem}.html"
+    rec_path = raw_dir / f"{stem}.provenance.json"
+    if html_path.exists() and rec_path.exists():
+        return html_path.read_text(encoding="utf-8"), read_record(rec_path)
+
+    r = requests.get(
+        _api(lang),
+        params={"action": "parse", "oldid": oldid, "prop": "text|revid|displaytitle", "format": "json", "formatversion": 2},
+        headers={"User-Agent": USER_AGENT},
+        timeout=120,
+    )
+    r.raise_for_status()
+    payload = r.json()
+    if "error" in payload:
+        raise RuntimeError(json.dumps(payload["error"]))
+    html = payload["parse"]["text"]
+    html_path.write_text(html, encoding="utf-8")
+    url = f"https://{lang}.wikipedia.org/w/index.php?title={quote(title.replace(' ', '_'))}&oldid={oldid}"
+    rec = SourceRecord(
+        source=f"wikipedia_{lang}",
+        url=url,
+        retrieval_timestamp=utc_now_iso(),
+        source_type="wikipedia_revision",
+        revision=str(oldid),
+        sha256=sha256_bytes(html.encode("utf-8")),
+        local_path=str(html_path.relative_to(raw_dir.parents[2])).replace("\\", "/"),
+        description=title,
+    )
+    write_record(rec, rec_path)
+    return html, rec

@@ -1,0 +1,16 @@
+# environments
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+# internal working material (never published)
+.internal/
+.project-state.json
+# raw external downloads (not redistributed; see data/README.md)
+data/raw/**
+!data/raw/README.md
+!data/raw/**/.gitkeep
+# local caches
+data/cache/
+*.nc
