@@ -1,0 +1,551 @@
+{
+ "status": "PRELIMINARY",
+ "election": "Brazil 2026 presidential election, first round (2026-10-04)",
+ "information_cutoff_date": "2026-09-29",
+ "horizon_days": 5,
+ "generated_utc": "2026-09-29T16:59:51Z",
+ "git_commit": "00553666e8b66f6f23eabf5e66c051664487e94a",
+ "model_version": "brfc-0.1.0 independent valid-share random walks + LOEO round-specific election-day term",
+ "rw_variant": "single_regime",
+ "primary_model": "F",
+ "interval_type": "equal-tailed posterior predictive intervals (q10-q90 = 80%, q03-q97 = 94%)",
+ "share_basis": "valid votes (blank and null excluded; undecided allocated proportionally - an assumption)",
+ "poll_source": {
+  "requested_at_utc": "2026-09-29T16:55:38Z",
+  "pt_oldid": 73082572,
+  "pt_revision_timestamp": "2026-09-29T12:53:33Z",
+  "en_oldid": 1377478949,
+  "en_revision_timestamp": "2026-09-29T16:16:50Z",
+  "refreshed_utc": "2026-09-29T16:55:43Z"
+ },
+ "n_polls": 57,
+ "n_pollsters": 17,
+ "named_candidates": [
+  "Lula",
+  "Flávio Bolsonaro",
+  "Augusto Cury",
+  "Renan Santos",
+  "Ronaldo Caiado"
+ ],
+ "roles": {
+  "Lula": "rank1",
+  "Flávio Bolsonaro": "rank2",
+  "Augusto Cury": "rest",
+  "Renan Santos": "rest",
+  "Ronaldo Caiado": "rest",
+  "Others": "rest"
+ },
+ "election_day_term_trained_on": [
+  "2014",
+  "2018",
+  "2022"
+ ],
+ "error_models": {
+  "E": {
+   "variant": "E",
+   "n_train": 15,
+   "train_elections": "2014+2018+2022",
+   "sigma_mean": 3.167045090030009,
+   "mu_rank1_mean": 0.0,
+   "mu_rank1_q03": 0.0,
+   "mu_rank1_q97": 0.0,
+   "mu_rank2_mean": 0.0,
+   "mu_rank2_q03": 0.0,
+   "mu_rank2_q97": 0.0,
+   "mu_rest_mean": 0.0,
+   "mu_rest_q03": 0.0,
+   "mu_rest_q97": 0.0
+  },
+  "F": {
+   "variant": "F",
+   "n_train": 15,
+   "train_elections": "2014+2018+2022",
+   "sigma_mean": 2.7050469698232735,
+   "mu_rank1_mean": 0.6719530304417727,
+   "mu_rank1_q03": -2.042535023557256,
+   "mu_rank1_q97": 3.318818706864675,
+   "mu_rank2_mean": 2.784031774151152,
+   "mu_rank2_q03": 0.03691997062092547,
+   "mu_rank2_q97": 5.325044085568926,
+   "mu_rest_mean": -1.307962327108065,
+   "mu_rest_q03": -2.970810964367191,
+   "mu_rest_q97": 0.376199552854344
+  }
+ },
+ "fit_diagnostics": {
+  "rhat_max": 1.0050784469296357,
+  "ess_bulk_min": 795.2061640087304,
+  "ess_tail_min": 1409.2230632591268,
+  "divergences": 0,
+  "draws": 4000,
+  "target_accept": 0.95,
+  "tune": 1000,
+  "converged": true
+ },
+ "models": {
+  "F": {
+   "label": "F: Bayesian RW + round-specific election-day term (primary)",
+   "categories": [
+    {
+     "category": "Lula",
+     "mean": 45.6251439582,
+     "median": 45.6596565644,
+     "q03": 38.8793780323,
+     "q10": 41.0432012219,
+     "q90": 50.1067957728,
+     "q97": 52.2540177603,
+     "p_first": 0.6425,
+     "p_top_two": 1.0,
+     "p_above_50": 0.1065
+    },
+    {
+     "category": "Flávio Bolsonaro",
+     "mean": 43.8627031547,
+     "median": 43.9144623046,
+     "q03": 36.950111645,
+     "q10": 39.4157462988,
+     "q90": 48.4164570342,
+     "q97": 50.4220094865,
+     "p_first": 0.3575,
+     "p_top_two": 1.0,
+     "p_above_50": 0.04325
+    },
+    {
+     "category": "Augusto Cury",
+     "mean": 3.6562622433,
+     "median": 3.3150798886,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 8.0818473421,
+     "q97": 10.2279923782,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Renan Santos",
+     "mean": 2.8309251329,
+     "median": 2.6071960245,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 6.0806229964,
+     "q97": 7.7925112451,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Ronaldo Caiado",
+     "mean": 2.6016672926,
+     "median": 2.3701330155,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 5.7502968587,
+     "q97": 7.2797591195,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Others",
+     "mean": 1.4232982183,
+     "median": 0.3923997877,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 4.2532763543,
+     "q97": 6.0528323847,
+     "p_first": null,
+     "p_top_two": null,
+     "p_above_50": null
+    }
+   ]
+  },
+  "E": {
+   "label": "E: Bayesian RW, zero-mean election-day error",
+   "categories": [
+    {
+     "category": "Lula",
+     "mean": 44.4768632751,
+     "median": 44.3947043701,
+     "q03": 37.5248836373,
+     "q10": 39.7556407824,
+     "q90": 49.2608316546,
+     "q97": 51.5397734181,
+     "p_first": 0.77225,
+     "p_top_two": 1.0,
+     "p_above_50": 0.07325
+    },
+    {
+     "category": "Flávio Bolsonaro",
+     "mean": 40.6813014559,
+     "median": 40.5935576031,
+     "q03": 33.8828458213,
+     "q10": 36.0369433099,
+     "q90": 45.416158169,
+     "q97": 47.6596615374,
+     "p_first": 0.22775,
+     "p_top_two": 1.0,
+     "p_above_50": 0.006
+    },
+    {
+     "category": "Augusto Cury",
+     "mean": 4.7686662054,
+     "median": 4.5303654279,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 9.4979470141,
+     "q97": 11.8142735391,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Renan Santos",
+     "mean": 3.9877069658,
+     "median": 3.8835122742,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 7.6846969525,
+     "q97": 9.3661322546,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Ronaldo Caiado",
+     "mean": 3.7349427259,
+     "median": 3.6324441087,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 7.4871840426,
+     "q97": 9.0858414622,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Others",
+     "mean": 2.350519372,
+     "median": 1.781137201,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 5.8249107868,
+     "q97": 7.8106659532,
+     "p_first": null,
+     "p_top_two": null,
+     "p_above_50": null
+    }
+   ]
+  },
+  "E0": {
+   "label": "E0: Bayesian RW latent only (no election-day error; diagnostic)",
+   "categories": [
+    {
+     "category": "Lula",
+     "mean": 44.9350393576,
+     "median": 44.9317548095,
+     "q03": 41.6899403652,
+     "q10": 42.7160429929,
+     "q90": 47.1765819258,
+     "q97": 48.2774482476,
+     "p_first": 0.9465,
+     "p_top_two": 1.0,
+     "p_above_50": 0.004
+    },
+    {
+     "category": "Flávio Bolsonaro",
+     "mean": 41.0631673334,
+     "median": 41.0838373343,
+     "q03": 37.7257442681,
+     "q10": 38.7664441792,
+     "q90": 43.29251707,
+     "q97": 44.3711221244,
+     "p_first": 0.0535,
+     "p_top_two": 1.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Augusto Cury",
+     "mean": 4.6173199405,
+     "median": 4.6202913437,
+     "q03": 0.0,
+     "q10": 1.4667288598,
+     "q90": 7.5713056727,
+     "q97": 9.0641811799,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Renan Santos",
+     "mean": 3.9820532413,
+     "median": 3.9779812488,
+     "q03": 2.8689416855,
+     "q10": 3.3096128406,
+     "q90": 4.6481360847,
+     "q97": 5.0821145113,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Ronaldo Caiado",
+     "mean": 3.6444913328,
+     "median": 3.6587314066,
+     "q03": 2.3888065493,
+     "q10": 2.9063905756,
+     "q90": 4.3445629497,
+     "q97": 4.7900393631,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Others",
+     "mean": 1.7579287943,
+     "median": 1.7535909257,
+     "q03": 0.0,
+     "q10": 0.4218045103,
+     "q90": 3.0161753474,
+     "q97": 3.6551081304,
+     "p_first": null,
+     "p_top_two": null,
+     "p_above_50": null
+    }
+   ]
+  },
+  "B": {
+   "label": "B: 14-day latest-per-pollster average",
+   "categories": [
+    {
+     "category": "Lula",
+     "mean": 42.6465562436,
+     "median": 42.4352427378,
+     "q03": 32.8331110814,
+     "q10": 36.0065955507,
+     "q90": 49.6708172684,
+     "q97": 53.2715094204,
+     "p_first": 0.62,
+     "p_top_two": 1.0,
+     "p_above_50": 0.09025
+    },
+    {
+     "category": "Flávio Bolsonaro",
+     "mean": 40.1365153986,
+     "median": 40.1608662916,
+     "q03": 30.3725646384,
+     "q10": 33.311923233,
+     "q90": 46.8977038966,
+     "q97": 50.1902308969,
+     "p_first": 0.38,
+     "p_top_two": 1.0,
+     "p_above_50": 0.03325
+    },
+    {
+     "category": "Augusto Cury",
+     "mean": 5.2244793001,
+     "median": 4.7003456173,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 11.3582646318,
+     "q97": 14.0233428039,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Renan Santos",
+     "mean": 4.5887947836,
+     "median": 3.9162055503,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 10.5675203913,
+     "q97": 13.4825289806,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Ronaldo Caiado",
+     "mean": 4.2677272079,
+     "median": 3.5461888078,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 10.1317628828,
+     "q97": 12.8197587357,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Others",
+     "mean": 3.1359270663,
+     "median": 1.8237661303,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 8.5657852184,
+     "q97": 11.5078953682,
+     "p_first": null,
+     "p_top_two": null,
+     "p_above_50": null
+    }
+   ]
+  },
+  "C": {
+   "label": "C: Final Datafolha",
+   "categories": [
+    {
+     "category": "Lula",
+     "mean": 42.5289735684,
+     "median": 42.2370159473,
+     "q03": 30.8366640164,
+     "q10": 34.5626529427,
+     "q90": 50.8605338573,
+     "q97": 55.39748865,
+     "p_first": 0.671,
+     "p_top_two": 1.0,
+     "p_above_50": 0.12275
+    },
+    {
+     "category": "Flávio Bolsonaro",
+     "mean": 38.2186549725,
+     "median": 38.1519138927,
+     "q03": 26.7598879815,
+     "q10": 30.200726596,
+     "q90": 46.271483076,
+     "q97": 50.2114280274,
+     "p_first": 0.329,
+     "p_top_two": 0.9995,
+     "p_above_50": 0.033
+    },
+    {
+     "category": "Augusto Cury",
+     "mean": 5.9922297353,
+     "median": 5.3153219317,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 13.324649484,
+     "q97": 16.4654936025,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Renan Santos",
+     "mean": 4.353947914,
+     "median": 3.0769635324,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 11.1497116804,
+     "q97": 14.6587014568,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Ronaldo Caiado",
+     "mean": 5.1412244816,
+     "median": 4.2964196757,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 12.2283037785,
+     "q97": 15.3852382006,
+     "p_first": 0.0,
+     "p_top_two": 0.0005,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Others",
+     "mean": 3.7649693282,
+     "median": 2.2056409555,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 10.2277552915,
+     "q97": 13.8797458829,
+     "p_first": null,
+     "p_top_two": null,
+     "p_above_50": null
+    }
+   ]
+  },
+  "D": {
+   "label": "D: Final AtlasIntel",
+   "categories": [
+    {
+     "category": "Lula",
+     "mean": 46.0348234423,
+     "median": 45.9476018433,
+     "q03": 41.407449122,
+     "q10": 42.9428699813,
+     "q90": 49.2400396487,
+     "q97": 50.8357382839,
+     "p_first": 0.83175,
+     "p_top_two": 1.0,
+     "p_above_50": 0.06
+    },
+    {
+     "category": "Flávio Bolsonaro",
+     "mean": 42.8757963958,
+     "median": 42.90750448,
+     "q03": 38.3838218407,
+     "q10": 39.7641358097,
+     "q90": 45.9664997197,
+     "q97": 47.3801243022,
+     "p_first": 0.16825,
+     "p_top_two": 1.0,
+     "p_above_50": 0.00075
+    },
+    {
+     "category": "Augusto Cury",
+     "mean": 2.2865511746,
+     "median": 2.0226076223,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 5.048050998,
+     "q97": 6.3122233832,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Renan Santos",
+     "mean": 5.2294902023,
+     "median": 5.2316645086,
+     "q03": 0.857626504,
+     "q10": 2.2619729539,
+     "q90": 8.0867924211,
+     "q97": 9.4319698873,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Ronaldo Caiado",
+     "mean": 2.1047387985,
+     "median": 1.8556795434,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 4.7627692087,
+     "q97": 6.0194019648,
+     "p_first": 0.0,
+     "p_top_two": 0.0,
+     "p_above_50": 0.0
+    },
+    {
+     "category": "Others",
+     "mean": 1.4685999866,
+     "median": 0.9290570525,
+     "q03": 0.0,
+     "q10": 0.0,
+     "q90": 3.9540779503,
+     "q97": 5.2061282693,
+     "p_first": null,
+     "p_top_two": null,
+     "p_above_50": null
+    }
+   ]
+  }
+ },
+ "baselines_note": "B/C/D probabilities are a calibrated probabilistic conversion of point baselines (point + Normal(0, LOEO historical RMSE)); the baselines did not publish them.",
+ "neutrality_note": "An aggregation of publicly registered polls; not a poll, not a recommendation."
+}

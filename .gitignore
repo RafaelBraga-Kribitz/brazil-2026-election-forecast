@@ -1,24 +1,23 @@
-# environments
+# environments and tool caches
 .venv/
 __pycache__/
 *.pyc
 .pytest_cache/
 .ruff_cache/
+
 # internal working material (never published)
 .internal/
 .project-state.json
-# raw external downloads (not redistributed; see data/README.md)
+
+# raw external downloads are not redistributed (see data/raw/README.md)
 data/raw/**
 !data/raw/README.md
-!data/raw/**/.gitkeep
-# local caches
+
+# regenerable caches and run logs
 data/cache/
-*.nc
-data/cache_fitlog.txt
-data/*.log
-scripts/_finish_backtest.py
-data/_finish.sh
-data/finish_log.txt
-data/manual/benchmarks_2026_test.csv
-data/sensitivity_log.txt
+data/logs/
 data/*_log.txt
+*.nc
+
+# harness/editor state
+.claude/
