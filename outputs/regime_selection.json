@@ -1,0 +1,14 @@
+{
+ "rule": "PREREG.md section 9.1",
+ "n_rounds": 6,
+ "two_regime": {
+  "mean_log_first": -0.15784522520057512,
+  "mean_mae": 1.4250991344505934
+ },
+ "single_regime": {
+  "mean_log_first": -0.15345796275034548,
+  "mean_mae": 1.3785313901704683
+ },
+ "production_variant": "single_regime",
+ "note": "in-sample structural choice across all three historical elections; both variants published"
+}

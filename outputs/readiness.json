@@ -1,0 +1,20 @@
+{
+ "checked_utc": "2026-09-29T15:34:19Z",
+ "required": {
+  "polls_wiki_2014.csv": "OK",
+  "polls_wiki_2018.csv": "OK",
+  "polls_wiki_2022.csv": "OK",
+  "polls_wiki_2026.csv": "OK",
+  "results_secondary.csv": "OK",
+  "ballot_2026.csv": "OK"
+ },
+ "reconciliation": {
+  "votacao_candidato_munzona_2014.zip": "PENDING manual download",
+  "votacao_candidato_munzona_2018.zip": "PENDING manual download",
+  "votacao_candidato_munzona_2022.zip": "PENDING manual download"
+ },
+ "optional": {
+  "pesqele_2026": "not provided"
+ },
+ "ready": true
+}

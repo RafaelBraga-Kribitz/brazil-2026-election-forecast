@@ -1,0 +1,43 @@
+key,election,round,horizon,variant,status,n_polls,n_pollsters,n_dropped_overlap,named,retried,rhat_max,ess_bulk_min,ess_tail_min,divergences,draws,target_accept,tune,converged
+2014_r1_h01_single_regime,2014,1,1,single_regime,ok,17,4,0,Dilma Rousseff|Marina Silva|Aécio Neves,False,1.0061067467939422,658.9007853432083,1263.6813099429132,0.0,4000.0,0.95,1000.0,True
+2014_r1_h01_two_regime,2014,1,1,two_regime,ok,17,4,0,Dilma Rousseff|Marina Silva|Aécio Neves,False,1.0030148702565143,696.9863534715896,1434.8588067979065,0.0,4000.0,0.95,1000.0,True
+2014_r1_h07_single_regime,2014,1,7,single_regime,ok,13,4,0,Dilma Rousseff|Marina Silva|Aécio Neves,False,1.0029531057819117,1070.851130143955,728.1909675218529,0.0,12000.0,0.99,3000.0,True
+2014_r1_h07_two_regime,2014,1,7,two_regime,ok,13,4,0,Dilma Rousseff|Marina Silva|Aécio Neves,False,1.0027006345716276,1281.954517208415,1286.6293488521053,0.0,12000.0,0.99,3000.0,True
+2014_r1_h14_single_regime,2014,1,14,single_regime,ok,12,4,0,Dilma Rousseff|Marina Silva|Aécio Neves,False,1.0041790183370163,1126.5228214927554,774.2543284890829,0.0,12000.0,0.99,3000.0,True
+2014_r1_h14_two_regime,2014,1,14,two_regime,ok,12,4,0,Dilma Rousseff|Marina Silva|Aécio Neves,False,1.003291978337102,1151.13892173448,1425.364336952866,0.0,12000.0,0.99,3000.0,True
+2014_r1_h30_single_regime,2014,1,30,single_regime,skipped: 6 polls < 8,6,3,0,Dilma Rousseff|Marina Silva|Aécio Neves,False,,,,,,,,
+2014_r1_h30_two_regime,2014,1,30,two_regime,skipped: 6 polls < 8,6,3,0,Dilma Rousseff|Marina Silva|Aécio Neves,False,,,,,,,,
+2014_r2_h01_single_regime,2014,2,1,single_regime,ok,15,4,0,Dilma Rousseff,False,1.0029886808130974,1319.313955224477,1501.305730421337,10.0,4000.0,0.95,1000.0,True
+2014_r2_h01_two_regime,2014,2,1,two_regime,ok,15,4,0,Dilma Rousseff,False,1.0027133186932966,1173.9318092178949,1252.6249848653506,1.0,4000.0,0.95,1000.0,True
+2014_r2_h07_single_regime,2014,2,7,single_regime,skipped: 7 polls < 8,7,4,0,Dilma Rousseff,False,,,,,,,,
+2014_r2_h07_two_regime,2014,2,7,two_regime,skipped: 7 polls < 8,7,4,0,Dilma Rousseff,False,,,,,,,,
+2014_r2_h14_single_regime,2014,2,14,single_regime,skipped: 3 polls < 8,3,3,0,Dilma Rousseff,False,,,,,,,,
+2014_r2_h14_two_regime,2014,2,14,two_regime,skipped: 3 polls < 8,3,3,0,Dilma Rousseff,False,,,,,,,,
+2018_r1_h01_single_regime,2018,1,1,single_regime,ok,50,13,1,Jair Bolsonaro|Fernando Haddad|Ciro Gomes|Geraldo Alckmin|Marina Silva,True,1.0095845410676934,478.0608502498664,485.63027051008567,0.0,4000.0,0.99,2000.0,True
+2018_r1_h01_two_regime,2018,1,1,two_regime,ok,50,13,1,Jair Bolsonaro|Fernando Haddad|Ciro Gomes|Geraldo Alckmin|Marina Silva,False,1.0061399864965694,667.9040494509608,568.892187238063,0.0,4000.0,0.95,1000.0,True
+2018_r1_h07_single_regime,2018,1,7,single_regime,ok,38,11,1,Jair Bolsonaro|Fernando Haddad|Ciro Gomes|Geraldo Alckmin|Marina Silva,False,1.0089926376892238,642.799743174345,673.0621670192819,0.0,4000.0,0.95,1000.0,True
+2018_r1_h07_two_regime,2018,1,7,two_regime,ok,38,11,1,Jair Bolsonaro|Fernando Haddad|Ciro Gomes|Geraldo Alckmin|Marina Silva,False,1.0072860932093155,614.3656624891656,643.8143650428036,0.0,4000.0,0.95,1000.0,True
+2018_r1_h14_single_regime,2018,1,14,single_regime,ok,29,10,0,Jair Bolsonaro|Fernando Haddad|Ciro Gomes|Geraldo Alckmin|Marina Silva,False,1.0017649612314634,1240.335917134207,823.6221475174957,0.0,12000.0,0.99,3000.0,True
+2018_r1_h14_two_regime,2018,1,14,two_regime,ok,29,10,0,Jair Bolsonaro|Fernando Haddad|Ciro Gomes|Geraldo Alckmin|Marina Silva,False,1.0107790061681827,555.7201134368698,201.69259039631783,0.0,12000.0,0.99,3000.0,False
+2018_r1_h30_single_regime,2018,1,30,single_regime,ok,12,6,0,Jair Bolsonaro|Marina Silva|Ciro Gomes|Geraldo Alckmin|Fernando Haddad,False,1.0085591834779415,602.4138188534731,595.8611556356559,2.0,4000.0,0.95,1000.0,True
+2018_r1_h30_two_regime,2018,1,30,two_regime,ok,12,6,0,Jair Bolsonaro|Marina Silva|Ciro Gomes|Geraldo Alckmin|Fernando Haddad,False,1.005673621686678,585.4785257005341,572.1320732417133,5.0,4000.0,0.95,1000.0,True
+2018_r2_h01_single_regime,2018,2,1,single_regime,ok,25,10,0,Jair Bolsonaro,False,1.0045293971886675,1191.6017009755678,1379.3110799750389,0.0,4000.0,0.95,1000.0,True
+2018_r2_h01_two_regime,2018,2,1,two_regime,ok,25,10,0,Jair Bolsonaro,False,1.0031813791691757,953.025878432202,1290.489693906105,2.0,4000.0,0.95,1000.0,True
+2018_r2_h07_single_regime,2018,2,7,single_regime,ok,15,10,0,Jair Bolsonaro,False,1.003169119777359,1445.656367020953,713.3852192497677,0.0,12000.0,0.99,3000.0,True
+2018_r2_h07_two_regime,2018,2,7,two_regime,ok,15,10,0,Jair Bolsonaro,False,1.0026710146157238,1353.1974960346245,859.2699657883018,0.0,12000.0,0.99,3000.0,True
+2018_r2_h14_single_regime,2018,2,14,single_regime,skipped: 6 polls < 8,6,6,0,Jair Bolsonaro,False,,,,,,,,
+2018_r2_h14_two_regime,2018,2,14,two_regime,skipped: 6 polls < 8,6,6,0,Jair Bolsonaro,False,,,,,,,,
+2022_r1_h01_single_regime,2022,1,1,single_regime,ok,73,16,2,Lula|Jair Bolsonaro|Ciro Gomes|Simone Tebet,False,1.0081980321917063,488.2880696567596,411.6600012382116,0.0,4000.0,0.95,1000.0,True
+2022_r1_h01_two_regime,2022,1,1,two_regime,ok,73,16,2,Lula|Jair Bolsonaro|Ciro Gomes|Simone Tebet,False,1.0042312835162932,1323.5083922280082,987.757234615937,0.0,12000.0,0.99,3000.0,True
+2022_r1_h07_single_regime,2022,1,7,single_regime,ok,57,16,0,Lula|Jair Bolsonaro|Ciro Gomes|Simone Tebet,False,1.0038283686258376,1046.2691561254078,472.6303363594971,0.0,12000.0,0.99,3000.0,True
+2022_r1_h07_two_regime,2022,1,7,two_regime,ok,57,16,0,Lula|Jair Bolsonaro|Ciro Gomes|Simone Tebet,False,1.0073665146791522,443.30145953984703,497.5652521588183,1.0,4000.0,0.95,1000.0,True
+2022_r1_h14_single_regime,2022,1,14,single_regime,ok,46,15,0,Lula|Jair Bolsonaro|Ciro Gomes|Simone Tebet,False,1.0022283513266952,1444.391190894882,1320.423507271286,0.0,12000.0,0.99,3000.0,True
+2022_r1_h14_two_regime,2022,1,14,two_regime,ok,46,15,0,Lula|Jair Bolsonaro|Ciro Gomes|Simone Tebet,False,1.001767373331688,1405.807629304003,959.8336447834802,0.0,12000.0,0.99,3000.0,True
+2022_r1_h30_single_regime,2022,1,30,single_regime,ok,26,15,0,Lula|Jair Bolsonaro|Ciro Gomes|Simone Tebet,False,1.0088482364179034,504.6128460914095,595.675591883885,2.0,4000.0,0.95,1000.0,True
+2022_r1_h30_two_regime,2022,1,30,two_regime,ok,26,15,0,Lula|Jair Bolsonaro|Ciro Gomes|Simone Tebet,False,1.004684965972615,1217.885693329383,851.9492357569427,0.0,12000.0,0.99,3000.0,True
+2022_r2_h01_single_regime,2022,2,1,single_regime,ok,46,14,4,Lula,False,1.0023015388379979,956.181557628542,1656.1331295143937,4.0,4000.0,0.95,1000.0,True
+2022_r2_h01_two_regime,2022,2,1,two_regime,ok,46,14,4,Lula,False,1.0055644988798051,910.2688234209193,1279.1351454421008,3.0,4000.0,0.95,1000.0,True
+2022_r2_h07_single_regime,2022,2,7,single_regime,ok,28,14,2,Lula,False,1.0032420388169456,954.7302096856536,1407.3410822571025,1.0,4000.0,0.95,1000.0,True
+2022_r2_h07_two_regime,2022,2,7,two_regime,ok,28,14,2,Lula,False,1.002868206574523,861.3923714850487,1122.4784859185008,1.0,4000.0,0.95,1000.0,True
+2022_r2_h14_single_regime,2022,2,14,single_regime,ok,16,11,1,Lula,False,1.0022874132561532,757.6626531967935,589.7908227618709,2.0,4000.0,0.95,1000.0,True
+2022_r2_h14_two_regime,2022,2,14,two_regime,ok,16,11,1,Lula,True,1.0043821623560014,870.1159260686833,776.3307821349447,0.0,4000.0,0.99,2000.0,True

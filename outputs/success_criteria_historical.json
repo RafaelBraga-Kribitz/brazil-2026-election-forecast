@@ -1,0 +1,24 @@
+{
+ "H1_F_mae_le_B": {
+  "F": 1.3785313901704683,
+  "B": 2.0743783406423755,
+  "met": true
+ },
+ "H2_F_coverage": {
+  "cov94": 0.9047619047619048,
+  "cov80": 0.8571428571428571,
+  "n": 21,
+  "met": true
+ },
+ "H3_F_brier_le_B": {
+  "F": 0.07493230386581386,
+  "B": 0.03449422494199153,
+  "met": false
+ },
+ "H4_F_mae_le_E": {
+  "F": 1.3785313901704683,
+  "E": 1.6163013943605768,
+  "met": true
+ },
+ "scope": "eve horizon, historical rounds with a fitted eve forecast, production RW variant"
+}
