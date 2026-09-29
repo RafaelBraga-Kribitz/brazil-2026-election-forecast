@@ -42,6 +42,29 @@ def latest_revision(lang: str, title: str) -> int:
     return int(page["revisions"][0]["revid"])
 
 
+def revision_sha1(lang: str, oldid: int) -> dict:
+    """Stable identity of a revision: MediaWiki's SHA-1 of the revision wikitext, plus size and timestamp.
+
+    The rendered HTML of a fixed revision is not byte-stable (MediaWiki re-renders pages as templates and the parser
+    change), so the HTML SHA-256 is informational; the wikitext SHA-1 never changes for an oldid."""
+    r = requests.get(
+        _api(lang),
+        params={
+            "action": "query",
+            "revids": oldid,
+            "prop": "revisions",
+            "rvprop": "ids|sha1|size|timestamp",
+            "format": "json",
+            "formatversion": 2,
+        },
+        headers={"User-Agent": USER_AGENT},
+        timeout=60,
+    )
+    r.raise_for_status()
+    rev = r.json()["query"]["pages"][0]["revisions"][0]
+    return {"revision_sha1": rev["sha1"], "revision_size": int(rev["size"]), "revision_timestamp": rev["timestamp"]}
+
+
 def revision_at(lang: str, title: str, timestamp_utc: str) -> tuple[int, str]:
     """Latest revision id at or before `timestamp_utc` (ISO, e.g. 2026-10-04T01:00:00Z) and its timestamp."""
     r = requests.get(

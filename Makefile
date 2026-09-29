@@ -16,7 +16,7 @@ lint:         ## ruff lint + format check
 test:         ## validity test suite (leakage, information time, LOEO, prereg hash, provenance)
 	uv run pytest -q
 
-reparse:      ## re-parse every pinned Wikipedia revision into data/interim (then: git diff --stat data/interim)
+reparse:      ## re-parse every pinned revision and compare all values with the committed tables (restores them)
 	$(PY) scripts/reparse_sources.py
 
 readiness:    ## data-readiness gate (+ TSE reconciliation when the manual files are present)

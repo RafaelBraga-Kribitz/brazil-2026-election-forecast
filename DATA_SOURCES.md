@@ -21,6 +21,15 @@ verification status and a SHA-256 hash. The machine-readable lock of every sourc
 | Market benchmark | Polymarket "Brazil presidential election" | Price at the freeze | Market ID, exact question, price, volume, UTC timestamp, archive URL | At freeze. A market price, not ground truth |
 | Not used | Poder360 Agregador (login-gated), Base dos Dados (needs a GCP project), electionsBR (R) | — | — | Excluded from the pipeline |
 
+## Revision identity
+
+A Wikipedia revision is identified by its `oldid` and by MediaWiki's SHA-1 of the revision wikitext
+(`revision_sha1` in `data/SOURCES.lock.json`), which never changes. The `sha256` / `source_hash` values are hashes of
+the rendered HTML as retrieved. MediaWiki re-renders pages as templates and its parser change, so a later fetch of
+the same revision can differ in bytes: the clean-clone test found this for three of the five pinned revisions.
+`scripts/reparse_sources.py` (`make reparse`) therefore checks the wikitext SHA-1 against the API, re-parses the
+pinned revisions and compares every data value with the committed tables. All values were identical.
+
 ## Conflict rule
 
 Original pollster release > Wikipedia PT > Wikipedia EN. Conflicting values are recorded, never averaged.

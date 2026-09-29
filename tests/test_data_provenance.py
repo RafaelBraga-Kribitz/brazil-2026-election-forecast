@@ -173,3 +173,12 @@ def test_first_round_date_correction_also_applies_to_the_same_polls_round2_rows(
     assert (untouched["field_start"] == "2026-09-04").all() and (untouched["field_end"] == "2026-09-12").all()
     assert (untouched["verification_status"] == "unverified").all()
     assert data.apply_corrections(out).equals(out)  # idempotent
+
+
+def test_lock_records_stable_revision_identity():
+    """The rendered HTML of a revision is not byte-stable; the wikitext SHA-1 is (see scripts/reparse_sources.py)."""
+    lock = json.loads((ROOT / "data" / "SOURCES.lock.json").read_text(encoding="utf-8"))
+    for x in lock:
+        sha1 = x.get("revision_sha1", "")
+        assert len(sha1) == 40 and all(ch in "0123456789abcdef" for ch in sha1), x["revision"]
+        assert int(x["revision_size"]) > 0

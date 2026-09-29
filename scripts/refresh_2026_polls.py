@@ -19,7 +19,7 @@ import pandas as pd
 
 from brfc import config
 from brfc.ingest import wiki_2026
-from brfc.ingest.wikipedia import RAW_DIR, revision_at
+from brfc.ingest.wikipedia import RAW_DIR, revision_at, revision_sha1
 from brfc.provenance import read_record, utc_now_iso
 
 LOCK_TABLES = ("polls_wiki_*.csv", "polls_releases.csv", "polls_2014_supplement.csv")
@@ -43,17 +43,28 @@ def update_lock() -> None:
     for p in RAW_DIR.glob("*.provenance.json"):
         r = read_record(p)
         recs[r.sha256] = r
-    lock = [
-        {
-            "source_url": u,
-            "revision": rev,
-            "sha256": h,
-            "retrieval_timestamp": recs[h].retrieval_timestamp if h in recs else None,
-            "title": recs[h].description if h in recs else None,
-            "raw_cached_locally": h in recs,
+    lock_path = config.DATA / "SOURCES.lock.json"
+    prev = {x["revision"]: x for x in json.loads(lock_path.read_text(encoding="utf-8"))} if lock_path.exists() else {}
+    lock = []
+    for u, rev, h in sorted(used):
+        ident = {
+            k: prev[rev][k] for k in ("revision_sha1", "revision_size", "revision_timestamp") if k in prev.get(rev, {})
         }
-        for u, rev, h in sorted(used)
-    ]
+        if "revision_sha1" not in ident:  # stable identity of the revision (wikitext SHA-1), queried once
+            ident = revision_sha1("pt" if "//pt." in u else "en", int(rev))
+        lock.append(
+            {
+                "source_url": u,
+                "revision": rev,
+                **ident,
+                "sha256": h,
+                "sha256_note": "SHA-256 of the rendered HTML as retrieved; MediaWiki re-renders pages, so a later "
+                "fetch of the same revision can differ in bytes; revision_sha1 is the stable identity",
+                "retrieval_timestamp": recs[h].retrieval_timestamp if h in recs else None,
+                "title": recs[h].description if h in recs else None,
+                "raw_cached_locally": h in recs,
+            }
+        )
     (config.DATA / "SOURCES.lock.json").write_text(
         json.dumps(lock, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
     )
