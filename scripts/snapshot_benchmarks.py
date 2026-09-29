@@ -32,17 +32,20 @@ EVENTS = {
     ),
     "election_winner": "brazil-presidential-election",
 }
-NAME_MAP = {"Luiz Inácio Lula da Silva": "Lula", "Lula": "Lula"}
+ALIASES = {"luiz inacio lula da silva": "Lula", "zema": "Romeu Zema", "samara": "Samara Martins"}
 
 
 def _candidate(question: str) -> str | None:
+    """Map a market question to a ballot name (accent-insensitive; full name, else a known short name)."""
+    from brfc.names import _key
+
+    q = f" {_key(question)} "
     for ballot_name in config.BALLOTS["2026"]:
-        last = ballot_name.split()[-1]
-        if ballot_name in question or (last in question and ballot_name.split()[0] in question):
+        if f" {_key(ballot_name)} " in q:
             return ballot_name
-    for k, v in NAME_MAP.items():
-        if k in question:
-            return v
+    for alias, name in ALIASES.items():
+        if f" {alias} " in q:
+            return name
     return None
 
 
