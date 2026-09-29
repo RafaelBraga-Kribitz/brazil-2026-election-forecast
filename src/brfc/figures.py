@@ -66,8 +66,9 @@ def candidate_colors(names: list[str]) -> dict[str, str]:
     return out
 
 
-def _finish(fig, path, source: str = SOURCE) -> None:
-    fig.text(0.01, 0.01, source, fontsize=7.5, color=INK2, ha="left", va="bottom")
+def _finish(fig, path, source: str = SOURCE, top: float = 0.90) -> None:
+    fig.tight_layout(rect=(0, 0.06, 1, top))
+    fig.text(0.01, 0.005, source, fontsize=7.5, color=INK2, ha="left", va="bottom", wrap=True)
     fig.savefig(path, dpi=160, bbox_inches="tight")
     plt.close(fig)
 
@@ -167,99 +168,107 @@ def uncertainty_intervals(out_dir=config.FIGURES) -> None:
 
 
 def historical_backtest(out_dir=config.FIGURES) -> None:
-    """Mean share MAE by horizon, first round and runoff, production RW variant; LOEO throughout."""
+    """Mean share MAE by horizon, production RW variant, LOEO. A model is drawn at a horizon only if it was scored on
+    the same rounds as F there (a baseline available in fewer rounds would not be comparable)."""
     _style()
-    s = pd.read_csv(config.OUTPUTS / "backtest_summary.csv")
-    prod = json.loads((config.OUTPUTS / "regime_selection.json").read_text())["production_variant"]
-    s = s[s["variant"] == prod]
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.2), sharey=True)
-    for ax, rt in zip(axes, ("first round", "runoff"), strict=True):
+    s = pd.read_csv(config.OUTPUTS / "historical_backtest.csv", dtype={"election": str})
+    s = s[s["mae"].notna()]
+    s["round_type"] = s["round"].map({1: "First round", 2: "Runoff"})
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.4), sharey=True, gridspec_kw={"width_ratios": [4, 3]})
+    for ax, rt in zip(axes, ("First round", "Runoff"), strict=True):
         d = s[s["round_type"] == rt]
+        ref = d[d["model"] == "F"].groupby("horizon")["election"].apply(frozenset)
+        hs = sorted(ref.index, reverse=True)
         for m in ("F", "E", "B", "C", "D"):
-            g = d[d["model"] == m].sort_values("horizon", ascending=False)
-            if g.empty:
+            pts = []
+            for h in hs:
+                g = d[(d["model"] == m) & (d["horizon"] == h)]
+                if frozenset(g["election"]) == ref[h]:
+                    pts.append((hs.index(h), g["mae"].mean()))
+            if not pts:
                 continue
-            ax.plot(g["horizon"], g["mae"], marker="o", ms=5, color=MODEL_COLORS[m], label=MODEL_SHORT[m])
-            last = g.iloc[-1]
-            ax.annotate(
-                f"{m}",
-                (last["horizon"], last["mae"]),
-                xytext=(4, 0),
-                textcoords="offset points",
-                fontsize=8,
-                va="center",
-                color=INK,
+            ax.plot(
+                [x for x, _ in pts], [v for _, v in pts], marker="o", ms=5, color=MODEL_COLORS[m], label=MODEL_SHORT[m]
             )
-        ax.set_xscale("symlog", linthresh=2)
-        ax.set_xticks([30, 14, 7, 1], ["T-30", "T-14", "T-7", "eve"])
-        ax.invert_xaxis()
-        n = d.groupby("horizon")["n_rounds"].max().to_dict()
-        ax.set_title(f"{rt.capitalize()}")
-        ax.set_xlabel(
-            "Forecast horizon (rounds scored: "
-            + ", ".join(f"{k}d={v}" for k, v in sorted(n.items(), reverse=True))
-            + ")",
-            fontsize=8,
-        )
+            ax.annotate(m, pts[-1], xytext=(5, 0), textcoords="offset points", fontsize=8, va="center")
+        labels = [("eve" if h == 1 else f"T-{h}") + f"\n{len(ref[h])} rounds" for h in hs]
+        ax.set_xticks(range(len(hs)), labels)
+        ax.set_xlim(-0.3, len(hs) - 0.6)
+        ax.set_title(rt)
     axes[0].set_ylabel("Mean absolute share error (pp)")
     axes[1].legend(fontsize=8, loc="upper right")
-    fig.suptitle("Historical retrodiction 2014-2022, leave-one-election-out", x=0.01, ha="left", fontweight="bold")
-    _finish(fig, out_dir / "historical_backtest.png")
+    fig.suptitle(
+        "Historical retrodiction 2014-2022, leave-one-election-out: share error by horizon",
+        x=0.01,
+        ha="left",
+        fontweight="bold",
+        fontsize=12,
+    )
+    _finish(
+        fig,
+        out_dir / "historical_backtest.png",
+        SOURCE + " A model is drawn only where it was scored on the same rounds as F.",
+    )
+
+
+def _wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float, float]:
+    p = k / n
+    den = 1 + z**2 / n
+    mid = (p + z**2 / (2 * n)) / den
+    half = z * np.sqrt(p * (1 - p) / n + z**2 / (4 * n**2)) / den
+    return p, mid - half, mid + half
 
 
 def calibration(out_dir=config.FIGURES) -> None:
-    """Pooled interval coverage vs nominal, with Wilson 95% intervals for the small number of categories."""
+    """Interval coverage vs nominal: eve horizon (pre-registered summary) and all horizons pooled."""
     _style()
     c = pd.read_csv(config.OUTPUTS / "historical_backtest_categories.csv")
     prod = json.loads((config.OUTPUTS / "regime_selection.json").read_text())["production_variant"]
     c = c[(c["variant"] == prod) & c["in80"].notna()]
-    models = [m for m in ("F", "E", "E0", "B", "C", "D") if m in set(c["model"])]
-    fig, ax = plt.subplots(figsize=(9, 3.8))
-    for lvl, off in ((80, -0.15), (94, 0.15)):
-        for i, m in enumerate(models):
-            x = c.loc[c["model"] == m, f"in{lvl}"].astype(bool)
-            n, k = len(x), int(x.sum())
-            p = k / n
-            z = 1.96
-            den = 1 + z**2 / n
-            mid = (p + z**2 / (2 * n)) / den
-            half = z * np.sqrt(p * (1 - p) / n + z**2 / (4 * n**2)) / den
-            ax.plot([i + off, i + off], [100 * (mid - half), 100 * (mid + half)], color=MODEL_COLORS[m], lw=1.2)
-            ax.scatter(
-                [i + off],
-                [100 * p],
-                s=40,
-                color=MODEL_COLORS[m] if lvl == 94 else SURFACE,
-                edgecolor=MODEL_COLORS[m],
-                lw=1.5,
-                zorder=5,
-            )
-            ax.annotate(
-                f"{100 * p:.0f}%",
-                (i + off, 100 * p),
-                xytext=(5, 0),
-                textcoords="offset points",
-                fontsize=7.5,
-                va="center",
-            )
-        ax.axhline(lvl, color=INK2, lw=0.8, ls=(0, (4, 3)))
-        ax.text(len(models) - 0.5, lvl, f" nominal {lvl}%", fontsize=8, color=INK2, va="center")
-    ax.set_xticks(range(len(models)), [MODEL_SHORT[m] for m in models], fontsize=8, rotation=12)
-    ax.set_ylabel("Share of outcomes inside interval (%)")
-    ax.set_ylim(0, 105)
-    n_all = int((c["model"] == "F").sum())
-    ax.set_title("Interval coverage in the historical retrodiction (open = 80%, filled = 94%)")
-    ax.text(
-        0,
-        1.01,
-        f"Pooled over rounds, horizons and candidates (n = {n_all} per model; outcomes within an election are "
-        "correlated, so the effective sample is smaller). Whiskers: Wilson 95%.",
-        transform=ax.transAxes,
-        fontsize=8,
-        color=INK2,
-        va="bottom",
+    models = [m for m in ("F", "E", "E0", "B", "C") if m in set(c["model"])]
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.0), sharey=True)
+    panels = (("Eve horizon (pre-registered summary)", c[c["horizon"] == 1]), ("All horizons pooled", c))
+    for ax, (title, sub) in zip(axes, panels, strict=True):
+        for lvl, off in ((80, -0.17), (94, 0.17)):
+            for i, m in enumerate(models):
+                x = sub.loc[sub["model"] == m, f"in{lvl}"].astype(bool)
+                p, lo, hi = _wilson(int(x.sum()), len(x))
+                ax.plot([i + off, i + off], [100 * lo, 100 * hi], color=MODEL_COLORS[m], lw=1.2)
+                ax.scatter(
+                    [i + off],
+                    [100 * p],
+                    s=36,
+                    color=MODEL_COLORS[m] if lvl == 94 else SURFACE,
+                    edgecolor=MODEL_COLORS[m],
+                    lw=1.5,
+                    zorder=5,
+                )
+                ax.annotate(
+                    f"{100 * p:.0f}",
+                    (i + off, 100 * p),
+                    xytext=(4, 0),
+                    textcoords="offset points",
+                    fontsize=7,
+                    va="center",
+                )
+            ax.axhline(lvl, color=INK2, lw=0.8, ls=(0, (4, 3)))
+        ax.set_xticks(range(len(models)), models)
+        ax.set_title(f"{title}, n = {int((sub['model'] == 'F').sum())}", fontsize=10)
+        ax.set_ylim(0, 105)
+    axes[0].set_ylabel("Observed values inside the interval (%)")
+    fig.suptitle(
+        "Interval coverage vs nominal 80% (open) and 94% (filled); whiskers: Wilson 95%",
+        x=0.01,
+        ha="left",
+        fontweight="bold",
+        fontsize=12,
     )
-    _finish(fig, out_dir / "calibration.png")
+    _finish(
+        fig,
+        out_dir / "calibration.png",
+        "F: RW + election-day term; E: zero-mean day error; E0: latent only; B: 14-day average; C: final "
+        "Datafolha (B, C: calibrated conversion). n counts candidate shares, correlated within an election.",
+    )
 
 
 def house_effects(out_dir=config.FIGURES) -> None:
