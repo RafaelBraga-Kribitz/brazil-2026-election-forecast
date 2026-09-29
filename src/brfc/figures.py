@@ -75,6 +75,25 @@ def _finish(fig, path, source: str = SOURCE, top: float = 0.90) -> None:
     plt.close(fig)
 
 
+def _titles(fig, title: str, subtitle: str = "") -> None:
+    """Figure-level title and subtitle in the top margin reserved by _finish (never overlapping the axes)."""
+    fig.text(0.01, 0.985, title, fontsize=12, fontweight="bold", ha="left", va="top", color=INK)
+    if subtitle:
+        fig.text(0.01, 0.945, subtitle, fontsize=8.5, ha="left", va="top", color=INK2, wrap=True)
+
+
+def _spread(values: list[float], min_gap: float) -> list[float]:
+    """Nudge label positions apart (keeps order) so that direct labels never overlap."""
+    order = sorted(range(len(values)), key=lambda i: values[i])
+    pos = [values[i] for i in order]
+    for k in range(1, len(pos)):
+        pos[k] = max(pos[k], pos[k - 1] + min_gap)
+    out = [0.0] * len(values)
+    for k, i in enumerate(order):
+        out[i] = pos[k]
+    return out
+
+
 def posterior_forecast(out_dir=config.FIGURES) -> None:
     """2026: poll dots, posterior latent path (median, 80% and 94% bands), election-day forecast intervals (F)."""
     _style()
@@ -101,36 +120,32 @@ def posterior_forecast(out_dir=config.FIGURES) -> None:
         ax.scatter(wide["mid"], wide[c], s=12, color=col[c], alpha=0.35, lw=0)
     f = {r["category"]: r for r in doc["models"]["F"]["categories"]}
     for k, c in enumerate(cats):
-        x = eday + pd.Timedelta(hours=10 * (k - len(cats) / 2))
+        x = eday + pd.Timedelta(hours=10 * (k + 1))
         ax.plot([x, x], [f[c]["q03"], f[c]["q97"]], color=col[c], lw=1.2)
         ax.plot([x, x], [f[c]["q10"], f[c]["q90"]], color=col[c], lw=4, solid_capstyle="round")
         ax.scatter([x], [f[c]["median"]], s=36, color=SURFACE, edgecolor=col[c], zorder=5, lw=1.6)
-        ax.annotate(
-            f"{c}  {f[c]['median']:.1f}%",
-            (eday + pd.Timedelta(days=1.2), f[c]["median"]),
-            va="center",
-            fontsize=9,
-            color=INK,
-            annotation_clip=False,
-        )
+    ys = _spread([f[c]["median"] for c in cats], min_gap=2.6)
+    lx = eday + pd.Timedelta(hours=10 * (len(cats) + 1) + 14)
+    for c, y in zip(cats, ys, strict=True):
+        ax.annotate(f"{c}  {f[c]['median']:.1f}%", (lx, y), va="center", fontsize=9, color=INK, annotation_clip=False)
     ax.axvline(cutoff, color=INK2, lw=0.8, ls=":")
-    ax.text(cutoff, ax.get_ylim()[1], " information cutoff", fontsize=8, color=INK2, va="top")
-    ax.set_xlim(path["date"].min(), eday + pd.Timedelta(days=1))
+    ax.axvline(eday, color=INK2, lw=0.8)
+    top = max(r["q97"] for r in f.values()) + 4
+    ax.text(cutoff, top, "information cutoff ", fontsize=8, color=INK2, va="top", ha="right")
+    ax.text(eday, top, " election day", fontsize=8, color=INK2, va="top", ha="left")
+    ax.set_ylim(-1, top + 1)
+    ax.set_xlim(path["date"].min(), eday + pd.Timedelta(hours=10 * (len(cats) + 1) + 6))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b"))
     ax.set_ylabel("Valid-vote share (%)")
-    ax.set_title(f"2026 first round: poll aggregation and election-day forecast ({doc['status']})")
-    ax.text(
-        0,
-        1.01,
-        f"Lines: posterior median; bands: 80% and 94% intervals; dots: polls (valid-vote basis). "
-        f"Election-day markers: model F, 80% (thick) and 94% (thin). Cutoff {doc['information_cutoff_date']}, "
-        f"{doc['n_polls']} polls.",
-        transform=ax.transAxes,
-        fontsize=8,
-        color=INK2,
-        va="bottom",
+    _titles(
+        fig,
+        f"2026 first round: poll aggregation and election-day forecast ({doc['status']})",
+        f"Lines: posterior median of the polling consensus; bands: 80% and 94% intervals; dots: polls (valid-vote "
+        f"basis). Election-day markers: model F, 80% (thick) and 94% (thin). Cutoff {doc['information_cutoff_date']}, "
+        f"{doc['n_polls']} polls. Not a poll; not a recommendation.",
     )
-    _finish(fig, out_dir / "posterior_forecast.png")
+    fig.subplots_adjust(right=0.80)
+    _finish(fig, out_dir / "posterior_forecast.png", top=0.91)
 
 
 def uncertainty_intervals(out_dir=config.FIGURES) -> None:
@@ -153,20 +168,15 @@ def uncertainty_intervals(out_dir=config.FIGURES) -> None:
     ax.set_yticks(ys, labels, fontsize=8)
     ax.invert_yaxis()
     ax.set_xlabel("Valid-vote share on election day (%)")
-    ax.set_title(f"2026 first-round forecast by model ({doc['status']}, cutoff {doc['information_cutoff_date']})")
     handles = [plt.Line2D([], [], color=MODEL_COLORS[m], lw=4, label=MODEL_SHORT[m]) for m in models]
     ax.legend(handles=handles, loc="lower right", fontsize=8)
-    ax.text(
-        0,
-        1.01,
-        "80% (thick) and 94% (thin) equal-tailed intervals. B/C/D intervals are a calibrated "
+    _titles(
+        fig,
+        f"2026 first-round forecast by model ({doc['status']}, cutoff {doc['information_cutoff_date']})",
+        "80% (thick) and 94% (thin) equal-tailed intervals; dot = median. B/C/D intervals are a calibrated "
         "probabilistic conversion of point baselines (not published by them).",
-        transform=ax.transAxes,
-        fontsize=8,
-        color=INK2,
-        va="bottom",
     )
-    _finish(fig, out_dir / "uncertainty_intervals.png")
+    _finish(fig, out_dir / "uncertainty_intervals.png", top=0.94)
 
 
 def historical_backtest(out_dir=config.FIGURES) -> None:
@@ -295,19 +305,14 @@ def house_effects(out_dir=config.FIGURES) -> None:
         range(len(order)), [f"{p} (n={int(h[(h.pollster == p)]['n_polls'].iloc[0])})" for p in order], fontsize=8
     )
     ax.set_xlabel("Estimated house effect: deviation from the model consensus (pp, valid votes)")
-    ax.set_title("2026 estimated house effects, relative to the all-pollster consensus")
-    ax.text(
-        0,
-        1.01,
+    _titles(
+        fig,
+        "2026 estimated house effects, relative to the all-pollster consensus",
         "Mean and 94% posterior interval. Effects sum to zero across pollsters by construction: they measure "
-        "relative deviation, not accuracy.",
-        transform=ax.transAxes,
-        fontsize=8,
-        color=INK2,
-        va="bottom",
+        "relative deviation from the other pollsters, not accuracy.",
     )
-    ax.legend(fontsize=8, loc="lower right")
-    _finish(fig, out_dir / "house_effects.png")
+    ax.legend(fontsize=8, loc="upper left", bbox_to_anchor=(1.0, 1.0))
+    _finish(fig, out_dir / "house_effects.png", top=0.92)
 
 
 def election_day_deviation(out_dir=config.FIGURES) -> None:
