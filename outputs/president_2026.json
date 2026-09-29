@@ -1,0 +1,402 @@
+{
+ "status": "PRELIMINARY",
+ "election": "Brazil 2026 presidential election (first round 2026-10-04; runoff, if any, 2026-10-25)",
+ "quantity": "probability of being elected under this model",
+ "cutoff": "2026-09-29",
+ "information_cutoff_date": "2026-09-29",
+ "horizon_days_first_round": 5,
+ "generated_utc": "2026-09-29T19:01:11Z",
+ "git_commit": "4eafb9cbc0960de450cdb02350d110861b2821da",
+ "label": "pre-registered; validated on 3 elections only",
+ "validation_elections": [
+  "2014",
+  "2018",
+  "2022"
+ ],
+ "h2h_term_trained_on": [
+  "2014",
+  "2018",
+  "2022"
+ ],
+ "combination": {
+  "label": "F_E",
+  "r1_model": "F",
+  "h2h_model": "E"
+ },
+ "probabilities": {
+  "Lula": 0.5050546875,
+  "Flávio Bolsonaro": 0.49494531249999996,
+  "Augusto Cury": 0.0,
+  "Renan Santos": 0.0,
+  "Ronaldo Caiado": 0.0
+ },
+ "unmodelled": 0.0,
+ "outright": {
+  "Lula": 0.1065,
+  "Flávio Bolsonaro": 0.04325
+ },
+ "pairs": [
+  {
+   "pair": "Flávio Bolsonaro vs Lula",
+   "candidates": [
+    "Flávio Bolsonaro",
+    "Lula"
+   ],
+   "mass": 0.85025,
+   "modelled": true,
+   "win": {
+    "Flávio Bolsonaro": 0.53125,
+    "Lula": 0.46875
+   },
+   "n_polls": 59,
+   "fit_key": "2026_h2h_flavio-bolsonaro_vs_lula_r1h05_single_regime_preliminary_pt73082572",
+   "converged": true,
+   "share_first": {
+    "candidate": "Flávio Bolsonaro",
+    "mean": 50.27312644242852,
+    "q03": 42.799090404489895,
+    "q10": 45.50495217862189,
+    "median": 50.283997756192534,
+    "q90": 55.132663225641096,
+    "q97": 57.58059246563806
+   }
+  }
+ ],
+ "first_round": {
+  "model": "F",
+  "rw_variant": "single_regime",
+  "fit_key": "2026_r1_h05_single_regime_preliminary_pt73082572",
+  "categories": [
+   "Lula",
+   "Flávio Bolsonaro",
+   "Augusto Cury",
+   "Renan Santos",
+   "Ronaldo Caiado",
+   "Others"
+  ],
+  "n_polls": 57,
+  "election_day_term_trained_on": [
+   "2014",
+   "2018",
+   "2022"
+  ],
+  "fit_diagnostics": {
+   "rhat_max": 1.0050784469296357,
+   "ess_bulk_min": 795.2061640087304,
+   "ess_tail_min": 1409.2230632591268,
+   "divergences": 0,
+   "draws": 4000,
+   "target_accept": 0.95,
+   "tune": 1000,
+   "converged": true
+  }
+ },
+ "head_to_head": {
+  "model": "E",
+  "definition": "round-2 poll scenarios fielded before the first round; pair[0] valid share modelled, pair[1] = 100 - pair[0]",
+  "error_model": {
+   "variant": "E",
+   "n_train": 3,
+   "train_elections": "2014+2018+2022",
+   "sigma_mean": 3.5542047265755246,
+   "mu_rank1_mean": 0.0,
+   "mu_rank1_q03": 0.0,
+   "mu_rank1_q97": 0.0
+  },
+  "error_model_trained_on": [
+   "2014",
+   "2018",
+   "2022"
+  ],
+  "error_models": {
+   "E": {
+    "variant": "E",
+    "n_train": 3,
+    "train_elections": "2014+2018+2022",
+    "sigma_mean": 3.5542047265755246,
+    "mu_rank1_mean": 0.0,
+    "mu_rank1_q03": 0.0,
+    "mu_rank1_q97": 0.0
+   },
+   "F": {
+    "variant": "F",
+    "n_train": 3,
+    "train_elections": "2014+2018+2022",
+    "sigma_mean": 3.686542635045014,
+    "mu_rank1_mean": -0.6107575696614697,
+    "mu_rank1_q03": -3.909072774080045,
+    "mu_rank1_q97": 2.7971929178157637
+   }
+  },
+  "fits": [
+   {
+    "pair": "Augusto Cury vs Lula",
+    "candidates": [
+     "Augusto Cury",
+     "Lula"
+    ],
+    "fit_key": "2026_h2h_augusto-cury_vs_lula_r1h05_single_regime_preliminary_pt73082572",
+    "n_polls": 35,
+    "status": "ok",
+    "converged": true,
+    "win": {
+     "Augusto Cury": 0.2115,
+     "Lula": 0.7885
+    }
+   },
+   {
+    "pair": "Flávio Bolsonaro vs Lula",
+    "candidates": [
+     "Flávio Bolsonaro",
+     "Lula"
+    ],
+    "fit_key": "2026_h2h_flavio-bolsonaro_vs_lula_r1h05_single_regime_preliminary_pt73082572",
+    "n_polls": 59,
+    "status": "ok",
+    "converged": true,
+    "win": {
+     "Flávio Bolsonaro": 0.53125,
+     "Lula": 0.46875
+    }
+   },
+   {
+    "pair": "Lula vs Renan Santos",
+    "candidates": [
+     "Lula",
+     "Renan Santos"
+    ],
+    "fit_key": "2026_h2h_lula_vs_renan-santos_r1h05_single_regime_preliminary_pt73082572",
+    "n_polls": 49,
+    "status": "ok",
+    "converged": true,
+    "win": {
+     "Lula": 0.919,
+     "Renan Santos": 0.08099999999999996
+    }
+   },
+   {
+    "pair": "Lula vs Romeu Zema",
+    "candidates": [
+     "Lula",
+     "Romeu Zema"
+    ],
+    "fit_key": "2026_h2h_lula_vs_romeu-zema_r1h05_single_regime_preliminary_pt73082572",
+    "n_polls": 50,
+    "status": "ok",
+    "converged": true,
+    "win": {
+     "Lula": 0.918,
+     "Romeu Zema": 0.08199999999999996
+    }
+   },
+   {
+    "pair": "Lula vs Ronaldo Caiado",
+    "candidates": [
+     "Lula",
+     "Ronaldo Caiado"
+    ],
+    "fit_key": "2026_h2h_lula_vs_ronaldo-caiado_r1h05_single_regime_preliminary_pt73082572",
+    "n_polls": 51,
+    "status": "ok",
+    "converged": true,
+    "win": {
+     "Lula": 0.71625,
+     "Ronaldo Caiado": 0.28374999999999995
+    }
+   }
+  ]
+ },
+ "alternatives": {
+  "F_E": {
+   "r1_model": "F",
+   "h2h_model": "E",
+   "primary": true,
+   "probabilities": {
+    "Lula": 0.5050546875,
+    "Flávio Bolsonaro": 0.49494531249999996,
+    "Augusto Cury": 0.0,
+    "Renan Santos": 0.0,
+    "Ronaldo Caiado": 0.0
+   },
+   "unmodelled": 0.0,
+   "outright": {
+    "Lula": 0.1065,
+    "Flávio Bolsonaro": 0.04325
+   },
+   "pairs": [
+    {
+     "pair": "Flávio Bolsonaro vs Lula",
+     "candidates": [
+      "Flávio Bolsonaro",
+      "Lula"
+     ],
+     "mass": 0.85025,
+     "modelled": true,
+     "win": {
+      "Flávio Bolsonaro": 0.53125,
+      "Lula": 0.46875
+     },
+     "n_polls": 59,
+     "fit_key": "2026_h2h_flavio-bolsonaro_vs_lula_r1h05_single_regime_preliminary_pt73082572",
+     "converged": true,
+     "share_first": {
+      "candidate": "Flávio Bolsonaro",
+      "mean": 50.27312644242852,
+      "q03": 42.799090404489895,
+      "q10": 45.50495217862189,
+      "median": 50.283997756192534,
+      "q90": 55.132663225641096,
+      "q97": 57.58059246563806
+     }
+    }
+   ]
+  },
+  "F_F": {
+   "r1_model": "F",
+   "h2h_model": "F",
+   "primary": false,
+   "probabilities": {
+    "Lula": 0.55798275,
+    "Flávio Bolsonaro": 0.44201725,
+    "Augusto Cury": 0.0,
+    "Renan Santos": 0.0,
+    "Ronaldo Caiado": 0.0
+   },
+   "unmodelled": 0.0,
+   "outright": {
+    "Lula": 0.1065,
+    "Flávio Bolsonaro": 0.04325
+   },
+   "pairs": [
+    {
+     "pair": "Flávio Bolsonaro vs Lula",
+     "candidates": [
+      "Flávio Bolsonaro",
+      "Lula"
+     ],
+     "mass": 0.85025,
+     "modelled": true,
+     "win": {
+      "Flávio Bolsonaro": 0.469,
+      "Lula": 0.531
+     },
+     "n_polls": 59,
+     "fit_key": "2026_h2h_flavio-bolsonaro_vs_lula_r1h05_single_regime_preliminary_pt73082572",
+     "converged": true,
+     "share_first": {
+      "candidate": "Flávio Bolsonaro",
+      "mean": 49.729824777625396,
+      "q03": 41.45185347946126,
+      "q10": 44.34948299936976,
+      "median": 49.715434986084304,
+      "q90": 55.10802974410393,
+      "q97": 58.41568283090724
+     }
+    }
+   ]
+  },
+  "E_E": {
+   "r1_model": "E",
+   "h2h_model": "E",
+   "primary": false,
+   "probabilities": {
+    "Lula": 0.5048515625,
+    "Flávio Bolsonaro": 0.4951484375,
+    "Augusto Cury": 0.0,
+    "Renan Santos": 0.0,
+    "Ronaldo Caiado": 0.0
+   },
+   "unmodelled": 0.0,
+   "outright": {
+    "Lula": 0.07325,
+    "Flávio Bolsonaro": 0.006
+   },
+   "pairs": [
+    {
+     "pair": "Flávio Bolsonaro vs Lula",
+     "candidates": [
+      "Flávio Bolsonaro",
+      "Lula"
+     ],
+     "mass": 0.92075,
+     "modelled": true,
+     "win": {
+      "Flávio Bolsonaro": 0.53125,
+      "Lula": 0.46875
+     },
+     "n_polls": 59,
+     "fit_key": "2026_h2h_flavio-bolsonaro_vs_lula_r1h05_single_regime_preliminary_pt73082572",
+     "converged": true,
+     "share_first": {
+      "candidate": "Flávio Bolsonaro",
+      "mean": 50.27312644242852,
+      "q03": 42.799090404489895,
+      "q10": 45.50495217862189,
+      "median": 50.283997756192534,
+      "q90": 55.132663225641096,
+      "q97": 57.58059246563806
+     }
+    }
+   ]
+  },
+  "E0": {
+   "r1_model": "F",
+   "h2h_model": "E0",
+   "primary": false,
+   "probabilities": {
+    "Flávio Bolsonaro": 0.5842215625,
+    "Lula": 0.4157784375,
+    "Augusto Cury": 0.0,
+    "Renan Santos": 0.0,
+    "Ronaldo Caiado": 0.0
+   },
+   "unmodelled": 0.0,
+   "outright": {
+    "Lula": 0.1065,
+    "Flávio Bolsonaro": 0.04325
+   },
+   "pairs": [
+    {
+     "pair": "Flávio Bolsonaro vs Lula",
+     "candidates": [
+      "Flávio Bolsonaro",
+      "Lula"
+     ],
+     "mass": 0.85025,
+     "modelled": true,
+     "win": {
+      "Flávio Bolsonaro": 0.63625,
+      "Lula": 0.36375
+     },
+     "n_polls": 59,
+     "fit_key": "2026_h2h_flavio-bolsonaro_vs_lula_r1h05_single_regime_preliminary_pt73082572",
+     "converged": true,
+     "share_first": {
+      "candidate": "Flávio Bolsonaro",
+      "mean": 50.34708709430694,
+      "q03": 47.77441577911377,
+      "q10": 48.838325119018556,
+      "median": 50.37303924560547,
+      "q90": 51.835679626464845,
+      "q97": 52.66899868011474
+     }
+    }
+   ]
+  }
+ },
+ "assumptions": [
+  "first-round and head-to-head forecasts are treated as independent",
+  "an outright first-round win needs more than 50% of valid votes in a first-round draw",
+  "the probability of runoff pairs without a head-to-head fit is reported as unmodelled, never reallocated",
+  "valid votes exclude blank and null ballots; undecided respondents are allocated proportionally"
+ ],
+ "poll_source": {
+  "requested_at_utc": "2026-09-29T16:55:38Z",
+  "pt_oldid": 73082572,
+  "pt_revision_timestamp": "2026-09-29T12:53:33Z",
+  "en_oldid": 1377478949,
+  "en_revision_timestamp": "2026-09-29T16:16:50Z",
+  "refreshed_utc": "2026-09-29T16:55:43Z"
+ },
+ "neutrality_note": "An aggregation of publicly registered polls; not a poll, not a recommendation."
+}

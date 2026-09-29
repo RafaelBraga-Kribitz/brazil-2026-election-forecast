@@ -1,0 +1,7 @@
+status,cutoff,generated_utc,pt_oldid,rw_variant,r1_model,h2h_model,n_validation_elections,kind,name,p_elected,p_outright
+PRELIMINARY,2026-09-29,2026-09-29T19:01:11Z,73082572,single_regime,F,E,3,candidate,Lula,0.5050546875,0.1065
+PRELIMINARY,2026-09-29,2026-09-29T19:01:11Z,73082572,single_regime,F,E,3,candidate,Flávio Bolsonaro,0.49494531249999996,0.04325
+PRELIMINARY,2026-09-29,2026-09-29T19:01:11Z,73082572,single_regime,F,E,3,candidate,Augusto Cury,0.0,0.0
+PRELIMINARY,2026-09-29,2026-09-29T19:01:11Z,73082572,single_regime,F,E,3,candidate,Renan Santos,0.0,0.0
+PRELIMINARY,2026-09-29,2026-09-29T19:01:11Z,73082572,single_regime,F,E,3,candidate,Ronaldo Caiado,0.0,0.0
+PRELIMINARY,2026-09-29,2026-09-29T19:01:11Z,73082572,single_regime,F,E,3,unmodelled,pairs without an h2h fit,0.0,
