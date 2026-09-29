@@ -37,7 +37,9 @@ def converged(diag: dict) -> bool:
             and diag["divergences"] <= 0.01 * diag["draws"])
 
 
-RETRY_SAMPLER = {"target_accept": 0.99, "tune": 2000}
+RETRY_SAMPLER = {"target_accept": 0.99, "tune": 2000}  # PREREG section 4
+RETRY2_SAMPLER = {"target_accept": 0.99, "tune": 3000, "draws": 3000}  # PREREG_ADDENDUM_03
+ATTEMPTS = ({}, RETRY_SAMPLER, RETRY2_SAMPLER)
 
 
 @dataclass

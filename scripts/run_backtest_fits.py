@@ -14,13 +14,13 @@ from brfc import config
 
 
 def _job(args):
-    e, r, h, variant, force, tag, priors, dep, minp = args
+    e, r, h, variant, force, tag, priors, dep, minp, start = (*args, 0)[:10] if len(args) == 9 else args
     from brfc.data import load_polls
     from brfc.pipeline import fit_one
 
     t = time.time()
     f = fit_one(load_polls(config.HISTORICAL), e, r, h, variant, force=force, tag=tag, priors=priors,
-                dependence_rule=dep, min_polls_per_pollster=minp)
+                dependence_rule=dep, min_polls_per_pollster=minp, start_attempt=start)
     status = "skipped" if f is None else f"{f.meta['n_polls']} polls, {f.meta.get('diagnostics')}"
     return f"{e} r{r} h{h:02d} {variant} {tag}: {status} [{time.time() - t:.0f}s]"
 
@@ -49,7 +49,21 @@ def main() -> None:
     ap.add_argument("--elections", nargs="+", default=list(config.HISTORICAL))
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--repair", action="store_true", help="refit cached non-converged fits from attempt 3")
     a = ap.parse_args()
+    if a.repair:
+        import json
+
+        from brfc.pipeline import CACHE
+
+        todo = []
+        for p in sorted(CACHE.glob("*.json")):
+            m = json.loads(p.read_text(encoding="utf-8"))
+            if m["status"] == "ok" and not m.get("tag") and not m["diagnostics"].get("converged", True):
+                todo.append((m["election"], m["round"], m["horizon"], m["variant"], True, "", None, True, 1, 2))
+        print(f"repairing {len(todo)} fits", flush=True)
+        run(todo, a.workers)
+        return
     run(jobs(a.variants, a.elections, force=a.force), a.workers)
 
 

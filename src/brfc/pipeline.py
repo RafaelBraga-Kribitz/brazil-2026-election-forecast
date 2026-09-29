@@ -56,7 +56,8 @@ def information_set(polls: pd.DataFrame, election: str, round_: int, horizon: in
 
 def fit_one(polls: pd.DataFrame, election: str, round_: int, horizon: int, variant: str = "two_regime", *,
             tag: str = "", priors: dict | None = None, sampler: dict | None = None, dependence_rule: bool = True,
-            min_polls_per_pollster: int = 1, force: bool = False, cache: Path = CACHE) -> CachedFit | None:
+            min_polls_per_pollster: int = 1, force: bool = False, cache: Path = CACHE,
+            start_attempt: int = 0) -> CachedFit | None:
     key = fit_key(election, round_, horizon, variant, tag)
     cache.mkdir(parents=True, exist_ok=True)
     if not force and (cache / f"{key}.json").exists():
@@ -77,10 +78,13 @@ def fit_one(polls: pd.DataFrame, election: str, round_: int, horizon: int, varia
         return None
     kw = dict(window_start=window_start(election, round_), election_day=config.ELECTION_DATES[(election, round_)],
               cutoff=cutoff, two_regime=VARIANTS[variant], priors=priors)
-    fr = model.fit(wide, series, sampler=sampler, **kw)
-    if not fr.diagnostics["converged"]:  # pre-registered retry
-        meta["first_attempt_diagnostics"] = fr.diagnostics
-        fr = model.fit(wide, series, sampler={**(sampler or {}), **model.RETRY_SAMPLER}, **kw)
+    attempts = []
+    for k in range(start_attempt, len(model.ATTEMPTS)):  # pre-registered retries (PREREG s.4, Addendum 03)
+        fr = model.fit(wide, series, sampler={**(sampler or {}), **model.ATTEMPTS[k]}, **kw)
+        attempts.append({"attempt": k + 1, **fr.diagnostics})
+        if fr.diagnostics["converged"]:
+            break
+    meta["attempts"] = attempts
     meta["diagnostics"] = fr.diagnostics
     np.save(cache / f"{key}.npy", fr.election_day_draws.astype(np.float32))
     fr.path.to_csv(cache / f"{key}.path.csv", index=False)
