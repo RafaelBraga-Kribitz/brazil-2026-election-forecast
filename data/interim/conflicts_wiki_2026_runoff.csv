@@ -1,0 +1,41 @@
+poll_id,pollster,field_end,candidate,pt_value,en_value,pt_revision,en_revision,kind,pt_scenario,en_scenario,en_poll_id,match_tier
+2026-2-a20d5de718,Datafolha,2026-09-16,Lula,49.0,48.0,73082572,1377478949,share,Lula vs Romeu Zema,Lula vs Romeu Zema,2026-2-a20d5de718,exact
+2026-2-19709c68e1,Nexus,2026-09-13,__blank_null__,13.0,11.0,73082572,1377478949,blank_null,Augusto Cury vs Lula,Augusto Cury vs Lula,2026-2-19709c68e1,exact
+2026-2-a69a904f08,MDA,2026-09-13,__blank_null__,16.3,15.3,73082572,1377478949,blank_null,Lula vs Ronaldo Caiado,Lula vs Ronaldo Caiado,2026-2-a69a904f08,exact
+2026-2-2b05a3f838,Nexus,2026-09-07,__blank_null__,15.0,14.0,73082572,1377478949,blank_null,Lula vs Renan Santos,Lula vs Renan Santos,2026-2-2b05a3f838,exact
+2026-2-6ad30bfd69,Datafolha,2026-09-02,__blank_null__,10.0,11.0,73082572,1377478949,blank_null,Flávio Bolsonaro vs Lula,Flávio Bolsonaro vs Lula,2026-2-6ad30bfd69,exact
+2026-2-2a90feb858,PoderData,2026-09-02,Lula,45.0,44.0,73082572,1377478949,share,Flávio Bolsonaro vs Lula,Flávio Bolsonaro vs Lula,2026-2-2a90feb858,exact
+2026-2-2a90feb858,PoderData,2026-09-02,Flávio Bolsonaro,46.0,45.0,73082572,1377478949,share,Flávio Bolsonaro vs Lula,Flávio Bolsonaro vs Lula,2026-2-2a90feb858,exact
+2026-2-2a90feb858,PoderData,2026-09-02,Lula,45.0,42.0,73082572,1377478949,share,Lula vs Ronaldo Caiado,Lula vs Ronaldo Caiado,2026-2-2a90feb858,exact
+2026-2-2a90feb858,PoderData,2026-09-02,Ronaldo Caiado,42.0,44.0,73082572,1377478949,share,Lula vs Ronaldo Caiado,Lula vs Ronaldo Caiado,2026-2-2a90feb858,exact
+2026-2-665573d1d2,PoderData,2026-08-26,__blank_null__,13.0,12.0,73082572,1377478949,blank_null,Lula vs Ronaldo Caiado,Lula vs Ronaldo Caiado,2026-2-665573d1d2,exact
+2026-2-665573d1d2,PoderData,2026-08-26,__blank_null__,13.0,12.0,73082572,1377478949,blank_null,Lula vs Romeu Zema,Lula vs Romeu Zema,2026-2-665573d1d2,exact
+2026-2-d23e5ce103,PoderData,2026-08-12,__blank_null__,12.0,11.0,73082572,1377478949,blank_null,Lula vs Romeu Zema,Lula vs Romeu Zema,2026-2-d23e5ce103,exact
+2026-2-d23e5ce103,PoderData,2026-08-12,Lula,45.0,46.0,73082572,1377478949,share,Lula vs Renan Santos,Lula vs Renan Santos,2026-2-d23e5ce103,exact
+2026-2-2a6fbdbf78,Indexa,2026-07-19,__blank_null__,17.0,22.0,73082572,1377478949,blank_null,Lula vs Romeu Zema,Lula vs Romeu Zema,2026-2-2a6fbdbf78,exact
+2026-2-ff3b417837,PoderData,2026-07-15,__blank_null__,12.0,11.0,73082572,1377478949,blank_null,Flávio Bolsonaro vs Lula,Flávio Bolsonaro vs Lula,2026-2-ff3b417837,exact
+2026-2-32feadeca9,AtlasIntel,2026-06-30,Renan Santos,29.8,28.9,73082572,1377478949,share,Lula vs Renan Santos,Lula vs Renan Santos,2026-2-32feadeca9,exact
+2026-2-a241790f95,Nexus,2026-06-28,__blank_null__,14.0,15.0,73082572,1377478949,blank_null,Lula vs Romeu Zema,Lula vs Romeu Zema,2026-2-a241790f95,exact
+2026-2-a241790f95,Nexus,2026-06-28,__blank_null__,16.0,17.0,73082572,1377478949,blank_null,Lula vs Renan Santos,Lula vs Renan Santos,2026-2-a241790f95,exact
+2026-2-4ae339be57,Futura,2026-06-12,__blank_null__,10.0,9.0,73082572,1377478949,blank_null,Flávio Bolsonaro vs Lula,Flávio Bolsonaro vs Lula,2026-2-4ae339be57,exact
+2026-2-4b10c79abb,Quaest,2026-06-08,__field_start__,2026-06-05,2026-06-03,73082572,1377478949,field_start,,,2026-2-2510048e01,exact
+2026-2-57af2208c5,Palver,2026-09-28,__field_end__,2026-09-28,2026-09-27,73082572,1377478949,field_end,,,2026-2-15315a43aa,field_end_pm1
+2026-2-fbee3ff7d0,Futura,2026-09-23,__field_start__,2026-09-19,2026-09-18,73082572,1377478949,field_start,,,2026-2-bd291002d0,field_end_pm1
+2026-2-fbee3ff7d0,Futura,2026-09-23,__field_end__,2026-09-23,2026-09-24,73082572,1377478949,field_end,,,2026-2-bd291002d0,field_end_pm1
+2026-2-fbee3ff7d0,Futura,2026-09-23,__blank_null__,11.2,6.9,73082572,1377478949,blank_null,Flávio Bolsonaro vs Lula,Flávio Bolsonaro vs Lula,2026-2-bd291002d0,field_end_pm1
+2026-2-fbee3ff7d0,Futura,2026-09-23,Lula,42.4,42.2,73082572,1377478949,share,Lula vs Ronaldo Caiado,Lula vs Ronaldo Caiado,2026-2-bd291002d0,field_end_pm1
+2026-2-fbee3ff7d0,Futura,2026-09-23,Lula,43.0,43.3,73082572,1377478949,share,Lula vs Romeu Zema,Lula vs Romeu Zema,2026-2-bd291002d0,field_end_pm1
+2026-2-83ace1848e,Datafolha,2026-09-11,__field_end__,2026-09-11,2026-09-10,73082572,1377478949,field_end,,,2026-2-084d865ac8,field_end_pm1
+2026-2-83ace1848e,Datafolha,2026-09-11,__blank_null__,10.0,9.0,73082572,1377478949,blank_null,Flávio Bolsonaro vs Lula,Flávio Bolsonaro vs Lula,2026-2-084d865ac8,field_end_pm1
+2026-2-83ace1848e,Datafolha,2026-09-11,__blank_null__,13.0,14.0,73082572,1377478949,blank_null,Lula vs Renan Santos,Lula vs Renan Santos,2026-2-084d865ac8,field_end_pm1
+2026-2-bf78ddcf37,PoderData,2026-07-28,__field_end__,2026-07-28,2026-07-29,73082572,1377478949,field_end,,,2026-2-459c63eceb,field_end_pm1
+2026-2-be2016995e,Datafolha,2026-07-24,__field_end__,2026-07-24,2026-07-23,73082572,1377478949,field_end,,,2026-2-fe03b67cd0,field_end_pm1
+2026-2-28d65c1d34,Palver,2026-09-23,__sample_size__,3000,5000,73082572,1377478949,sample_size,,,2026-2-055d84fecc,same_dates_n_differs
+2026-2-0194dc85f9,Nexus,2026-09-20,__sample_size__,2000,2006,73082572,1377478949,sample_size,,,2026-2-771ede9da8,same_dates_n_differs
+2026-2-b46785183e,Quaest,2026-09-01,__sample_size__,2004,2005,73082572,1377478949,sample_size,,,2026-2-e6cb9ff031,same_dates_n_differs
+2026-2-988ff5f4f5,Ideia,2026-07-06,__sample_size__,2000,1500,73082572,1377478949,sample_size,,,2026-2-99cdc81c05,same_dates_n_differs
+2026-2-28aaee3036,MDA,2026-06-14,__sample_size__,2002,2000,73082572,1377478949,sample_size,,,2026-2-cbeb84a539,same_dates_n_differs
+2026-2-97808eb523,Palver,2026-09-18,__field_end__,2026-09-18,2026-09-20,73082572,1377478949,field_end,,,2026-2-f39ffec998,overlap_same_n
+2026-2-3a0ec84174,Vox Brasil,2026-06-06,__field_end__,2026-06-06,2026-06-03,73082572,1377478949,field_end,,,2026-2-7c854de647,overlap_same_n
+2026-2-f9abf3308c,Datafolha,2026-06-19,__poll__,2026-06-17..2026-06-19 n=2004,2026-06-17..2026-06-18 n=2004,73082572,1377478949,gap_fill_overlaps_pt_poll,,,2026-2-714886e13c,unmatched
+2026-2-0fee280e17,Datafolha,2026-06-17,__poll__,2026-06-17..2026-06-17 n=2004,2026-06-17..2026-06-18 n=2004,73082572,1377478949,gap_fill_overlaps_pt_poll,,,2026-2-714886e13c,unmatched

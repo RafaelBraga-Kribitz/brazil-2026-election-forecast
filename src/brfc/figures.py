@@ -7,6 +7,8 @@ categorical palette (never party colours); "Others" is neutral grey; model colou
 from __future__ import annotations
 
 import json
+import re
+from pathlib import Path
 
 import matplotlib
 
@@ -357,7 +359,197 @@ def all_historical() -> None:
 
 
 def all_2026() -> None:
+    """Every 2026 figure; the president figure only once outputs/president_2026.json has been written."""
     config.FIGURES.mkdir(exist_ok=True)
     posterior_forecast()
     uncertainty_intervals()
     house_effects()
+    if (config.OUTPUTS / "president_2026.json").exists():
+        president_probability()
+
+
+PRESIDENT_CAPTION = "probability of being elected under this model; pre-registered; validated on {n} {noun} only"
+
+
+def n_validated_elections(label) -> int:
+    """Number of validation elections named by the president JSON "label".
+
+    Accepted forms: an integer, "<N> elections" anywhere in the text, or the historical election years
+    (e.g. "2014+2018+2022"), which are counted."""
+    if isinstance(label, int) and not isinstance(label, bool):
+        return label
+    text = str(label)
+    m = re.search(r"(\d+)\s*elections?\b", text)
+    if m:
+        return int(m.group(1))
+    years = [y for y in config.HISTORICAL if re.search(rf"(?<!\d){y}(?!\d)", text)]
+    if years:
+        return len(years)
+    if text.strip().isdigit():
+        return int(text.strip())
+    raise ValueError(f"cannot read the number of validation elections from label {label!r}")
+
+
+def _pair_candidates(p: dict) -> list[str]:
+    return list(p.get("candidates") or p["pair"].split(" vs "))
+
+
+def president_probability(out_dir=config.FIGURES, json_path=None) -> Path:
+    """2026: probability of being elected under this model, by path (outright or via each modelled runoff pair),
+    and the runoff valid-share interval of each modelled pair. Reads outputs/president_2026.json."""
+    from matplotlib.patches import Patch
+
+    _style()
+    src = Path(json_path) if json_path is not None else config.OUTPUTS / "president_2026.json"
+    doc = json.loads(src.read_text(encoding="utf-8"))
+    n_val = n_validated_elections(doc["label"])
+    prob = {c: float(v) for c, v in doc["probabilities"].items()}
+    outright = {c: float(v) for c, v in (doc.get("outright") or {}).items()}
+    unmodelled = float(doc["unmodelled"])
+    col = candidate_colors(list(dict.fromkeys([*prob, *(c for p in doc["pairs"] for c in _pair_candidates(p))])))
+    modelled = sorted(
+        [p for p in doc["pairs"] if p.get("modelled") and p.get("win")], key=lambda p: (-p["mass"], p["pair"])
+    )
+    cands = sorted([c for c, v in prob.items() if v > 0], key=lambda c: (-prob[c], c))
+
+    segments: dict[str, list[tuple[float, str | None]]] = {}
+    for c in cands:
+        seg = [(outright.get(c, 0.0), None)]
+        for p in modelled:
+            if c in p["win"]:
+                opp = next(x for x in _pair_candidates(p) if x != c)
+                seg.append((float(p["mass"]) * float(p["win"][c]), opp))
+        if abs(sum(v for v, _ in seg) - prob[c]) > 0.005:
+            raise ValueError(f"path contributions for {c} do not add up to its probability")
+        segments[c] = seg
+
+    ranged = [p for p in modelled if p.get("share_first")]
+    rows = len(cands) + 1
+    height_in = 2.6 + 0.42 * max(rows, len(ranged), 3)
+    top = 1 - 0.68 / height_in  # room for the title and a two-line subtitle
+    bottom = 0.6 / height_in  # room for the path legend and the source line
+    fig, (ax, ax2) = plt.subplots(1, 2, figsize=(11, height_in), gridspec_kw={"width_ratios": [3, 2]})
+
+    ax.set_xlim(0, 100 * min(1.0, max([*prob.values(), unmodelled]) * 1.15 + 0.03))
+    bar_h, inline = 0.62, []
+    for y, c in enumerate(cands):
+        left = 0.0
+        for v, opp in segments[c]:
+            if v <= 0:
+                continue
+            ax.barh(
+                y,
+                100 * v,
+                left=100 * left,
+                height=bar_h,
+                color=col[c],
+                alpha=1.0 if opp is None else 0.42,
+                edgecolor=SURFACE,
+                linewidth=2,
+            )
+            if opp is not None:
+                inline.append((100 * left, 100 * (left + v), y, f"vs {opp}"))
+            left += v
+        ax.annotate(
+            f"{100 * prob[c]:.1f}%" if prob[c] >= 0.0005 else "<0.1%",
+            (100 * left, y),
+            xytext=(4, 0),
+            textcoords="offset points",
+            va="center",
+            fontsize=8.5,
+            color=INK,
+        )
+    yu = len(cands)
+    ax.barh(yu, 100 * unmodelled, height=bar_h, color=GREY, edgecolor=SURFACE, linewidth=2)
+    ax.annotate(
+        f"{100 * unmodelled:.1f}%",
+        (100 * unmodelled, yu),
+        xytext=(4, 0),
+        textcoords="offset points",
+        va="center",
+        fontsize=8.5,
+        color=INK,
+    )
+    ax.set_yticks(range(rows), [*cands, "unmodelled pairs"], fontsize=9)
+    ax.set_ylim(rows - 0.5, -0.5)
+    ax.grid(axis="y", visible=False)
+    ax.set_xlabel("Probability of being elected under this model (%)")
+    ax.set_title("By path: outright first-round win or via a runoff pair", fontsize=10)
+    fig.legend(
+        handles=[
+            Patch(color=INK2, label="outright first-round win (above 50% of valid votes)"),
+            Patch(color=INK2, alpha=0.42, label="via a modelled runoff pair (label: opponent)"),
+            Patch(color=GREY, label="pairs without a head-to-head fit (not reallocated)"),
+        ],
+        fontsize=7.5,
+        loc="lower left",
+        bbox_to_anchor=(0.005, 0.2 / height_in),
+        ncol=3,
+    )
+
+    if ranged:
+        lo, hi = 50.0, 50.0
+        for y, p in enumerate(ranged):
+            s = p["share_first"]
+            c = col.get(s["candidate"], INK2)
+            ax2.plot([s["q03"], s["q97"]], [y, y], color=c, lw=1.2)
+            ax2.plot([s["q10"], s["q90"]], [y, y], color=c, lw=5, solid_capstyle="round")
+            ax2.scatter([s["median"]], [y], s=40, color=SURFACE, edgecolor=c, lw=1.6, zorder=5)
+            ax2.annotate(
+                f"P(pair) {100 * float(p['mass']):.1f}%",
+                (1.02, y),
+                xycoords=ax2.get_yaxis_transform(),
+                va="center",
+                ha="left",
+                fontsize=8,
+                color=INK2,
+                annotation_clip=False,
+            )
+            lo, hi = min(lo, s["q03"]), max(hi, s["q97"])
+        ax2.axvline(50, color=INK2, lw=0.9, ls=(0, (4, 3)))
+        ax2.set_xlim(lo - 3, hi + 3)
+        ax2.set_yticks(range(len(ranged)), [p["pair"] for p in ranged], fontsize=8.5)
+        ax2.set_ylim(max(len(ranged), 3) - 0.5, -0.5)
+        ax2.grid(axis="y", visible=False)
+        ax2.set_xlabel("Runoff valid-vote share of the first-listed candidate (%)")
+    else:
+        ax2.set_axis_off()
+        ax2.text(0.5, 0.5, "no modelled runoff pair", transform=ax2.transAxes, ha="center", color=INK2)
+    ax2.set_title("Runoff intervals of modelled pairs", fontsize=10)
+
+    fig.suptitle(
+        f"2026 president: probability of being elected under this model ({doc['status']}, cutoff {doc['cutoff']})",
+        x=0.01,
+        y=1 - 0.12 / height_in,
+        va="top",
+        ha="left",
+        fontweight="bold",
+        fontsize=12,
+    )
+    caption = PRESIDENT_CAPTION.format(n=n_val, noun="election" if n_val == 1 else "elections")
+    fig.text(
+        0.01,
+        top + 0.02 / height_in,
+        caption[0].upper() + caption[1:] + ".\nRight: 80% (thick) and 94% (thin) equal-tailed intervals, dot = "
+        "median, dashed line = 50%; P(pair) = probability of that runoff pair with no outright first-round win.",
+        fontsize=8,
+        color=INK2,
+        ha="left",
+        va="bottom",
+        linespacing=1.5,
+    )
+    # inline opponent labels, kept only where they fit inside their segment at the final layout
+    fig.tight_layout(rect=(0, bottom, 1, top))
+    renderer = fig.canvas.get_renderer()
+    for x0, x1, y, text in inline:
+        t = ax.text((x0 + x1) / 2, y, text, ha="center", va="center", fontsize=7.5, color=INK)
+        px0, px1 = ax.transData.transform([(x0, y), (x1, y)])[:, 0]
+        if t.get_window_extent(renderer).width > 0.9 * (px1 - px0):
+            t.remove()
+    out = Path(out_dir) / "president_probability.png"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    source = SOURCE + " First-round and head-to-head forecasts are treated as independent."
+    fig.text(0.01, 0.005, source, fontsize=7.5, color=INK2, ha="left", va="bottom", wrap=True)
+    fig.savefig(out, dpi=160, bbox_inches="tight")
+    plt.close(fig)
+    return out

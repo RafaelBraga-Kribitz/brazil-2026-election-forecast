@@ -153,7 +153,7 @@ def fit_one(
     fr.params.to_csv(cache / f"{key}.params.csv", index=False)
     kept.to_csv(cache / f"{key}.rows.csv", index=False)
     (cache / f"{key}.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
-    return CachedFit(key, meta, fr.election_day_draws, kept)
+    return load_fit(key, cache)  # stored float32 draws: a fresh run equals a cached run bit for bit
 
 
 def load_fit(key: str, cache: Path = CACHE) -> CachedFit | None:

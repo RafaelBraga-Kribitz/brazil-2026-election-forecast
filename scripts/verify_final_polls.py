@@ -20,6 +20,7 @@ def main() -> None:
     rel = pd.read_csv(config.DATA / "manual" / "final_poll_verification.csv", dtype={"election": str})
     rel["pollster"] = rel["pollster"].map(canonical_pollster)
     polls = load_polls(config.HISTORICAL)
+    polls = polls[polls["source_type"] == "wikipedia_revision"]  # release-added rows would match themselves
     res = load_results()
     rows = []
     for (e, r, p), g in rel.groupby(["election", "round", "pollster"]):

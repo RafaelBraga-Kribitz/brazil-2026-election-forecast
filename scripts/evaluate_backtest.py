@@ -79,7 +79,7 @@ def diagnostics() -> pd.DataFrame:
     rows = []
     for p in sorted(CACHE.glob("*.json")):
         m = json.loads(p.read_text(encoding="utf-8"))
-        if m.get("tag"):
+        if m.get("tag") or m.get("kind") == "h2h":  # head-to-head fits have their own cache and diagnostics
             continue
         d = m.get("diagnostics") or {}
         rows.append(

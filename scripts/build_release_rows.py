@@ -11,7 +11,7 @@ import pandas as pd
 
 from brfc import config
 from brfc.names import canonical_pollster
-from brfc.provenance import sha256_file
+from brfc.provenance import sha256_text_file_lf
 from brfc.schema import CANONICAL_COLUMNS, make_poll_id, validate_polls
 
 
@@ -22,7 +22,7 @@ def main() -> None:
     chk = pd.read_csv(config.OUTPUTS / "final_poll_verification_check.csv", dtype={"election": str})
     missing = chk.loc[chk["status"] == "missing_in_wikipedia", ["election", "round", "pollster"]].drop_duplicates()
     rel = rel.merge(missing, on=["election", "round", "pollster"])
-    h = sha256_file(src)
+    h = sha256_text_file_lf(src)
     rows = []
     for x in rel.itertuples():
         total = pd.notna(x.total_share_pct)

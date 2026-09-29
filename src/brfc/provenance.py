@@ -21,6 +21,11 @@ def sha256_file(path: str | Path, chunk: int = 1 << 20) -> str:
     return h.hexdigest()
 
 
+def sha256_text_file_lf(path: str | Path) -> str:
+    """SHA-256 of a text file with CRLF normalised to LF (stable across Windows and LF checkouts)."""
+    return hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 def utc_now_iso() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 

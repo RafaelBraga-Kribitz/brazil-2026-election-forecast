@@ -25,7 +25,7 @@ import pandas as pd
 
 from brfc import config
 from brfc.names import canonical_candidate, canonical_pollster
-from brfc.provenance import sha256_file
+from brfc.provenance import sha256_text_file_lf
 from brfc.schema import CANONICAL_COLUMNS, make_poll_id, validate_polls
 
 RESEARCH = config.DATA / "manual" / "research_2014"
@@ -33,18 +33,25 @@ EXCLUDE = {("Sensus", "2014-09-04"): "basis undeterminable (source says valid vo
 
 
 def main() -> None:
-    files = sorted(p for p in glob.glob(str(RESEARCH / "*.csv")) if not p.endswith("verification.csv"))
+    outputs = ("verification.csv", "supplement_exclusions.csv")
+    files = sorted(p for p in glob.glob(str(RESEARCH / "*.csv")) if not p.endswith(outputs))
     ver = pd.read_csv(RESEARCH / "verification.csv", dtype=str)
     ver["pollster"] = ver["pollster"].map(canonical_pollster)
     bad = ver[ver["status"] != "confirmed"][["pollster", "field_end"]].drop_duplicates()
     bad_keys = set(map(tuple, bad.to_numpy()))
     checked = set(map(tuple, ver[["pollster", "field_end"]].drop_duplicates().to_numpy()))
     rel = pd.read_csv(config.DATA / "interim" / "polls_releases.csv", dtype=str)
-    rel_r1 = set(map(tuple, rel[(rel["election"] == "2014") & (rel["round"] == "1")][["pollster", "field_end"]]
-                     .drop_duplicates().to_numpy()))
+    rel_r1 = set(
+        map(
+            tuple,
+            rel[(rel["election"] == "2014") & (rel["round"] == "1")][["pollster", "field_end"]]
+            .drop_duplicates()
+            .to_numpy(),
+        )
+    )
     rows, log = [], []
     for f in files:
-        h = sha256_file(f)
+        h = sha256_text_file_lf(f)
         d = pd.read_csv(f, dtype=str)
         d["pollster"] = d["pollster"].map(canonical_pollster)
         for x in d.itertuples(index=False):
@@ -64,24 +71,45 @@ def main() -> None:
             if reason is None and (pd.isna(share) or share <= 0):
                 reason = "no positive share printed"
             if reason:
-                log.append({"pollster": x.pollster, "field_end": x.field_end, "round": x.round,
-                            "scenario": x.scenario, "candidate": x.candidate, "reason": reason})
+                log.append(
+                    {
+                        "pollster": x.pollster,
+                        "field_end": x.field_end,
+                        "round": x.round,
+                        "scenario": x.scenario,
+                        "candidate": x.candidate,
+                        "reason": reason,
+                    }
+                )
                 continue
             r = dict.fromkeys(CANONICAL_COLUMNS, "")
             n = int(float(x.sample_size))
             r.update(
                 poll_id=make_poll_id("2014", int(x.round), x.pollster, x.field_start, x.field_end, n),
-                election="2014", round=int(x.round), tse_br_id=x.tse_br_id if pd.notna(x.tse_br_id) else "",
-                pollster=x.pollster, contractor=x.contractor if pd.notna(x.contractor) else "",
-                field_start=x.field_start, field_end=x.field_end,
-                publication_date=x.publication_date if pd.notna(x.publication_date) else "", sample_size=n,
-                methodology="", scenario=x.scenario, candidate=canonical_candidate(x.candidate),
-                share_reported=float(share), share_basis=basis,
+                election="2014",
+                round=int(x.round),
+                tse_br_id=x.tse_br_id if pd.notna(x.tse_br_id) else "",
+                pollster=x.pollster,
+                contractor=x.contractor if pd.notna(x.contractor) else "",
+                field_start=x.field_start,
+                field_end=x.field_end,
+                publication_date=x.publication_date if pd.notna(x.publication_date) else "",
+                sample_size=n,
+                methodology="",
+                scenario=x.scenario,
+                candidate=canonical_candidate(x.candidate),
+                share_reported=float(share),
+                share_basis=basis,
                 blank_null=pd.to_numeric(x.blank_null_pct, errors="coerce") if basis == "total" else float("nan"),
                 undecided=pd.to_numeric(x.undecided_pct, errors="coerce") if basis == "total" else float("nan"),
-                valid_vote_share=float("nan"), source_url=x.source_url, source_type=x.source_type,
-                source_revision="", retrieval_timestamp=x.retrieved_utc, verification_status="verified_match",
-                verification_source="data/manual/research_2014/verification.csv", source_hash=h,
+                valid_vote_share=float("nan"),
+                source_url=x.source_url,
+                source_type=x.source_type,
+                source_revision="",
+                retrieval_timestamp=x.retrieved_utc,
+                verification_status="verified_match",
+                verification_source="data/manual/research_2014/verification.csv",
+                source_hash=h,
                 notes=("revision_2014_r1; " if x.round == "1" else "pre_first_round_h2h; ")
                 + (x.notes if pd.notna(x.notes) else ""),
             )

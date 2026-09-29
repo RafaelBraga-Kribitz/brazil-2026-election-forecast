@@ -1,13 +1,15 @@
-"""Parse 2026 first-round national stimulated presidential poll tables from pinned Wikipedia revisions.
+"""Parse 2026 national stimulated presidential poll tables (first round and runoff head-to-head) from
+pinned Wikipedia revisions.
 
 Wikipedia PT ("Pesquisas de opinião para a eleição presidencial no Brasil em 2026") is the primary
 source; Wikipedia EN ("Opinion polling for the 2026 Brazilian presidential election") is used as a
 gap-filler and conflict check. The parser is driven by page *structure* (section headings, header
 cells, row/col spans, footnotes) rather than by specific rows, so it can be re-run on later revisions:
 
-* only tables inside the first-round h2 section ("Primeiro turno" / "First round") are read;
+* round 1 reads only tables inside the first-round h2 section ("Primeiro turno" / "First round");
+  round 2 reads only tables inside the runoff h2 section ("Segundo turno" / "Second round");
   aggregator tables (no sample-size column) and tables whose heading context mentions spontaneous,
-  rejection, runoff or state polls are ignored;
+  rejection or state polls (and, for round 1, runoff polls) are ignored;
 * the year of each table comes from the enclosing year heading (h3 or collapsible "hidden-title");
 * columns are classified from header text (pollster, dates, sample, others, blank/undecided, ...);
   candidate columns are named from the first person link in their header cell;
@@ -17,8 +19,17 @@ cells, row/col spans, footnotes) rather than by specific rows, so it can be re-r
 * cells like "<1%" are not numeric: the candidate is kept out of the numeric rows and recorded in
   ``notes`` (never imputed); "-", "—", "N/a" mean the candidate was not in that scenario.
 
-Usage: ``python -m brfc.ingest.wiki_2026`` (writes data/interim/polls_wiki_2026.csv and
-data/interim/conflicts_wiki_2026.csv).
+Runoff (round 2) head-to-head tables: PT has one table per pairing, EN one wide table with one row per
+pairing. Every scenario must hold exactly two named candidates with numeric shares (anything else is
+skipped and counted); its label is "<A> vs <B>" with the two canonical names in ``sorted`` order, so one
+pairing has the same label in both languages and across polls. PT/EN scenarios of a matched poll are
+paired by that label. Because each pairing is a separate question, a pairing that EN lists for a matched
+poll and PT does not is gap-filled from EN at scenario level (PT poll metadata, EN values and
+provenance, note ``gap_fill_en_scenario``); whole EN-only polls are gap-filled as in round 1.
+
+Usage: ``python -m brfc.ingest.wiki_2026`` (writes data/interim/polls_wiki_2026.csv,
+data/interim/conflicts_wiki_2026.csv, data/interim/polls_wiki_2026_runoff.csv and
+data/interim/conflicts_wiki_2026_runoff.csv).
 """
 
 from __future__ import annotations
@@ -53,6 +64,8 @@ SHARE_TOL = 0.05  # pp; PT/EN differences above this are conflicts
 ROOT = Path(__file__).resolve().parents[3]
 OUT_POLLS = ROOT / "data" / "interim" / "polls_wiki_2026.csv"
 OUT_CONFLICTS = ROOT / "data" / "interim" / "conflicts_wiki_2026.csv"
+OUT_RUNOFF_POLLS = ROOT / "data" / "interim" / "polls_wiki_2026_runoff.csv"
+OUT_RUNOFF_CONFLICTS = ROOT / "data" / "interim" / "conflicts_wiki_2026_runoff.csv"
 
 CONFLICT_COLUMNS = [
     "poll_id",
@@ -479,7 +492,7 @@ def _classify_header(texts: list[str]) -> str | None:
         return "link"
     if re.search(r"\bmodo\b|\bmode\b|metodolog|method", t):
         return "methodology"
-    if re.search(r"publica|divulga|published|release", t):
+    if re.search(r"\bpublica|divulga|published|release", t):  # \b: party label "Republicanos" is not a date
         return "publication"
     if re.search(r"registro|registration|\btse\b", t):
         return "tse"
@@ -535,6 +548,14 @@ _EXCLUDE_CONTEXT_RE = re.compile(
     r"espontane|spontaneous|rejei|rejection|segundo turno|second round|runoff|\bestad|\bstate\b|regional"
     r"|governador|governor|senado|senate"
 )
+# runoff section: the same exclusions except the runoff terms themselves
+_EXCLUDE_CONTEXT_R2_RE = re.compile(
+    r"espontane|spontaneous|rejei|rejection|\bestad|\bstate\b|regional|governador|governor|senado|senate"
+)
+_SECTION_RE = {
+    1: re.compile(r"primeiro turno|first round|1o turno|1st round"),
+    2: re.compile(r"segundo turno|second round|2o turno|2nd round|runoff"),
+}
 _VALID_CONTEXT_RE = re.compile(r"votos validos|valid votes")
 
 
@@ -596,8 +617,9 @@ def _resolve_others(kind: str, value: float | None, notes: list[str]) -> tuple[l
     return [(OTHERS, value)], set(), out_notes
 
 
-def _iter_first_round_tables(d: _Doc):
-    """Yield (table, context dict) for top-level wikitables in the first-round section, in order."""
+def _iter_section_tables(d: _Doc, round_: int):
+    """Yield (table, context dict) for top-level wikitables in the h2 section of `round_`, in order."""
+    section_re = _SECTION_RE[round_]
     in_first = False
     year: int | None = None
     h3 = h4 = ""
@@ -607,7 +629,7 @@ def _iter_first_round_tables(d: _Doc):
         tag = el.tag
         if tag == "h2":
             t = _fold(_text(el))
-            in_first = bool(re.search(r"primeiro turno|first round|1o turno|1st round", t))
+            in_first = bool(section_re.search(t))
             year, h3, h4 = None, "", ""
         elif tag == "h3" or (tag == "div" and "hidden-title" in (el.get("class") or "")):
             t = _text(el)
@@ -667,11 +689,18 @@ def _header_info(grid: list[list]) -> tuple[int, dict[int, str], dict[int, str],
     return n_head, sem, cand, contractor_first
 
 
-def parse(html: str, rec: SourceRecord, lang: str, *, min_field_end: str | None = MIN_FIELD_END) -> pd.DataFrame:
-    """Parse one pinned revision into canonical long rows (round 1, national, stimulated, 2026).
+def parse(
+    html: str, rec: SourceRecord, lang: str, *, min_field_end: str | None = MIN_FIELD_END, round_: int = ROUND
+) -> pd.DataFrame:
+    """Parse one pinned revision into canonical long rows (national, stimulated, 2026).
 
+    ``round_=1``: first-round tables. ``round_=2``: runoff head-to-head tables; each scenario is one
+    pairing with exactly two named candidates, labelled "<A> vs <B>" (canonical names, ``sorted`` order).
     Parse diagnostics are attached as ``df.attrs["parse_stats"]`` and ``df.attrs["skipped"]``.
     """
+    if round_ not in _SECTION_RE:
+        raise ValueError(f"round_ must be 1 or 2, got {round_!r}")
+    exclude_re = _EXCLUDE_CONTEXT_RE if round_ == 1 else _EXCLUDE_CONTEXT_R2_RE
     d = _Doc(html)
     retrieved = pd.Timestamp(rec.retrieval_timestamp).date() if rec.retrieval_timestamp else None
     min_end = date.fromisoformat(min_field_end) if min_field_end else None
@@ -679,9 +708,9 @@ def parse(html: str, rec: SourceRecord, lang: str, *, min_field_end: str | None 
     skipped: list[dict] = []
     stats: Counter = Counter()
 
-    for t_idx, (table, ctx) in enumerate(_iter_first_round_tables(d)):
+    for t_idx, (table, ctx) in enumerate(_iter_section_tables(d, round_)):
         context_text = _fold(" ".join([ctx["h3"], ctx["h4"], ctx["caption"]]))
-        if _EXCLUDE_CONTEXT_RE.search(context_text):
+        if exclude_re.search(context_text):
             stats["tables_excluded_context"] += 1
             continue
         grid = table_grid(table)
@@ -721,7 +750,8 @@ def parse(html: str, rec: SourceRecord, lang: str, *, min_field_end: str | None 
             snippet = " | ".join(_text(c) for c in dict.fromkeys(first) if c is not None)[:120]
             # results area covered by one wide cell -> not released / no results
             cand_cells = [first[j] for j in cand_order]
-            wide = [c for c in dict.fromkeys(cand_cells) if c is not None and cand_cells.count(c) >= 3]
+            wide_min = 3 if round_ == 1 else min(3, max(2, len(cand_order)))  # PT runoff tables: 2 columns
+            wide = [c for c in dict.fromkeys(cand_cells) if c is not None and cand_cells.count(c) >= wide_min]
             if wide:
                 wt = _fold(_text(wide[0]))
                 reason = "not_released" if _NOT_RELEASED_RE.search(wt) else "no_results_row"
@@ -828,12 +858,16 @@ def parse(html: str, rec: SourceRecord, lang: str, *, min_field_end: str | None 
                     stats["skipped_unparseable"] += 1
                     skipped.append({**where, "row": r, "reason": "no_numeric_candidate_values", "text": snippet})
                     continue
+                if round_ == 2 and (len(named_numeric) != 2 or OTHERS in sc.cands or sc.present != set(named_numeric)):
+                    stats["skipped_not_two_candidates"] += 1
+                    skipped.append({**where, "row": r, "reason": "runoff_row_not_two_candidates", "text": snippet})
+                    continue
                 if bad_cells:
                     stats["cells_unparsed"] += bad_cells
                 scen_list.append(sc)
             if not scen_list:
                 continue
-            pid = make_poll_id(ELECTION, ROUND, pollster, fs.isoformat(), fe.isoformat(), n)
+            pid = make_poll_id(ELECTION, round_, pollster, fs.isoformat(), fe.isoformat(), n)
             if pid in polls:  # same poll listed in separate rows -> further scenarios
                 polls[pid].scenarios.extend(scen_list)
                 stats["polls_merged_from_separate_rows"] += 1
@@ -844,7 +878,12 @@ def parse(html: str, rec: SourceRecord, lang: str, *, min_field_end: str | None 
 
     rows_out: list[dict] = []
     for pid, p in polls.items():
-        labels = _scenario_labels(p.scenarios)
+        if round_ == 2:
+            p.scenarios, n_dup = _dedupe_scenarios(p.scenarios)
+            stats["duplicate_scenarios_dropped"] += n_dup
+            labels = _pair_labels(p.scenarios)
+        else:
+            labels = _scenario_labels(p.scenarios)
         for lab, sc in zip(labels, p.scenarios, strict=True):
             notes = _compact_notes(p.notes + sc.notes)
             for nm in sc.order:
@@ -852,7 +891,7 @@ def parse(html: str, rec: SourceRecord, lang: str, *, min_field_end: str | None 
                     {
                         "poll_id": pid,
                         "election": ELECTION,
-                        "round": ROUND,
+                        "round": round_,
                         "tse_br_id": p.tse_br_id,
                         "pollster": p.pollster,
                         "contractor": p.contractor,
@@ -925,6 +964,44 @@ def _scenario_labels(scens: list[_Scenario]) -> list[str]:
         seen[lab] += 1
         out.append(lab if seen[lab] == 1 else f"{lab} [{seen[lab]}]")
     return out
+
+
+def pair_label(a: str, b: str) -> str:
+    """Runoff scenario label: the two canonical names in ``sorted`` order, e.g. 'Flávio Bolsonaro vs Lula'."""
+    x, y = sorted((a, b))
+    return f"{x} vs {y}"
+
+
+def _pair_labels(scens: list[_Scenario]) -> list[str]:
+    """Round-2 labels '<A> vs <B>'; a pairing listed twice with different values gets ' [k]'."""
+    seen: Counter = Counter()
+    out = []
+    for s in scens:
+        a, b = (k for k in s.cands if k != OTHERS)
+        lab = pair_label(a, b)
+        seen[lab] += 1
+        if seen[lab] > 1:
+            s.notes.append("pairing_listed_twice_with_different_values")
+        out.append(lab if seen[lab] == 1 else f"{lab} [{seen[lab]}]")
+    return out
+
+
+def _same_values(a: float, b: float) -> bool:
+    return (np.isnan(a) and np.isnan(b)) or a == b
+
+
+def _dedupe_scenarios(scens: list[_Scenario]) -> tuple[list[_Scenario], int]:
+    """Drop exact repeats of a scenario (same shares, blank/null and undecided), e.g. a poll listed in two
+    tables of the same pairing. Returns (kept scenarios, number dropped)."""
+    kept: list[_Scenario] = []
+    for s in scens:
+        if any(
+            k.cands == s.cands and _same_values(k.blank_null, s.blank_null) and _same_values(k.undecided, s.undecided)
+            for k in kept
+        ):
+            continue
+        kept.append(s)
+    return kept, len(scens) - len(kept)
 
 
 # --------------------------------------------------------------------------------------------------
@@ -1025,12 +1102,32 @@ def _pair_scenarios(ps: dict[str, dict], es: dict[str, dict]) -> tuple[list[tupl
     return pairs, unpaired
 
 
-def reconcile(pt_df: pd.DataFrame, en_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """PT is primary. EN-only polls are appended (notes 'gap_fill_en'); PT/EN differences -> conflicts."""
+_POLL_META_COLUMNS = [
+    "poll_id",
+    "election",
+    "round",
+    "tse_br_id",
+    "pollster",
+    "contractor",
+    "field_start",
+    "field_end",
+    "publication_date",
+    "sample_size",
+    "methodology",
+]
+
+
+def reconcile(pt_df: pd.DataFrame, en_df: pd.DataFrame, *, round_: int = ROUND) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """PT is primary. EN-only polls are appended (notes 'gap_fill_en'); PT/EN differences -> conflicts.
+
+    Round 2 only: scenarios of a matched poll are paired by their pairing label, and an EN pairing that PT
+    does not list for that poll is appended under the PT poll (PT poll metadata, EN values and provenance,
+    note 'gap_fill_en_scenario')."""
     pt, en = _poll_summaries(pt_df), _poll_summaries(en_df)
     matched = _match_polls(pt, en)
     conflicts: list[dict] = []
     unpaired_en_scen = 0
+    gap_scen: list[tuple[str, str, list[str]]] = []  # (pt poll_id, en poll_id, EN-only pairing labels)
     tier_counts: Counter = Counter(t for _, t in matched.values())
     for eid, (pid, tier) in matched.items():
         p, e = pt[pid], en[eid]
@@ -1051,7 +1148,14 @@ def reconcile(pt_df: pd.DataFrame, en_df: pd.DataFrame) -> tuple[pd.DataFrame, p
             if pv != ev:
                 conflicts.append({**base, "candidate": f"__{kind}__", "pt_value": pv, "en_value": ev, "kind": kind,
                                   "pt_scenario": "", "en_scenario": ""})  # fmt: skip
-        pairs, unp = _pair_scenarios(p["scen"], e["scen"])
+        if round_ == 2:
+            pairs = [(lab, lab) for lab in e["scen"] if lab in p["scen"]]
+            en_only = [lab for lab in e["scen"] if lab not in p["scen"]]
+            if en_only:
+                gap_scen.append((pid, eid, en_only))
+            unp = len(en_only)
+        else:
+            pairs, unp = _pair_scenarios(p["scen"], e["scen"])
         unpaired_en_scen += unp
         for plab, elab in pairs:
             ps, es = p["scen"][plab], e["scen"][elab]
@@ -1105,7 +1209,20 @@ def reconcile(pt_df: pd.DataFrame, en_df: pd.DataFrame) -> tuple[pd.DataFrame, p
 
     if len(gap):
         gap["notes"] = gap.apply(_gap_note, axis=1)
-    merged = pd.concat([pt_df, gap], ignore_index=True)[CANONICAL_COLUMNS]
+    parts = [pt_df, gap]
+    n_gap_scen = 0
+    for pid, eid, labs in gap_scen:
+        meta = pt_df.loc[pt_df["poll_id"] == pid, _POLL_META_COLUMNS].iloc[0]
+        rows = en_df[(en_df["poll_id"] == eid) & en_df["scenario"].isin(labs)].copy()
+        for c in _POLL_META_COLUMNS:
+            rows[c] = meta[c]
+        extra = "gap_fill_en_scenario" + ("" if eid == pid else f";en_poll_id:{eid}")
+        rows["notes"] = [
+            ";".join([x for x in str(n or "").split(";") if x and x != "nan"] + [extra]) for n in rows["notes"]
+        ]
+        parts.append(rows)
+        n_gap_scen += len(labs)
+    merged = pd.concat(parts, ignore_index=True)[CANONICAL_COLUMNS]
     merged = merged.sort_values(["field_end", "pollster", "poll_id"], ascending=[False, True, True], kind="stable")
     merged = merged.reset_index(drop=True)
     conf = pd.DataFrame(conflicts, columns=CONFLICT_COLUMNS)
@@ -1119,6 +1236,8 @@ def reconcile(pt_df: pd.DataFrame, en_df: pd.DataFrame) -> tuple[pd.DataFrame, p
         "pt_only_polls": len(set(pt) - {v[0] for v in matched.values()}),
         "unpaired_en_scenarios_in_matched_polls": unpaired_en_scen,
     }
+    if round_ == 2:
+        merged.attrs["reconcile_stats"]["en_gap_fill_scenarios_in_matched_polls"] = n_gap_scen
     return merged, conf
 
 
@@ -1158,28 +1277,52 @@ def summarize(merged: pd.DataFrame, since: str = "2026-08-16", k: int = 15) -> N
         print(f"  {name:<22} {c}")
 
 
-def main(pt_oldid: int = PT_OLDID, en_oldid: int = EN_OLDID) -> tuple[pd.DataFrame, pd.DataFrame]:
+def summarize_runoff(merged: pd.DataFrame, since: str = "2026-08-05") -> None:
+    """Head-to-head polls per pairing (and per pollster) with field_end >= `since`."""
+    rr = merged[merged["field_end"] >= since]
+    by_pair = rr.groupby("scenario")["poll_id"].nunique().sort_values(ascending=False)
+    print(f"\nRunoff head-to-head polls per pairing with field_end >= {since}:")
+    for lab, c in by_pair.items():
+        per = rr[rr["scenario"] == lab].drop_duplicates("poll_id")["pollster"].value_counts()
+        print(f"  {lab:<34} {c:>3}  ({', '.join(f'{k} {v}' for k, v in per.items())})")
+
+
+def build_tables(
+    pt_html: str, pt_rec: SourceRecord, en_html: str, en_rec: SourceRecord, round_: int = ROUND
+) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
+    """Parse both revisions for one round, reconcile (PT primary) and keep field_end >= MIN_FIELD_END.
+
+    Returns (polls, conflicts, diagnostics) without writing anything."""
     parse_min = (date.fromisoformat(MIN_FIELD_END) - timedelta(days=MATCH_SLACK_DAYS)).isoformat()
-    pt_html, pt_rec = fetch_revision("pt", PT_TITLE, pt_oldid)
-    en_html, en_rec = fetch_revision("en", EN_TITLE, en_oldid)
-    pt_df = parse(pt_html, pt_rec, "pt", min_field_end=parse_min)
-    en_df = parse(en_html, en_rec, "en", min_field_end=parse_min)
-    merged, conflicts = reconcile(pt_df, en_df)
+    pt_df = parse(pt_html, pt_rec, "pt", min_field_end=parse_min, round_=round_)
+    en_df = parse(en_html, en_rec, "en", min_field_end=parse_min, round_=round_)
+    merged, conflicts = reconcile(pt_df, en_df, round_=round_)
     rstats = merged.attrs["reconcile_stats"]
     merged = merged[merged["field_end"] >= MIN_FIELD_END].reset_index(drop=True)
     conflicts = conflicts[conflicts["poll_id"].isin(set(merged["poll_id"]))].reset_index(drop=True)
+    diag = {
+        "parse_stats": {"pt": pt_df.attrs["parse_stats"], "en": en_df.attrs["parse_stats"]},
+        "skipped": {"pt": pt_df.attrs["skipped"], "en": en_df.attrs["skipped"]},
+        "reconcile_stats": rstats,
+    }
+    return merged, conflicts, diag
 
-    OUT_POLLS.parent.mkdir(parents=True, exist_ok=True)
-    merged.to_csv(OUT_POLLS, index=False, encoding="utf-8")
-    conflicts.to_csv(OUT_CONFLICTS, index=False, encoding="utf-8")
 
-    for lang, df in (("pt", pt_df), ("en", en_df)):
-        st = df.attrs["parse_stats"]
-        print(f"[{lang}] parse stats: {st}")
-        for s in df.attrs["skipped"]:
+def _rel(p: Path) -> str:
+    try:
+        return str(p.relative_to(ROOT))
+    except ValueError:
+        return str(p)
+
+
+def _report(merged: pd.DataFrame, conflicts: pd.DataFrame, diag: dict, label: str) -> None:
+    print(f"\n===== {label}")
+    for lang in ("pt", "en"):
+        print(f"[{lang}] parse stats: {diag['parse_stats'][lang]}")
+        for s in diag["skipped"][lang]:
             if s["reason"] not in ("not_released",):
                 print(f"   skipped [{s['reason']}] table={s['table']} {s['heading']!r}: {s['text']}")
-    print(f"reconcile: {rstats}")
+    print(f"reconcile: {diag['reconcile_stats']}")
     problems = validate_polls(merged)
     print(f"validate_polls: {problems or 'OK'}")
     np_ = merged["poll_id"].nunique()
@@ -1189,8 +1332,26 @@ def main(pt_oldid: int = PT_OLDID, en_oldid: int = EN_OLDID) -> tuple[pd.DataFra
         f"field_end {merged['field_end'].min()}..{merged['field_end'].max()} en_gap_fill_polls={gap_n} "
         f"conflict_rows={len(conflicts)} (share={int((conflicts['kind'] == 'share').sum())})"
     )
+
+
+def main(pt_oldid: int = PT_OLDID, en_oldid: int = EN_OLDID) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Write the first-round and runoff head-to-head tables; returns the first-round (polls, conflicts)."""
+    pt_html, pt_rec = fetch_revision("pt", PT_TITLE, pt_oldid)
+    en_html, en_rec = fetch_revision("en", EN_TITLE, en_oldid)
+    merged, conflicts, diag = build_tables(pt_html, pt_rec, en_html, en_rec, round_=1)
+    runoff, runoff_conflicts, diag2 = build_tables(pt_html, pt_rec, en_html, en_rec, round_=2)
+
+    OUT_POLLS.parent.mkdir(parents=True, exist_ok=True)
+    merged.to_csv(OUT_POLLS, index=False, encoding="utf-8")
+    conflicts.to_csv(OUT_CONFLICTS, index=False, encoding="utf-8")
+    runoff.to_csv(OUT_RUNOFF_POLLS, index=False, encoding="utf-8")
+    runoff_conflicts.to_csv(OUT_RUNOFF_CONFLICTS, index=False, encoding="utf-8")
+
+    _report(merged, conflicts, diag, "first round")
     summarize(merged)
-    print(f"\nwrote {OUT_POLLS.relative_to(ROOT)} and {OUT_CONFLICTS.relative_to(ROOT)}")
+    _report(runoff, runoff_conflicts, diag2, "runoff head-to-head (round 2)")
+    summarize_runoff(runoff)
+    print(f"\nwrote {_rel(OUT_POLLS)}, {_rel(OUT_CONFLICTS)}, {_rel(OUT_RUNOFF_POLLS)}, {_rel(OUT_RUNOFF_CONFLICTS)}")
     return merged, conflicts
 
 

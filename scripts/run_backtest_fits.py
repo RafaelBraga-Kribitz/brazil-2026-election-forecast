@@ -59,6 +59,23 @@ def jobs(variants, elections, horizons_r1=config.HORIZONS_R1, horizons_r2=config
     return out
 
 
+def repair_jobs(cache) -> list[tuple]:
+    """Cached untagged non-converged first-round/runoff fits, refit from attempt 3 (Addendum 03).
+
+    Head-to-head fits (meta kind "h2h") are never repaired here: they live in their own cache and are repaired by
+    scripts/run_runoff_backtest.py --stage repair."""
+    import json
+
+    todo = []
+    for p in sorted(cache.glob("*.json")):
+        m = json.loads(p.read_text(encoding="utf-8"))
+        if m.get("kind") == "h2h":
+            continue
+        if m["status"] == "ok" and not m.get("tag") and not m["diagnostics"].get("converged", True):
+            todo.append((m["election"], m["round"], m["horizon"], m["variant"], True, "", None, True, 1, 2))
+    return todo
+
+
 def run(job_list, workers: int) -> None:
     with ProcessPoolExecutor(max_workers=workers) as ex:
         futs = [ex.submit(_job, j) for j in job_list]
@@ -75,15 +92,9 @@ def main() -> None:
     ap.add_argument("--repair", action="store_true", help="refit cached non-converged fits from attempt 3")
     a = ap.parse_args()
     if a.repair:
-        import json
-
         from brfc.pipeline import CACHE
 
-        todo = []
-        for p in sorted(CACHE.glob("*.json")):
-            m = json.loads(p.read_text(encoding="utf-8"))
-            if m["status"] == "ok" and not m.get("tag") and not m["diagnostics"].get("converged", True):
-                todo.append((m["election"], m["round"], m["horizon"], m["variant"], True, "", None, True, 1, 2))
+        todo = repair_jobs(CACHE)
         print(f"repairing {len(todo)} fits", flush=True)
         run(todo, a.workers)
         return
