@@ -4,7 +4,7 @@ PY = uv run python
 # $(call require,VAR): stop with a message when a required variable is empty
 require = $(if $(strip $($(1))),,$(error $(1) is required, e.g. make $@ $(1)=...))
 
-.PHONY: setup lint test reparse readiness verify backtest sensitivity runoff-backtest forecast president runoff-2026 report figures all reproduce
+.PHONY: setup lint test reparse readiness verify backtest sensitivity revision-2014 runoff-backtest forecast president runoff-2026 report figures all reproduce
 
 setup:        ## install the locked environment
 	uv sync --locked
@@ -32,6 +32,9 @@ backtest:     ## stage 1 fits (cached) + stage 2 LOEO evaluation
 
 sensitivity:  ## pre-registered sensitivity analyses (eve horizon); needs backtest
 	$(PY) scripts/run_sensitivity.py --workers 6
+
+revision-2014: ## labelled post-result revision of the 2014 first round (Addendum 04 s.3); needs backtest
+	$(PY) scripts/run_revision_2014.py
 
 runoff-backtest: ## pre-first-round head-to-head fits (cached) + evaluation; writes outputs/h2h_deviations.csv
 	$(PY) scripts/run_runoff_backtest.py --stage fits --workers 4
@@ -63,7 +66,7 @@ figures:      ## rebuild every figure from outputs/ (the president figure once o
 all: lint test readiness verify backtest runoff-backtest figures
 
 reproduce:    ## everything from a clean clone, including all fits (several hours on 6 CPU cores)
-	$(MAKE) setup lint test reparse readiness verify backtest sensitivity runoff-backtest
+	$(MAKE) setup lint test reparse readiness verify backtest sensitivity revision-2014 runoff-backtest
 	$(MAKE) forecast STATUS=PRELIMINARY CUTOFF=2026-09-29
 	$(MAKE) president STATUS=PRELIMINARY CUTOFF=2026-09-29
 	$(MAKE) report figures

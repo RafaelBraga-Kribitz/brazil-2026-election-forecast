@@ -94,7 +94,9 @@ def diagnostics() -> pd.DataFrame:
                 "n_pollsters": m["n_pollsters"],
                 "n_dropped_overlap": m["n_dropped_overlap"],
                 "named": "|".join(m["named"]),
-                "retried": "first_attempt_diagnostics" in m,
+                # fit_one records the attempts it ran; a repair run (--repair) starts at a later attempt, and the
+                # oldest repaired fits keep their failed first attempt under first_attempt_diagnostics
+                "retried": any(a["attempt"] > 1 for a in m.get("attempts", [])) or "first_attempt_diagnostics" in m,
                 **d,
             }
         )
