@@ -4,6 +4,7 @@ and non-interference with the first-round table."""
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 from pathlib import Path
 
@@ -30,6 +31,14 @@ KNOWN_SOURCE_ISSUES = ("total-basis poll-scenarios summing above 101.5%",)
 PINNED_REVISIONS = {"pt_oldid": 73082572, "en_oldid": 1377478949}
 FIRST_ROUND_SHA256 = "26e9ad911a97d1d26d2866afe86ab234bfd43b6a790cbff97503d6244f3c8c20"
 FIRST_ROUND_CONFLICTS_SHA256 = "31c0222645ed885e24008b87aa1da7de707fe6bc77480b6097d919c7531d7f0f"
+# SHA-256 of the rendered HTML the committed tables were parsed from. MediaWiki can re-render the same revision
+# with different bytes, so a re-download reproduces the values but not these hashes (see DATA_SOURCES.md).
+ORIGINAL_HTML_SHA256 = {
+    "9ca942a568882bbd6b774a0d5553b585fd3c21e22108b84064e56abca54efbeb",
+    "a78d03ad5aeb63fc824e003bf10c344af9bfe722bf36e79b3d9db13c7cca830b",
+}
+# columns that describe the download rather than the data (as in scripts/reparse_sources.py)
+RETRIEVAL_COLUMNS = ("retrieval_timestamp", "source_hash")
 
 needs_runoff_csv = pytest.mark.skipif(not RUNOFF_CSV.exists(), reason="runoff table not built")
 
@@ -40,6 +49,15 @@ def _sha(data: bytes) -> str:
 
 def _csv(df: pd.DataFrame) -> bytes:
     return df.to_csv(index=False, lineterminator="\n").encode("utf-8")
+
+
+def _values(data: bytes) -> pd.DataFrame:
+    df = pd.read_csv(io.BytesIO(data), dtype=str, keep_default_na=False)
+    return df.drop(columns=[c for c in RETRIEVAL_COLUMNS if c in df.columns])
+
+
+def _original_download(pinned_html) -> bool:
+    return {pinned_html[1].sha256, pinned_html[3].sha256} <= ORIGINAL_HTML_SHA256
 
 
 def _current_revisions() -> dict:
@@ -151,18 +169,27 @@ def pinned_html():
     return pt_html, pt_rec, en_html, en_rec
 
 
-def test_first_round_rebuild_from_pinned_revisions_is_byte_identical(pinned_html):
+def test_first_round_rebuild_from_pinned_revisions(pinned_html):
+    """Every value is reproduced; the bytes (including the HTML hash column) only from the original download."""
     polls, conflicts, _ = wiki_2026.build_tables(*pinned_html, round_=1)
-    assert _sha(_csv(polls)) == FIRST_ROUND_SHA256
-    assert _sha(_csv(conflicts)) == FIRST_ROUND_CONFLICTS_SHA256
+    if _original_download(pinned_html):
+        assert _sha(_csv(polls)) == FIRST_ROUND_SHA256
+        assert _sha(_csv(conflicts)) == FIRST_ROUND_CONFLICTS_SHA256
+    if _current_revisions() == PINNED_REVISIONS:
+        pd.testing.assert_frame_equal(_values(_csv(polls)), _values(FIRST_ROUND_CSV.read_bytes()))
+        conflicts_csv = (INTERIM / "conflicts_wiki_2026.csv").read_bytes()
+        pd.testing.assert_frame_equal(_values(_csv(conflicts)), _values(conflicts_csv))
 
 
 def test_runoff_rebuild_from_pinned_revisions_matches_committed_table(pinned_html):
     if _current_revisions() != PINNED_REVISIONS or not RUNOFF_CSV.exists():
         pytest.skip("committed runoff table comes from other revisions")
     polls, conflicts, _ = wiki_2026.build_tables(*pinned_html, round_=2)
-    assert _sha(_csv(polls)) == _sha(RUNOFF_CSV.read_bytes())
-    assert _sha(_csv(conflicts)) == _sha(RUNOFF_CONFLICTS_CSV.read_bytes())
+    if _original_download(pinned_html):
+        assert _sha(_csv(polls)) == _sha(RUNOFF_CSV.read_bytes())
+        assert _sha(_csv(conflicts)) == _sha(RUNOFF_CONFLICTS_CSV.read_bytes())
+    pd.testing.assert_frame_equal(_values(_csv(polls)), _values(RUNOFF_CSV.read_bytes()))
+    pd.testing.assert_frame_equal(_values(_csv(conflicts)), _values(RUNOFF_CONFLICTS_CSV.read_bytes()))
 
 
 # --------------------------------------------------------------------------------------------------

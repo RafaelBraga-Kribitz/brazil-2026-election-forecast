@@ -242,10 +242,24 @@ make verify               # final-poll verification and the historical error tab
 make backtest             # first-round and runoff-round fits, then LOEO evaluation
 make runoff-backtest      # head-to-head fits and the "who was elected" evaluation
 make figures              # every figure from outputs/
+make reproduce            # all of the above from a clean clone, plus sensitivity, 2014 revision and 2026 forecast
 ```
 
 - **Run time.** `make backtest` and `make runoff-backtest` fit every model from scratch because the fit cache (`data/cache/`) is not committed. These are the slow steps.
 - **2026 forecast.** `make forecast STATUS=PRELIMINARY CUTOFF=2026-09-29` and then `make president` with the same variables rebuild the PRELIMINARY forecast from the committed poll snapshot.
+- **Clean-clone test (2026-09-29/30).** A fresh clone of commit `73f92ea` ran `make reproduce` from an empty fit
+  cache in about 2.5 hours with the Makefile's 6 worker processes. The 2014 revision, now part of `make reproduce`,
+  took about 20 more minutes. Every committed file in `outputs/` was reproduced:
+  - the first-round, runoff-round and who-was-elected backtests, the sensitivity runs and the 2014 revision are
+    identical (largest absolute difference 0.0);
+  - the PRELIMINARY 2026 quantiles differ by at most 2e-6 pp, because draws are stored as float32; its
+    probabilities of being elected are identical;
+  - the figures are byte-identical, except 10 pixels of `posterior_forecast.png`, which differ by one colour level;
+  - the reparse check reproduced every value of the seven poll tables.
+
+  The test found two defects, both fixed. The `retried` flag in `outputs/model_diagnostics.csv` missed 12 of 15
+  retried fits. Two table-rebuild tests compared bytes that include the HTML hash, so they failed after a
+  re-download. The TSE reconciliation was not re-run in the clone, because the TSE files are not redistributed.
 - **Windows.** PyMC runs its chains one after another in a single process with the numba backend, so no C compiler is needed. Keep `.venv` inside the project directory if application control blocks DLLs in temporary folders.
 - **What cannot be reproduced from the repository alone.** Raw Wikipedia HTML and the TSE result files are not redistributed. Wikipedia revisions are re-downloaded by pinned oldid. The TSE files must be downloaded manually in a browser, because TSE servers refuse scripted requests. Instructions and expected file names are in [`data/raw/README.md`](data/raw/README.md).
 
