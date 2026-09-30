@@ -38,9 +38,11 @@ scoring code is committed and pushed before the outcome is known. PREREG §8 (me
   or changed, and no unlisted file.
 - **Categories.** The frozen forecast categories: named candidates by name, and Others = 100 minus the named shares
   (as in the backtest).
-- **Models F, E, E0 and the conversions of B, C, D.** Scored with `brfc.scoring.score` on the frozen draws, the
-  function the backtest used. It gives share MAE, signed and absolute top-two margin error, 80%/94% coverage,
-  first-place Brier and log score, and the "leader exceeds 50% of valid votes" Brier.
+- **Models F, E and E0.** Scored with `brfc.scoring.score` on the frozen draws, the function the backtest used. It
+  gives share MAE, signed and absolute top-two margin error, 80%/94% coverage, first-place Brier and log score, and
+  the "leader exceeds 50% of valid votes" Brier.
+- **Baselines B, C and D, as in the backtest.** Share MAE and margin error come from the point value in
+  `baseline_snapshot.csv`. Coverage and the probability scores come from the conversion's frozen draws.
 - **Baseline A (PollingData).** Point only. It is scored on the categories PollingData displayed:
   - named candidates, matched by name;
   - Others, only if PollingData displayed every ballot candidate outside the named set (A's Others is then their
@@ -76,9 +78,9 @@ scoring code is committed and pushed before the outcome is known. PREREG §8 (me
 ## 5. Runoff scorecard (`--stage runoff`, only if a runoff is held)
 
 - **Package check** as in §3, on `outputs/freeze_runoff/`.
-- **Models F (primary), E, E0 and the conversions of B and C.** Scored with `brfc.scoring.score` (round 2) on the
-  frozen draws. It gives runoff share MAE, margin error, 80%/94% coverage, and winner Brier and log score with the
-  registered smoothing.
+- **Models F (primary), E and E0.** Scored with `brfc.scoring.score` (round 2) on the frozen draws. It gives
+  runoff share MAE, margin error, 80%/94% coverage, and winner Brier and log score with the registered smoothing.
+- **Baselines B and C** follow the §3 baseline rule: point value for MAE and margin, conversion draws for the rest.
 - **Benchmarks.** The Polymarket election-winner prices at the runoff freeze, and PollingData probabilities if
   displayed, under the §3 rules.
 
@@ -89,3 +91,9 @@ scoring code is committed and pushed before the outcome is known. PREREG §8 (me
 - The scorecard is published whatever the result. No frozen file is rewritten. The post-mortem keeps pre-election
   information apart from post-election analysis.
 - The scoring code is tested on synthetic results only. No 2026 result is entered before the TSE count.
+
+## Revision note
+
+2026-09-30, before any result: §3 and §5 now state that the baselines' MAE and margin error come from their point
+values, as in the backtest (`brfc.pipeline.evaluate_backtest`). The first version said all models were scored on
+draws. Both versions are in the git history.
