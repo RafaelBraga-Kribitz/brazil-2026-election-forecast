@@ -101,14 +101,27 @@ def _package(fz: Path, *, pollingdata=True, polymarket=True, status="FINAL") -> 
         for c, v in (("Lula", 44.5), ("Flávio Bolsonaro", 40.5), ("Ronaldo Caiado", 5.0), ("Augusto Cury", 2.0)):
             snap.append({"benchmark": "PollingData", "event_kind": "share", "candidate": c, "valid_share_pct": v})
         snap.append({"benchmark": "PollingData", "event_kind": "share", "candidate": "", "valid_share_pct": 3.0})
+        for event, cand, v in (("first_place", "Lula", 84.0), ("runoff_held", "", 100.0)):
+            snap.append(
+                {
+                    "benchmark": "PollingData",
+                    "event_kind": "pollingdata_win_probability",
+                    "probability_event": event,
+                    "candidate": cand,
+                    "value_displayed_pct": v,
+                }
+            )
     if polymarket:
+        pm = {"benchmark": "Polymarket", "active": True, "volume_usd": 1000.0}
         for c, p in (("Lula", 0.62), ("Flávio Bolsonaro", 0.40), ("", 0.03)):
-            snap.append({"benchmark": "Polymarket", "event_kind": "first_place", "candidate": c, "yes_price": p})
-        snap.append(
-            {"benchmark": "Polymarket", "event_kind": "first_round_outright_win", "candidate": "", "yes_price": 0.1}
-        )
+            snap.append(pm | {"event_kind": "first_place", "candidate": c, "yes_price": p})
+        for label in "ABC":  # placeholder markets ("Candidate A"...): inactive and never traded
+            snap.append(pm | {"event_kind": "first_place", "candidate": "", "yes_price": 0.5, "active": False})
+            snap[-1]["outcome_label"] = f"Candidate {label}"
+            snap[-1]["volume_usd"] = 0.0
+        snap.append(pm | {"event_kind": "first_round_outright_win", "candidate": "", "yes_price": 0.1})
         for c, p in (("Lula", 0.52), ("Flávio Bolsonaro", 0.50)):
-            snap.append({"benchmark": "Polymarket", "event_kind": "election_winner", "candidate": c, "yes_price": p})
+            snap.append(pm | {"event_kind": "election_winner", "candidate": c, "yes_price": p})
     pd.DataFrame(snap).to_csv(fz / "baseline_snapshot.csv", index=False)
     (fz / "MODEL_VERSION.txt").write_text("synthetic\n", encoding="utf-8")
     alts = {
@@ -284,18 +297,16 @@ def test_l1_compares_f_with_a_on_the_same_categories():
 
 # ---------------------------------------------------------------- benchmarks
 def test_market_prices_are_normalised_with_an_other_bucket():
+    live = {"benchmark": "Polymarket", "event_kind": "first_place", "active": True, "volume_usd": 10.0}
     snap = pd.DataFrame(
         [
-            {"benchmark": "Polymarket", "event_kind": "first_place", "candidate": "Lula", "yes_price": 0.6},
-            {
-                "benchmark": "Polymarket",
-                "event_kind": "first_place",
-                "candidate": "Flávio Bolsonaro",
-                "yes_price": 0.45,
-            },
-            {"benchmark": "Polymarket", "event_kind": "first_place", "candidate": "Romeu Zema", "yes_price": 0.05},
-            {"benchmark": "Polymarket", "event_kind": "first_place", "candidate": np.nan, "yes_price": 0.1},
-            {"benchmark": "Polymarket", "event_kind": "first_place", "candidate": "Lula", "yes_price": np.nan},
+            live | {"candidate": "Lula", "yes_price": 0.6},
+            live | {"candidate": "Flávio Bolsonaro", "yes_price": 0.45},
+            live | {"candidate": "Romeu Zema", "yes_price": 0.05},
+            live | {"candidate": np.nan, "yes_price": 0.1},
+            live | {"candidate": "Lula", "yes_price": np.nan},
+            live | {"candidate": np.nan, "yes_price": 0.5, "active": False, "volume_usd": 0.0},  # placeholder
+            live | {"candidate": np.nan, "yes_price": 0.5, "active": "True", "volume_usd": 0.0},  # never traded
         ]
     )
     p = sc.market_probabilities(snap, "first_place", ["Lula", "Flávio Bolsonaro"])
@@ -327,6 +338,15 @@ def test_displayed_probabilities_remainder_and_rounding():
     assert sum(p.values()) == pytest.approx(1.0) and p[sc.OTHER] == 0.0
     with pytest.raises(ValueError, match="sum to"):
         sc.displayed_probabilities(rows([("Lula", 60.0), ("Flávio Bolsonaro", 46.0)]), "election_winner", NAMED[:2])
+
+
+def test_event_probability_uses_the_registered_smoothing():
+    d = np.array([[60.0, 30.0, 10.0], [40.0, 50.0, 10.0], [45.0, 44.0, 11.0], [52.0, 38.0, 10.0]])
+    cats = ["A", "B", config.OTHERS_LABEL]
+    assert sc.event_probability(d, cats, "first_place", "A") == pytest.approx(3.5 / 5)
+    assert sc.event_probability(d, cats, "leader_above_50") == pytest.approx(2.5 / 5)
+    with pytest.raises(ValueError):
+        sc.event_probability(d, cats, "unknown")
 
 
 def test_president_scores_use_the_registered_function():
@@ -363,6 +383,18 @@ def test_score_script_end_to_end_on_a_synthetic_package(tmp_path):
     assert bench[("Polymarket", "first_place")]["p_actual"] == pytest.approx(0.62 / 1.05)
     assert bench[("Polymarket", "first_round_outright_win")]["brier"] == pytest.approx(0.01)
     assert bench[("PollingData", "first_round_outright_win")]["status"].startswith("N/A")
+    lula_first = bench[("PollingData", "first_place: Lula")]
+    assert lula_first["outcome"] is True and lula_first["brier"] == pytest.approx(0.16**2)
+    assert bench[("PollingData", "runoff_held")]["brier"] == pytest.approx(0.0)
+    # model F on the same events, next to each benchmark
+    cats, draws = freeze.load_draws(fz / freeze.DRAWS_FILE)
+    p_lula = sc.event_probability(draws["F"], cats, "first_place", "Lula")
+    assert lula_first["F_p_yes"] == pytest.approx(p_lula) and lula_first["F_brier"] == pytest.approx((p_lula - 1) ** 2)
+    p_out = sc.event_probability(draws["F"], cats, "leader_above_50")
+    assert bench[("PollingData", "runoff_held")]["F_p_yes"] == pytest.approx(1 - p_out)
+    assert bench[("Polymarket", "first_round_outright_win")]["F_brier"] == pytest.approx(p_out**2)
+    f_row = next(m for m in r1["models"] if m["model"] == "F")
+    assert bench[("Polymarket", "first_place")]["F_brier"] == pytest.approx(f_row["brier_first"])
     assert s26.main(["--stage", "president", *common]) == 0
     pres = json.loads((out / "scorecard_2026_president.json").read_text(encoding="utf-8"))
     assert pres["elected"] == "Lula" and pres["how"] == "elected in the runoff"

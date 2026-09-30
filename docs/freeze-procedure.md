@@ -93,8 +93,8 @@ Test-Path outputs\freeze                             # False: no freeze package 
     "institutes_note": "<institutes listed>", "methodology_note": "<method text as displayed>",
     "screenshot_sha256": "<hash from step 2>",
     "forecast": {"url": "<page URL>", "retrieved_utc": "2026-10-04T01:00:00Z", "archive_url": "",
-                 "win_probability_pct": {"<name as displayed>": 0.0},
-                 "first_round_outright_pct": null, "method_note": "<as displayed>"}}
+                 "win_probability_pct": {}, "first_place_pct": {"<name as displayed>": 0.0},
+                 "runoff_pct": 0.0, "first_round_outright_pct": null, "method_note": "<as displayed>"}}
    ```
 
    - **Times and values.** `retrieved_utc` is the time the page was read. Every value is typed exactly as displayed.
@@ -103,7 +103,16 @@ Test-Path outputs\freeze                             # False: no freeze package 
    - **Omissions.** Leave out a candidate the page does not show, or shows only as "<1%" or similar, and say so in
      `methodology_note`.
    - **Probabilities.** Include `forecast` only if PollingData displays probabilities, and only with the values it
-     displays. Set `first_round_outright_pct` to `null` when the page does not show it.
+     displays. Set a field to `{}` or `null` when the page does not show it.
+     - On 2026-09-30 the probabilities were in the frame
+       `https://www.pollingdata.com.br/capa2026/previsao_2026_grafs.html`, which the main page embeds.
+     - That frame showed "Chance do Lula ficar em 1º lugar (no 1º turno)", which goes in `first_place_pct`.
+     - It also showed "Chance do 2º turno ocorrer", which goes in `runoff_pct`. It showed no election-winner
+       probability, so `win_probability_pct` stays `{}`.
+     - Never convert one displayed value into another field, for example a runoff chance into
+       `first_round_outright_pct`.
+   - **Shares on 2026-09-30.** The main estimate showed only Lula, Flávio Bolsonaro, Augusto Cury and "Não Válido",
+     on the total basis. Type exactly what is displayed at the freeze.
 
 ### A3. Rebuild the benchmark table from the saved responses
 

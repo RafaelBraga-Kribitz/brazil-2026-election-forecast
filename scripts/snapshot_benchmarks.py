@@ -15,9 +15,11 @@ It never computes or infers a probability that PollingData did not display.
    "screenshot_sha256": "",                     # optional, SHA-256 of a local screenshot of the page
    "forecast": {                                # optional; only if PollingData displays probabilities
      "url": "...", "retrieved_utc": "...", "archive_url": "",
-     "win_probability_pct": {"Lula": 55.0, ...},  # only the values displayed; nothing imputed
+     "win_probability_pct": {"Lula": 55.0, ...},  # chance of being elected; only the values displayed
+     "first_place_pct": {"Lula": 84.0},           # chance of finishing first in round 1; only names displayed
+     "runoff_pct": 100.0,                         # chance that a runoff is held, or null when not displayed
      "first_round_outright_pct": 12.0,             # or null when not displayed
-     "method_note": "..."}}
+     "method_note": "..."}}                        # nothing is imputed or derived from another displayed value
 
 Usage:
   python scripts/snapshot_benchmarks.py --label freeze
@@ -284,30 +286,32 @@ def parse_pollingdata(d: dict) -> list[dict]:
         "methodology_note": f.get("method_note", ""),
         "note": "probability as displayed by PollingData; nothing computed or imputed here; not ground truth",
     }
-    shown = {str(c): v for c, v in (f.get("win_probability_pct") or {}).items() if v is not None}
-    win = {c: _pct(v, f"win_probability_pct[{c!r}]") for c, v in shown.items()}
-    if sum(win.values()) > 100.0 + PD_TOTAL_TOL:
-        raise ValueError(f"displayed win probabilities sum to {sum(win.values()):.1f}")
-    rows += [
-        fc
-        | {
-            "probability_event": "election_winner",
-            "candidate": _candidate(c),
-            "candidate_displayed": c,
-            "value_displayed_pct": v,
-        }
-        for c, v in win.items()
-    ]
-    if f.get("first_round_outright_pct") is not None:
-        rows.append(
+    for field, event in (("win_probability_pct", "election_winner"), ("first_place_pct", "first_place")):
+        shown = {str(c): v for c, v in (f.get(field) or {}).items() if v is not None}
+        vals = {c: _pct(v, f"{field}[{c!r}]") for c, v in shown.items()}
+        if sum(vals.values()) > 100.0 + PD_TOTAL_TOL:
+            raise ValueError(f"displayed {event} probabilities sum to {sum(vals.values()):.1f}")
+        rows += [
             fc
             | {
-                "probability_event": "first_round_outright_win",
-                "candidate": "",
-                "candidate_displayed": "",
-                "value_displayed_pct": _pct(f["first_round_outright_pct"], "first_round_outright_pct"),
+                "probability_event": event,
+                "candidate": _candidate(c),
+                "candidate_displayed": c,
+                "value_displayed_pct": v,
             }
-        )
+            for c, v in vals.items()
+        ]
+    for field, event in (("first_round_outright_pct", "first_round_outright_win"), ("runoff_pct", "runoff_held")):
+        if f.get(field) is not None:
+            rows.append(
+                fc
+                | {
+                    "probability_event": event,
+                    "candidate": "",
+                    "candidate_displayed": "",
+                    "value_displayed_pct": _pct(f[field], field),
+                }
+            )
     return rows
 
 

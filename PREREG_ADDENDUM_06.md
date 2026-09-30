@@ -53,17 +53,27 @@ scoring code is committed and pushed before the outcome is known. PREREG §8 (me
   - L1: F's MAE ≤ A's (same categories) and ≤ B's (all categories).
   - L2: F's absolute top-two margin error ≤ B's.
   - L3: the number of categories inside F's 94% and 80% intervals, out of the number of categories.
-- **Benchmarks, for the events they price.** Market prices and displayed probabilities are not ground truth and not
-  model forecasts. Polymarket is scored as follows; PollingData probabilities are scored only if PollingData
-  displayed them, with the same rules.
-  - First place (event 943054) and election winner (45915): the yes prices of every market of the event that has a
-    price are normalised to sum to 1. Outcomes that are not named forecast candidates are pooled in one "other"
-    bucket. Scores: Brier over the named candidates plus "other", log score with the floor 1e-4, and P(actual).
-    For displayed PollingData probabilities, a total below 100 leaves the remainder in "other"; a total above 100
-    by rounding is rescaled to 100.
-  - Outright first-round win (45924): the Brier score of the yes price against "the leader exceeds 50% of valid
-    votes".
-  - The model comparators are F's smoothed first-place probabilities and its smoothed first-round-win probability.
+- **Benchmarks, for the events they price or display.** Market prices and displayed probabilities are not ground
+  truth and not model forecasts.
+  - Polymarket first place (event 943054) and election winner (45915):
+    - The yes prices of the event's listed markets are normalised to sum to 1. A listed market is active and has
+      traded. Placeholder markets, such as "Candidate A" or "Other", are inactive and never traded, and are dropped
+      first.
+    - Outcomes that are not named forecast candidates are pooled in one "other" bucket.
+    - Scores: Brier over the named candidates plus "other", log score with the floor 1e-4, and P(actual).
+  - Polymarket outright first-round win (45924): the Brier score of the yes price against "the leader exceeds 50% of
+    valid votes".
+  - PollingData, only for the probabilities it displayed at the freeze:
+    - Election-winner probabilities: as for Polymarket, except that a total below 100 leaves the remainder in
+      "other", and a total above 100 by rounding is rescaled to 100.
+    - A candidate's chance of finishing first, when shown for that candidate alone: the yes/no event "X finishes
+      first", with its Brier score.
+    - The chance that a runoff is held, or of an outright win: that yes/no event, with its Brier score.
+    - No probability is derived for a candidate or an event PollingData did not display.
+  - Each benchmark row also reports the primary forecast on the same event:
+    - F's smoothed first-place probabilities for first place;
+    - F's smoothed probability `(count + 0.5) / (N + 1)` for the yes/no events;
+    - the primary F×E combination for the election winner.
 
 ## 4. Who-was-elected scorecard (`--stage president`)
 
@@ -92,8 +102,12 @@ scoring code is committed and pushed before the outcome is known. PREREG §8 (me
   information apart from post-election analysis.
 - The scoring code is tested on synthetic results only. No 2026 result is entered before the TSE count.
 
-## Revision note
+## Revision notes
 
 2026-09-30, before any result: §3 and §5 now state that the baselines' MAE and margin error come from their point
 values, as in the backtest (`brfc.pipeline.evaluate_backtest`). The first version said all models were scored on
 draws. Both versions are in the git history.
+
+2026-09-30, before any result, after a freeze rehearsal read the benchmark pages: §3 now drops Polymarket
+placeholder markets before normalising. It names the PollingData probabilities that page displays (a candidate's
+chance of finishing first, the chance of a runoff), and it adds the primary forecast's score on each benchmark event.

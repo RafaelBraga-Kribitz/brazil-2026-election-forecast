@@ -224,13 +224,25 @@ def _candidate_or_none(x) -> str | None:
     return x if isinstance(x, str) and x else None
 
 
-def market_probabilities(snapshot: pd.DataFrame, event_kind: str, named: list[str]) -> dict[str, float] | None:
-    """Polymarket yes prices of every priced market of an event, normalised to 1; non-named outcomes -> 'other'."""
-    if "benchmark" not in snapshot:
-        return None
+def _truthy(x) -> bool:
+    return x is True or (isinstance(x, str) and x.strip().lower() == "true") or (isinstance(x, np.bool_) and bool(x))
+
+
+def _listed_markets(snapshot: pd.DataFrame, event_kind: str) -> pd.DataFrame:
+    """Markets of an event with a price that are active and have traded. Placeholder markets ("Candidate A",
+    "Person O", "Other") are inactive and never traded; they are dropped before normalising (Addendum 06 s.3)."""
     rows = snapshot[
         (snapshot["benchmark"] == "Polymarket") & (snapshot["event_kind"] == event_kind) & snapshot["yes_price"].notna()
     ]
+    traded = pd.to_numeric(rows["volume_usd"], errors="coerce").fillna(0.0) > 0.0
+    return rows[rows["active"].map(_truthy) & traded]
+
+
+def market_probabilities(snapshot: pd.DataFrame, event_kind: str, named: list[str]) -> dict[str, float] | None:
+    """Polymarket yes prices of the listed markets of an event, normalised to 1; non-named outcomes -> 'other'."""
+    if "benchmark" not in snapshot:
+        return None
+    rows = _listed_markets(snapshot, event_kind)
     total = float(rows["yes_price"].sum()) if len(rows) else 0.0
     if total <= 0.0:
         return None
@@ -245,9 +257,7 @@ def market_binary(snapshot: pd.DataFrame, event_kind: str) -> float | None:
     """Yes price of a single-market (binary) event."""
     if "benchmark" not in snapshot:
         return None
-    rows = snapshot[
-        (snapshot["benchmark"] == "Polymarket") & (snapshot["event_kind"] == event_kind) & snapshot["yes_price"].notna()
-    ]
+    rows = _listed_markets(snapshot, event_kind)
     if len(rows) != 1:
         return None
     return float(rows["yes_price"].iloc[0])
@@ -288,6 +298,38 @@ def displayed_binary(snapshot: pd.DataFrame, probability_event: str) -> float | 
         & (snapshot["probability_event"] == probability_event)
     ]
     return None if len(rows) != 1 else float(rows["value_displayed_pct"].iloc[0]) / 100.0
+
+
+def displayed_first_place(snapshot: pd.DataFrame) -> dict[str, float]:
+    """PollingData's displayed chance of finishing first in round 1, per displayed ballot candidate (0..1)."""
+    if "benchmark" not in snapshot or "probability_event" not in snapshot:
+        return {}
+    rows = snapshot[
+        (snapshot["benchmark"] == "PollingData")
+        & (snapshot["event_kind"] == "pollingdata_win_probability")
+        & (snapshot["probability_event"] == "first_place")
+    ]
+    return {
+        r["candidate"]: float(r["value_displayed_pct"]) / 100.0
+        for _, r in rows.iterrows()
+        if _candidate_or_none(r["candidate"])
+    }
+
+
+def event_probability(draws: np.ndarray, categories: list[str], event: str, candidate: str | None = None) -> float:
+    """A model's smoothed probability (count + 0.5) / (N + 1) of a yes/no event, for the benchmark comparisons.
+
+    event 'first_place': `candidate` has the highest share among the named candidates;
+    event 'leader_above_50': the leading named candidate exceeds 50% of valid votes."""
+    named = [c for c in categories if c != config.OTHERS_LABEL]
+    x = np.asarray(draws)[:, [categories.index(c) for c in named]]
+    if event == "first_place":
+        hits = int(np.sum(np.array(named)[np.argmax(x, axis=1)] == candidate))
+    elif event == "leader_above_50":
+        hits = int(np.sum(x.max(axis=1) > 50.0))
+    else:
+        raise ValueError(f"unknown event {event!r}")
+    return scoring._event_prob(hits, x.shape[0])
 
 
 def multiclass_brier(p: dict[str, float], outcome: str) -> float:

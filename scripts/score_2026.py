@@ -112,6 +112,20 @@ def score_r1(fz: Path, results_path: Path) -> tuple[dict, pd.DataFrame, pd.DataF
     ]
     pd_out = sc.displayed_binary(snap, "first_round_outright_win")
     bench.append(sc.score_binary("PollingData", "first_round_outright_win", pd_out, outright))
+    for cand, p in sc.displayed_first_place(snap).items():  # one displayed candidate: the yes/no event "X first"
+        bench.append(sc.score_binary("PollingData", f"first_place: {cand}", p, first == cand) | {"candidate": cand})
+    bench.append(sc.score_binary("PollingData", "runoff_held", sc.displayed_binary(snap, "runoff_held"), not outright))
+    f = scores.set_index("model").loc["F"]
+    p_f_out = sc.event_probability(draws["F"], cats, "leader_above_50")
+    for b in bench:  # model F on the same event, next to each benchmark
+        if b["event"] == "first_place":
+            b |= {"F_p_actual": f["p_actual_first"], "F_brier": f["brier_first"]}
+        elif b["event"] in ("first_round_outright_win", "runoff_held"):
+            p = p_f_out if b["event"] == "first_round_outright_win" else 1.0 - p_f_out
+            b |= {"F_p_yes": p, "F_brier": (p - float(b["outcome"])) ** 2}
+        elif b["event"].startswith("first_place: "):
+            p = sc.event_probability(draws["F"], cats, "first_place", b["candidate"])
+            b |= {"F_p_yes": p, "F_brier": (p - float(b["outcome"])) ** 2}
     crit = sc.criteria_r1(scores, a)
     crit["L3"] = sc.coverage_counts(cat_rows, "F")
     out = {
@@ -150,6 +164,9 @@ def score_president_stage(fz: Path, results_path: Path) -> tuple[dict, pd.DataFr
             "PollingData", "election_winner", sc.displayed_probabilities(snap, "election_winner", named), bucket
         ),
     ]
+    primary = table[table["primary"]].iloc[0]
+    for b in bench:  # the primary combination on the same event, next to each benchmark
+        b |= {"F_p_actual": float(primary["p_winner"]), "F_brier": float(primary["brier"])}
     out = {
         "stage": "president",
         "label": LABEL,
@@ -261,8 +278,14 @@ def render(out_dir: Path) -> str:
             c = d["criteria"]
             lines += [
                 "",
-                f"- L1 (share MAE: F {_fmt(c['L1']['F_mae'])} vs B {_fmt(c['L1']['B_mae'])}; "
-                f"{c['L1']['assessed_against']}): **{_fmt(c['L1']['met'])}**",
+                f"- L1 (share MAE: F {_fmt(c['L1']['F_mae'])} vs B {_fmt(c['L1']['B_mae'])}"
+                + (
+                    f"; on PollingData's categories ({', '.join(c['L1']['A_categories'])}): F "
+                    f"{_fmt(c['L1']['F_mae_subset'])} vs A {_fmt(c['L1']['A_mae_subset'])}"
+                    if "A_mae_subset" in c["L1"]
+                    else "; A: N/A"
+                )
+                + f"; assessed against {c['L1']['assessed_against']}): **{_fmt(c['L1']['met'])}**",
                 f"- L2 (absolute top-two margin error: F {_fmt(c['L2']['F_margin_abs_error'])} vs B "
                 f"{_fmt(c['L2']['B_margin_abs_error'])}): **{_fmt(c['L2']['met'])}**",
                 f"- L3: {c['L3']['inside_94']} of {c['L3']['n_categories']} categories inside F's 94% interval, "
@@ -293,6 +316,7 @@ def render(out_dir: Path) -> str:
                     ("p_actual", "P(actual)"),
                     ("p_yes", "P(yes)"),
                     ("brier", "Brier"),
+                    ("F_brier", "Primary model Brier"),
                 ],
             )
     return "\n".join(lines) + "\n"

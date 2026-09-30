@@ -262,6 +262,17 @@ def test_forecast_outright_row_when_displayed():
     ]
 
 
+def test_forecast_first_place_and_runoff_rows_when_displayed():
+    f = FORECAST | {"win_probability_pct": {}, "first_place_pct": {"Lula": 84.0}, "runoff_pct": 100.0}
+    rows = [r for r in sb.parse_pollingdata(_pd(forecast=f)) if r["event_kind"] != "share"]
+    assert [(r["probability_event"], r["candidate"], r["value_displayed_pct"]) for r in rows] == [
+        ("first_place", "Lula", 84.0),
+        ("runoff_held", "", 100.0),
+    ]
+    with pytest.raises(ValueError, match="first_place probabilities sum"):
+        sb.parse_pollingdata(_pd(forecast=f | {"first_place_pct": {"Lula": 84.0, "Flávio Bolsonaro": 30.0}}))
+
+
 def test_forecast_needs_provenance_and_valid_values():
     with pytest.raises(ValueError, match="forecast"):
         sb.parse_pollingdata(_pd(forecast={"win_probability_pct": {"Lula": 50.0}}))
