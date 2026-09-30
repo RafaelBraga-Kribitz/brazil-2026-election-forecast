@@ -313,7 +313,13 @@ make reproduce            # all of the above from a clean clone, plus sensitivit
 
 **Status:** In development
 
-As of 2026-09-29: the historical and runoff backtests and the PRELIMINARY 2026 forecast (cutoff 2026-09-29) are committed. Next milestones:
+As of 2026-09-30:
+- The historical and runoff backtests and the PRELIMINARY 2026 forecast (cutoff 2026-09-29) are committed.
+- A clean clone reproduced every output.
+- The 2026 scoring code is committed under rules fixed before the freeze.
+- The freeze procedure was rehearsed end to end on a copy of the repository.
+
+Next milestones:
 
 - FINAL freeze of the first-round and conditional forecasts at 2026-10-04T01:00Z (Saturday 2026-10-03, 22:00 BRT);
 - the first-round scorecard after the TSE result, computed by `scripts/score_2026.py` under rules committed before the freeze ([`PREREG_ADDENDUM_06.md`](PREREG_ADDENDUM_06.md));
