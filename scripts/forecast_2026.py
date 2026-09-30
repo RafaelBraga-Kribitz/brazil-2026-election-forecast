@@ -47,7 +47,7 @@ def main() -> None:
         if (config.DATA / "interim" / "polls_wiki_2026.revision.json").exists()
         else {"pt_oldid": 73082572}
     )
-    tag = f"{a.status.lower()}_pt{rev['pt_oldid']}"
+    tag = forecast.forecast_tag(a.status, rev)
     polls = load_polls(("2026",))
     res = forecast.run(polls, load_results(), cutoff, variant=variant, tag=tag)
     fit, cats = res["fit"], res["categories"]
@@ -79,6 +79,7 @@ def main() -> None:
         "roles": res["roles"],
         "election_day_term_trained_on": res["train_elections"],
         "error_models": res["error_models"],
+        "fit_key": fit.key,
         "fit_diagnostics": fit.meta["diagnostics"],
         "models": models,
         "baselines_note": "B/C/D probabilities are a calibrated probabilistic conversion of point baselines "

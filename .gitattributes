@@ -2,4 +2,7 @@
 * text=auto eol=lf
 *.png binary
 *.npy binary
+*.npz binary
+# frozen packages are hashed byte for byte: never convert their line endings
 outputs/freeze/** binary
+outputs/freeze_runoff/** binary

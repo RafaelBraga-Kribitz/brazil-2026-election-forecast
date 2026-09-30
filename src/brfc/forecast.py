@@ -6,6 +6,7 @@ Uses 2026 polls up to the cutoff and historical (2014/2018/2022) results only. 2
 from __future__ import annotations
 
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -20,8 +21,16 @@ from brfc.pipeline import (
     historical_fits,
     latent_forecast,
 )
+from brfc.provenance import sha256_text_file_lf
 
 ELECTION = "2026"
+
+
+def forecast_tag(status: str, rev: dict, corrections: Path = config.DATA / "manual" / "corrections.csv") -> str:
+    """Cache tag of a 2026 fit: the status, both Wikipedia revisions and the corrections file. A fit is reused only
+    for the same information; a new EN revision or a new correction row gives a new key, hence a refit."""
+    c = sha256_text_file_lf(corrections)[:8] if Path(corrections).exists() else "none"
+    return f"{status.lower()}_pt{rev['pt_oldid']}_en{rev.get('en_oldid', 'none')}_c{c}"
 
 
 def nearest_horizon(h: int) -> int:

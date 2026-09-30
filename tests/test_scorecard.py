@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import re
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -457,3 +458,100 @@ def test_outright_first_round_winner_is_elected_without_a_runoff(tmp_path):
         "Lula",
         "elected in the first round (more than 50% of valid votes)",
     )
+
+
+# ---------------------------------------------------------------- review fixes (2026-09-30)
+def test_freeze_packages_are_binary_in_git():
+    """Hashes are of the written bytes: git must never convert line endings inside either package."""
+    try:
+        out = subprocess.run(
+            ["git", "check-attr", "binary", "--", "outputs/freeze/forecast.json", "outputs/freeze_runoff/runoff.csv"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        pytest.skip("git not available")
+    assert out.count("binary: set") == 2, out
+
+
+def test_first_scorecard_is_never_overwritten_and_revisions_are_labelled(tmp_path):
+    fz = _package(tmp_path / "freeze")
+    res = _results_csv(tmp_path / "r.csv")
+    s26 = _script("score_2026")
+    out, doc = tmp_path / "out", tmp_path / "sc.md"
+    common = ["--stage", "r1", "--freeze-dir", str(fz), "--results", str(res), "--out-dir", str(out), "--doc", str(doc)]
+    assert s26.main(common) == 0
+    first = (out / "scorecard_2026_r1.json").read_bytes()
+    with pytest.raises(SystemExit, match="never overwritten"):
+        s26.main(common)
+    with pytest.raises(SystemExit, match="revision-note"):
+        s26.main([*common, "--revision", "tse-open-data"])
+    assert s26.main([*common, "--revision", "tse-open-data", "--revision-note", "TSE open-data totals"]) == 0
+    assert (out / "scorecard_2026_r1.json").read_bytes() == first
+    rev = json.loads((out / "scorecard_2026_r1_revision_tse-open-data.json").read_text(encoding="utf-8"))
+    assert rev["label"].startswith("REVISION:") and rev["revision_note"] == "TSE open-data totals"
+    assert "## Revisions" in doc.read_text(encoding="utf-8")
+
+
+def test_president_stage_without_a_frozen_president_file(tmp_path):
+    fz = _package(tmp_path / "freeze")
+    (fz / "president.json").unlink()
+    _write_hashes(fz)
+    s26 = _script("score_2026")
+    res = _results_csv(tmp_path / "r.csv", votes_r2={"Lula": 51000, "Flávio Bolsonaro": 49000})
+    with pytest.raises(SystemExit, match=r"no president.json"):
+        s26.main(
+            [
+                "--stage",
+                "president",
+                "--freeze-dir",
+                str(fz),
+                "--results",
+                str(res),
+                "--out-dir",
+                str(tmp_path / "o"),
+                "--doc",
+                str(tmp_path / "d.md"),
+            ]
+        )
+
+
+def test_unnamed_first_place_is_scored_as_an_outcome_the_model_gave_probability_zero():
+    cats = ["Lula", "Flávio Bolsonaro", config.OTHERS_LABEL]
+    draws = _draws([45.0, 38.0, 17.0])
+    actual = {"Lula": 30.0, "Flávio Bolsonaro": 11.0, config.OTHERS_LABEL: 59.0}  # an unnamed candidate won
+    scores, _ = sc.score_share_models(
+        {"F": draws}, {}, cats, actual, 1, baselines=(), first_place="Romeu Zema", outright=True
+    )
+    f = scores.set_index("model").loc["F"]
+    assert f["p_actual_first"] == 0.0 and f["log_first"] == pytest.approx(np.log(1e-4))
+    assert f["brier_first"] > 1.0
+    assert f["brier_first_round_win"] == pytest.approx((f["p_first_round_win"] - 1.0) ** 2)
+    named_first, _ = sc.score_share_models({"F": draws}, {}, cats, actual, 1, baselines=(), first_place="Lula")
+    ref = scoring.score(draws, None, cats, actual, 1)
+    assert named_first.iloc[0]["brier_first"] == pytest.approx(ref["brier_first"])
+
+
+def test_snapshot_without_polymarket_rows_does_not_crash():
+    snap = pd.DataFrame(
+        [{"benchmark": "PollingData", "event_kind": "share", "candidate": "Lula", "valid_share_pct": 45.0}]
+    )
+    assert sc.market_probabilities(snap, "first_place", ["Lula"]) is None
+    assert sc.market_binary(snap, "first_round_outright_win") is None
+    assert sc.displayed_first_place(snap) == {} and sc.displayed_binary(snap, "runoff_held") is None
+    assert sc.pollingdata_point(snap, ["Lula", config.OTHERS_LABEL])[0] == {"Lula": 45.0}
+
+
+def test_forecast_tag_changes_with_every_input_of_the_information_set(tmp_path):
+    from brfc.forecast import forecast_tag
+
+    corr = tmp_path / "corrections.csv"
+    corr.write_text("poll_id,field\n", encoding="utf-8")
+    base = forecast_tag("FINAL", {"pt_oldid": 1, "en_oldid": 2}, corr)
+    assert base.startswith("final_pt1_en2_c")
+    assert forecast_tag("FINAL", {"pt_oldid": 1, "en_oldid": 3}, corr) != base
+    corr.write_text("poll_id,field\nx,y\n", encoding="utf-8")
+    assert forecast_tag("FINAL", {"pt_oldid": 1, "en_oldid": 2}, corr) != base
+    assert forecast_tag("PRELIMINARY", {"pt_oldid": 1}, tmp_path / "missing.csv") == "preliminary_pt1_ennone_cnone"

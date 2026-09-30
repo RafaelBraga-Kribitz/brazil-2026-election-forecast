@@ -194,15 +194,23 @@ must print `[]`.
 
 ### A8. Commit, tag, push
 
+Run the lines one at a time and read each output before the next. Each `throw` stops the block before a tag can be
+created or pushed on the wrong commit.
+
 ```powershell
-git add outputs data\interim data\SOURCES.lock.json data\manual\benchmarks_2026_freeze.csv data\manual\pollingdata_freeze.json
+git add outputs data\interim data\SOURCES.lock.json data\manual
 git status --short              # nothing under src\, scripts\ or tests\; nothing from data\raw\
 git commit -m "FINAL 2026 first-round forecast: freeze 2026-10-04T01:00:00Z"
+if ($LASTEXITCODE) { throw "commit failed: do not tag" }
+git ls-tree -r --name-only HEAD outputs/freeze        # lists every package file, including draws.npz
 git tag -a freeze-2026-r1 -m "First-round freeze 2026-10-04T01:00:00Z (outputs/freeze/forecast_hash.txt)"
+if ((git rev-parse 'freeze-2026-r1^{commit}') -ne (git rev-parse HEAD)) { throw "tag is not on the freeze commit" }
 git push origin main
 git push origin freeze-2026-r1
-git rev-parse HEAD freeze-2026-r1
 ```
+
+- **Staging.** `data\manual` is staged as a whole, so a benchmark file that could not be captured (see the failure
+  table) does not stop `git add`.
 
 - **Check the push.** The tag appears on GitHub and CI passes on the commit.
 - **After the push.** Figures (`make figures`) and any report are built from the frozen files. They are not part of
@@ -245,8 +253,14 @@ git rev-parse HEAD freeze-2026-r1
   Test-Path outputs\freeze\forecast_hash.txt           # True: first-round package in place
   Test-Path outputs\freeze_runoff                      # False: no runoff package yet
   .venv\Scripts\python.exe scripts\forecast_2026_runoff.py --help   # lists --pair and --freeze-dir, used in B4
+  .venv\Scripts\python.exe scripts\refresh_2026_polls.py            # latest revision: post-first-round runoff polls
   .venv\Scripts\python.exe scripts\forecast_2026_runoff.py --status PRELIMINARY --cutoff <yesterday> --pair "<A>" "<B>"
   ```
+
+- **Refresh first.** The tables committed at A8 end at the first-round freeze, so they hold no runoff poll fielded
+  after the first round. Without the refresh the PRELIMINARY run stops with "skipped: 0 polls < 8". B3 later pins
+  the tables to the freeze time. Commit the refreshed tables with the PRELIMINARY output, or restore them with
+  `git checkout -- data\interim` before B3.
 
 - **PRELIMINARY run.** It times the fit and checks that the historical round-2 fits are cached in
   `data\cache\fits\`. Without them it stops with "missing historical round-2 eve fits"; `make backtest` writes them.
@@ -331,14 +345,18 @@ git diff --stat outputs\freeze
 
 ### B6. Commit, tag, push (before 08:00 BRT on Sunday 2026-10-25)
 
+Run the lines one at a time, as in A8.
+
 ```powershell
-git add outputs data\interim data\SOURCES.lock.json data\manual\benchmarks_2026_runoff_freeze.csv data\manual\pollingdata_runoff_freeze.json
+git add outputs data\interim data\SOURCES.lock.json data\manual
 git status --short              # nothing under src\, scripts\ or tests\; nothing from data\raw\; nothing in outputs\freeze\
 git commit -m "FINAL 2026 runoff forecast: freeze 2026-10-25T01:00:00Z"
+if ($LASTEXITCODE) { throw "commit failed: do not tag" }
+git ls-tree -r --name-only HEAD outputs/freeze_runoff  # lists every package file, including draws.npz
 git tag -a freeze-2026-r2 -m "Runoff freeze 2026-10-25T01:00:00Z (outputs/freeze_runoff/forecast_hash.txt)"
+if ((git rev-parse 'freeze-2026-r2^{commit}') -ne (git rev-parse HEAD)) { throw "tag is not on the freeze commit" }
 git push origin main
 git push origin freeze-2026-r2
-git rev-parse HEAD freeze-2026-r2
 ```
 
 - **Check the push.** The tag appears on GitHub and CI passes on the commit.
@@ -399,12 +417,13 @@ git push origin main
 
 | Failure | Action |
 | --- | --- |
-| Polymarket API unavailable at the freeze time | Retry. The CSV records the actual retrieval time. If no response is obtained, the market benchmark is N/A for this freeze. Never substitute a later price without saying so in the commit message and an addendum. |
+| Polymarket API unavailable at the freeze time | Retry. The CSV records the actual retrieval time. If no response is obtained, run A3 as `scripts\snapshot_benchmarks.py --label freeze --skip-polymarket`, so the PollingData rows still reach the package. The market benchmark is then N/A for this freeze; say so in the commit message. Never substitute a later price without saying so in the commit message and an addendum. |
 | PollingData page unavailable | Baseline A is N/A for this freeze. Record it in the commit message. |
 | Wikipedia revision at the freeze does not parse | PREREG s.13: use the last reliably parsed revision and disclose the gap. |
 | F does not converge (after Addendum 03's third attempt) | PREREG s.13: E becomes the primary model, with an addendum. |
 | A6 stops: `outputs\h2h_deviations.csv` or the first-round fit is missing | Addendum 04 s.7: freeze and push the first-round package without the president files. Publish the conditional forecast later as PRELIMINARY with its own timestamp. |
 | `forecast_2026_runoff.py` stops before fitting | Read the message. The usual causes are a missing `--pair`, a name not on the 2026 ballot, a FINAL cutoff other than 2026-10-24, or a `--freeze-dir` holding the first-round package. Nothing is written. Correct the command and rerun B4. |
+| `forecast_2026_runoff.py` stops: "skipped: 0 polls < 8" (or fewer than 8) | The poll table holds too few runoff polls of the pair fielded after the first round. Refresh (B0 or B3) and check `data\interim\polls_wiki_2026_runoff.csv`. At the freeze, if fewer than 8 exist, PREREG s.13 applies: report N/A with the poll count. |
 | `forecast_2026_runoff.py` stops with "missing historical round-2 eve fits" | The historical round-2 fits are not in `data\cache\fits\`. Run `.venv\Scripts\python.exe scripts\run_backtest_fits.py --workers 6` (fits only cells that are not cached; do not use `make backtest`, whose `--repair` step refits cells that already used all three attempts). Then rerun B4. |
 | An error found after the tag is pushed | New commit plus a dated addendum. The frozen files and the tag stay as they are. |
 | `score_2026.py` stops: the package does not verify | Do not score. Find the change with `git diff freeze-2026-r1 -- outputs/freeze` and restore the tagged files with `git checkout freeze-2026-r1 -- outputs/freeze`. |

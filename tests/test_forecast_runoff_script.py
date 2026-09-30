@@ -356,3 +356,43 @@ def test_all_2026_figures_add_the_president_figure_when_its_json_exists(monkeypa
     calls.clear()
     figures.all_2026()
     assert calls == list(names)
+
+
+def test_runoff_scorecard_scores_every_model_of_a_real_package(env):
+    """Addendum 06 s.5 on a package written by the real runoff writer: F, E, E0 and baselines B and C."""
+    fz = env["tmp"] / "freeze_runoff"
+    run(env, "a", "--freeze-dir", str(fz), status="FINAL")
+    results = env["tmp"] / "results_2026.csv"
+    pd.DataFrame(
+        [
+            {
+                "election": "2026",
+                "round": 2,
+                "election_date": str(E2),
+                "candidate": c,
+                "votes": v,
+                "valid_vote_share_pct": v / 1000,
+                "total_valid_votes": 100000,
+                "blank_votes": 0,
+                "null_votes": 0,
+                "source_url": "synthetic",
+                "source_revision": "",
+                "retrieved_utc": "2026-10-26T00:00:00Z",
+                "notes": "synthetic test data",
+            }
+            for c, v in ((PAIR[0], 52000), (PAIR[1], 48000))
+        ]
+    ).to_csv(results, index=False)
+    spec = importlib.util.spec_from_file_location("score_2026", ROOT / "scripts" / "score_2026.py")
+    s26 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(s26)
+    out = env["tmp"] / "scores"
+    args = ["--stage", "runoff", "--freeze-dir", str(fz), "--results", str(results), "--out-dir", str(out)]
+    assert s26.main([*args, "--doc", str(env["tmp"] / "scorecard.md")]) == 0
+    card = json.loads((out / "scorecard_2026_runoff.json").read_text(encoding="utf-8"))
+    models = {m["model"]: m for m in card["models"]}
+    assert set(models) == {"F", "E", "E0", "B", "C"}
+    for b in ("B", "C"):
+        assert models[b]["status"] == "calibrated probabilistic conversion of point baseline", models[b]
+        assert np.isfinite(models[b]["mae"]) and np.isfinite(models[b]["coverage_94"])
+    assert card["observed"]["winner"] == PAIR[0] and card["coverage"]["model"] == "F"

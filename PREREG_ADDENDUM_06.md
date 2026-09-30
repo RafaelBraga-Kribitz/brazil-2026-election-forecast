@@ -30,7 +30,8 @@ scoring code is committed and pushed before the outcome is known. PREREG §8 (me
 - **Votes TSE does not count as valid** (for example "anulados sub judice") stay out of the valid total, as TSE
   counts them, and the notes column says so.
 - **Later revisions.** If TSE's open-data totals, downloaded manually, differ from the count used, the scorecard is
-  recomputed and labelled as a revision. The first scorecard is kept unchanged beside it.
+  recomputed and labelled as a revision. The first scorecard is kept unchanged beside it: `score_2026.py` refuses to
+  overwrite a scorecard and writes a recomputation only with `--revision <label> --revision-note <text>`.
 
 ## 3. First-round scorecard (`scripts/score_2026.py --stage r1`)
 
@@ -41,6 +42,14 @@ scoring code is committed and pushed before the outcome is known. PREREG §8 (me
 - **Models F, E and E0.** Scored with `brfc.scoring.score` on the frozen draws, the function the backtest used. It
   gives share MAE, signed and absolute top-two margin error, 80%/94% coverage, first-place Brier and log score, and
   the "leader exceeds 50% of valid votes" Brier.
+- **First place outside the named categories.** If the candidate who finishes first is not a named forecast
+  category, the realised outcome is "another candidate", to which the forecast gave probability 0:
+  - P(actual) is 0 and the log score is floored at 1e-4;
+  - the Brier score is the sum of the squared named probabilities plus 1;
+  - the "leader exceeds 50%" event is scored against the real outcome.
+
+  This case never arose in the backtest, where the registered function takes the top named candidate as the
+  winner.
 - **Baselines B, C and D, as in the backtest.** Share MAE and margin error come from the point value in
   `baseline_snapshot.csv`. Coverage and the probability scores come from the conversion's frozen draws.
 - **Baseline A (PollingData).** Point only. It is scored on the categories PollingData displayed:
@@ -78,6 +87,8 @@ scoring code is committed and pushed before the outcome is known. PREREG §8 (me
 ## 4. Who-was-elected scorecard (`--stage president`)
 
 - **When.** After the first round if a candidate is elected outright; otherwise after the runoff count.
+- **No frozen conditional forecast.** If the first-round package holds no `president.json` (the Addendum 04 §7
+  fallback), there is no frozen who-is-elected forecast, and this stage reports that instead of a score.
 - **Forecast scored.** `outputs/freeze/president.json`: the primary F×E combination and the alternatives F×F, E×E
   and F×E0.
 - **Scores (Addendum 04 §5).** Brier over every candidate with positive probability plus the "unmodelled" bucket
@@ -111,3 +122,8 @@ draws. Both versions are in the git history.
 2026-09-30, before any result, after a freeze rehearsal read the benchmark pages: §3 now drops Polymarket
 placeholder markets before normalising. It names the PollingData probabilities that page displays (a candidate's
 chance of finishing first, the chance of a runoff), and it adds the primary forecast's score on each benchmark event.
+
+2026-09-30, before any result, after an independent review of the scoring code:
+- §3 states how first place is scored when it goes to a candidate outside the named categories.
+- §2 names the revision mechanism.
+- §4 states what happens without a frozen `president.json`.

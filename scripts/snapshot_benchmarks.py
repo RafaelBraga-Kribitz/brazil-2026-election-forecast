@@ -332,6 +332,11 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--label", required=True, help="e.g. freeze, runoff_freeze")
     ap.add_argument("--events", nargs="+", choices=list(EVENTS), default=list(EVENTS), help="Polymarket events")
     ap.add_argument("--no-fetch", action="store_true", help="re-parse the raw files already saved for --label")
+    ap.add_argument(
+        "--skip-polymarket",
+        action="store_true",
+        help="Polymarket unavailable: write the PollingData rows only (record the outage in the commit message)",
+    )
     for kind in EVENTS:
         ap.add_argument(
             f"--archive-url-{kind.replace('_', '-')}",
@@ -345,13 +350,17 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> None:
     a = build_parser().parse_args(argv)
-    if not a.no_fetch:
-        fetch_polymarket(a.label, a.events)
     archive = {k: getattr(a, f"archive_url_{k}") for k in EVENTS}
-    pm = load_polymarket(a.label, a.events, archive)
+    if a.skip_polymarket:
+        print("WARNING: Polymarket skipped (--skip-polymarket); the market benchmark is N/A for this snapshot")
+        pm = []
+    else:
+        if not a.no_fetch:
+            fetch_polymarket(a.label, a.events)
+        pm = load_polymarket(a.label, a.events, archive)
     for problem in event_id_problems(pm):
         print(f"WARNING: {problem}; check the event before using this snapshot", file=sys.stderr)
-    pdata = pollingdata(a.label)
+    pdata = pollingdata(a.label, MANUAL_DIR)
     out = pd.DataFrame(pm + pdata)
     path = MANUAL_DIR / f"benchmarks_2026_{a.label}.csv"
     out.to_csv(path, index=False)

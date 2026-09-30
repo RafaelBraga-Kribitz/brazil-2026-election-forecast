@@ -305,3 +305,13 @@ def test_archive_url_flags_accept_both_spellings():
         "",
     )
     assert a.no_fetch and a.events == list(sb.EVENTS)
+
+
+def test_skip_polymarket_still_writes_the_pollingdata_rows(tmp_path, monkeypatch, capsys):
+    """A Polymarket outage must not lose the PollingData reading (Baseline A); no network is touched."""
+    monkeypatch.setattr(sb, "MANUAL_DIR", tmp_path)
+    (tmp_path / "pollingdata_freeze.json").write_text(json.dumps(_pd()), encoding="utf-8")
+    sb.main(["--label", "freeze", "--skip-polymarket"])
+    out = capsys.readouterr().out
+    assert "Polymarket skipped" in out and "0 Polymarket rows, 3 PollingData rows" in out
+    assert (tmp_path / "benchmarks_2026_freeze.csv").exists()

@@ -29,7 +29,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from brfc import conditional, config, pipeline, runoff
+from brfc import conditional, config, forecast, pipeline, runoff
 from brfc.data import load_polls, load_results
 from brfc.provenance import sha256_file, utc_now_iso
 
@@ -209,7 +209,7 @@ def main() -> None:
     cutoff = date.fromisoformat(a.cutoff)
     variant = a.variant or json.loads((config.OUTPUTS / "regime_selection.json").read_text())["production_variant"]
     rev = json.loads(REVISION.read_text(encoding="utf-8")) if REVISION.exists() else {"pt_oldid": 73082572}
-    tag = f"{a.status.lower()}_pt{rev['pt_oldid']}"
+    tag = forecast.forecast_tag(a.status, rev)
     h = (config.ELECTION_DATES[(ELECTION, 1)] - cutoff).days
     if h < 1:
         raise SystemExit("the cutoff must be at least one day before the first round")

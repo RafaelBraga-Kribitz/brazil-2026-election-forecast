@@ -287,8 +287,9 @@ def house_effects(out_dir=config.FIGURES) -> None:
     """2026: estimated house effects (relative deviation from model consensus) for the top two candidates."""
     _style()
     doc = json.loads((config.OUTPUTS / "forecast_latest.json").read_text(encoding="utf-8"))
-    tag = f"{doc['status'].lower()}_pt{doc['poll_source']['pt_oldid']}"
-    key = f"2026_r1_h{doc['horizon_days']:02d}_{doc['rw_variant']}_{tag}"
+    key = doc.get("fit_key") or (  # older documents: the tag format before forecast.forecast_tag
+        f"2026_r1_h{doc['horizon_days']:02d}_{doc['rw_variant']}_{doc['status'].lower()}_pt{doc['poll_source']['pt_oldid']}"
+    )
     h = pd.read_csv(config.DATA / "cache" / "fits" / f"{key}.house.csv")
     f = sorted(doc["models"]["F"]["categories"], key=lambda r: -r["mean"])
     top = [r["category"] for r in f if r["category"] != config.OTHERS_LABEL][:2]

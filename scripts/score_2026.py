@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -92,16 +93,23 @@ def score_r1(fz: Path, results_path: Path) -> tuple[dict, pd.DataFrame, pd.DataF
     result = sc.load_results_2026(results_path, 1)
     shares = sc.valid_shares(result)
     actual = sc.actual_categories(shares, cats)
+    first = max(shares, key=shares.get)  # among all ballot candidates
+    outright = max(shares.values()) > 50.0
     scores, cat_rows = sc.score_share_models(
-        draws, sc.baseline_points(snap, cats), cats, actual, 1, baselines=("B", "C", "D")
+        draws,
+        sc.baseline_points(snap, cats),
+        cats,
+        actual,
+        1,
+        baselines=("B", "C", "D"),
+        first_place=first,
+        outright=outright,
     )
     a_point, a_note = sc.pollingdata_point(snap, cats)
     a = sc.score_pollingdata(a_point, draws["F"], cats, actual) | {"note": a_note}
     scores = pd.concat([scores, pd.DataFrame([a])], ignore_index=True)
     named = [c for c in cats if c != config.OTHERS_LABEL]
-    first = max(shares, key=shares.get)
     first_bucket = first if first in named else sc.OTHER
-    outright = max(shares.values()) > 50.0
     bench = [
         sc.score_categorical(
             "Polymarket", "first_place", sc.market_probabilities(snap, "first_place", named), first_bucket
@@ -150,6 +158,11 @@ def score_r1(fz: Path, results_path: Path) -> tuple[dict, pd.DataFrame, pd.DataF
 
 def score_president_stage(fz: Path, results_path: Path) -> tuple[dict, pd.DataFrame]:
     _check(fz)
+    if not (fz / "president.json").exists():
+        raise SystemExit(
+            f"{fz} holds no president.json: the conditional forecast was not frozen with the first round "
+            "(Addendum 04 s.7 fallback), so there is no frozen who-is-elected forecast to score"
+        )
     doc = _read_json(fz / "president.json")
     elected, how = elected_candidate(results_path)
     table = sc.score_president_doc(doc, elected)
@@ -319,6 +332,12 @@ def render(out_dir: Path) -> str:
                     ("F_brier", "Primary model Brier"),
                 ],
             )
+    revisions = sorted(out_dir.glob("scorecard_2026_*_revision_*.json"))
+    if revisions:
+        lines += ["", "## Revisions", "", "Recomputations kept beside the first scorecards (Addendum 06 s.2):", ""]
+        for p in revisions:
+            d = _read_json(p)
+            lines.append(f"- `{p.name}` ({d['stage']}, scored {d['scored_utc']}): {d.get('revision_note', '')}")
     return "\n".join(lines) + "\n"
 
 
@@ -329,10 +348,27 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--results", type=Path, default=sc.RESULTS_2026)
     ap.add_argument("--out-dir", type=Path, default=config.OUTPUTS)
     ap.add_argument("--doc", type=Path, default=DOC)
+    ap.add_argument(
+        "--revision",
+        default=None,
+        help="label of a recomputation (Addendum 06 s.2), e.g. tse-open-data; written beside the first scorecard",
+    )
+    ap.add_argument("--revision-note", default="", help="why the scorecard was recomputed (required with --revision)")
     a = ap.parse_args(argv)
     fz = a.freeze_dir or config.OUTPUTS / ("freeze_runoff" if a.stage == "runoff" else "freeze")
     a.out_dir.mkdir(parents=True, exist_ok=True)
     stem = a.out_dir / f"scorecard_2026_{a.stage}"
+    if a.revision:
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,40}", a.revision) or not a.revision_note.strip():
+            raise SystemExit("--revision needs a short lowercase label (letters, digits, '-') and --revision-note")
+        if not Path(f"{stem}.json").exists():
+            raise SystemExit(f"no first scorecard {stem}.json to revise; score without --revision first")
+        stem = a.out_dir / f"scorecard_2026_{a.stage}_revision_{a.revision}"
+    if Path(f"{stem}.json").exists():
+        raise SystemExit(
+            f"{stem}.json exists; the first scorecard is never overwritten. Use --revision LABEL --revision-note TEXT "
+            "for a recomputation (Addendum 06 s.2)"
+        )
     if a.stage == "r1":
         out, scores, cats = score_r1(fz, a.results)
         cats.to_csv(f"{stem}_categories.csv", index=False)
@@ -341,6 +377,8 @@ def main(argv: list[str] | None = None) -> int:
     else:
         out, scores, cats = score_runoff_stage(fz, a.results)
         cats.to_csv(f"{stem}_categories.csv", index=False)
+    if a.revision:
+        out |= {"revision": a.revision, "revision_note": a.revision_note, "label": f"REVISION: {out['label']}"}
     scores.to_csv(f"{stem}.csv", index=False)
     Path(f"{stem}.json").write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     a.doc.parent.mkdir(parents=True, exist_ok=True)

@@ -22,6 +22,7 @@ RESULTS_2026 = config.DATA / "manual" / "results_2026.csv"
 MODELS = ("F", "E", "E0")
 POINT_TOL = 2.0  # pp: displayed probabilities may exceed 100 by rounding only
 POINT_METRICS = ("mae", "margin_pred", "margin_error", "margin_abs_error")
+PD_PROBABILITY_COLUMNS = {"benchmark", "event_kind", "probability_event", "candidate", "value_displayed_pct"}
 
 
 # ---------------------------------------------------------------- entered result
@@ -82,14 +83,41 @@ def actual_categories(shares: dict[str, float], categories: list[str]) -> dict[s
 
 # ---------------------------------------------------------------- share forecasts
 def baseline_points(snapshot: pd.DataFrame, categories: list[str]) -> dict[str, dict[str, float]]:
-    """Point values of the baselines B, C, D in a package's baseline_snapshot.csv (rows with status 'ok')."""
+    """Point values of the baselines in a package's baseline_snapshot.csv: every baseline row with a point value for
+    each category and a status that is not N/A. The first-round writer uses status 'ok'; the runoff writer uses
+    'calibrated probabilistic conversion of point baseline' or 'point only: ...'."""
     if "baseline" not in snapshot:
         return {}
+    cols = [f"point_{c}" for c in categories]
     out = {}
-    for _, row in snapshot[snapshot["baseline"].notna() & (snapshot["status"] == "ok")].iterrows():
-        cols = [f"point_{c}" for c in categories]
+    for _, row in snapshot[snapshot["baseline"].notna()].iterrows():
+        if str(row.get("status", "")).startswith("N/A"):
+            continue
         if all(c in row and pd.notna(row[c]) for c in cols):
             out[str(row["baseline"])] = {c: float(row[f"point_{c}"]) for c in categories}
+    return out
+
+
+def _unnamed_first_place(s: dict, draws: np.ndarray, categories: list[str], round_: int, outright: bool) -> dict:
+    """First-place scores when the candidate who finished first is not a named forecast category.
+
+    brfc.scoring.score takes the top named candidate as the winner, which is right whenever a named candidate
+    finishes first (every backtest round). Otherwise the realised outcome is 'another candidate', to which the model
+    gives probability 0: P(actual) = 0, Brier = sum of the named probabilities squared + 1, log score floored at 1e-4,
+    and the round-1 outright event is scored against the real outcome."""
+    named = [c for c in categories if c != config.OTHERS_LABEL]
+    x = np.asarray(draws)[:, [categories.index(c) for c in named]]
+    first = np.array(named)[np.argmax(x, axis=1)]
+    p = np.array([scoring._event_prob(int(np.sum(first == c)), x.shape[0]) for c in named])
+    p = p / p.sum()
+    out = s | {
+        "p_actual_first": 0.0,
+        "brier_first": float(np.sum(p**2) + 1.0),
+        "log_first": math.log(LOG_FLOOR),
+        "first_place_note": "first place went to a candidate outside the named forecast categories",
+    }
+    if round_ == 1 and "p_first_round_win" in s:
+        out["brier_first_round_win"] = float((s["p_first_round_win"] - float(outright)) ** 2)
     return out
 
 
@@ -100,13 +128,27 @@ def score_share_models(
     actual: dict[str, float],
     round_: int,
     baselines: tuple[str, ...],
+    *,
+    first_place: str | None = None,
+    outright: bool | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Per-model and per-category scores. Models on draws; baselines with the backtest rule."""
+    """Per-model and per-category scores. Models on draws; baselines with the backtest rule.
+
+    `first_place` is the candidate who finished first among all candidates (not only the named ones) and `outright`
+    whether anyone exceeded 50% of valid votes; when first place went to an unnamed candidate, the first-place
+    scores follow _unnamed_first_place."""
+    named = [c for c in categories if c != config.OTHERS_LABEL]
+    unnamed_first = first_place is not None and first_place not in named
+
+    def probabilistic(d):
+        s = scoring.score(d, None, categories, actual, round_)
+        return _unnamed_first_place(s, d, categories, round_, bool(outright)) if unnamed_first else s
+
     rows, cats = [], []
     for m in MODELS:
         if m not in draws:
             continue
-        rows.append({"model": m, "status": "ok"} | scoring.score(draws[m], None, categories, actual, round_))
+        rows.append({"model": m, "status": "ok"} | probabilistic(draws[m]))
         cats += [{"model": m} | x for x in scoring.category_rows(draws[m], None, categories, actual)]
     for b in baselines:
         p = points.get(b)
@@ -118,7 +160,7 @@ def score_share_models(
             rows.append({"model": b, "status": "point only: no conversion draws in the package"} | pm)
             cats += [{"model": b} | x for x in scoring.category_rows(None, p, categories, actual)]
             continue
-        s = scoring.score(draws[b], None, categories, actual, round_) | {k: pm[k] for k in POINT_METRICS}
+        s = probabilistic(draws[b]) | {k: pm[k] for k in POINT_METRICS}
         rows.append({"model": b, "status": "calibrated probabilistic conversion of point baseline"} | s)
         for x in scoring.category_rows(draws[b], None, categories, actual):
             x["mean"], x["error"] = p[x["category"]], p[x["category"]] - actual[x["category"]]
@@ -128,7 +170,7 @@ def score_share_models(
 
 def pollingdata_point(snapshot: pd.DataFrame, categories: list[str]) -> tuple[dict[str, float] | None, str]:
     """Baseline A: PollingData valid shares for the categories it displayed (Addendum 06 s.3)."""
-    if "benchmark" not in snapshot:
+    if not {"benchmark", "event_kind", "candidate", "valid_share_pct"} <= set(snapshot.columns):
         return None, "N/A: no PollingData reading in the package"
     rows = snapshot[(snapshot["benchmark"] == "PollingData") & (snapshot["event_kind"] == "share")]
     shown = {
@@ -234,13 +276,15 @@ def _listed_markets(snapshot: pd.DataFrame, event_kind: str) -> pd.DataFrame:
     rows = snapshot[
         (snapshot["benchmark"] == "Polymarket") & (snapshot["event_kind"] == event_kind) & snapshot["yes_price"].notna()
     ]
+    if not {"volume_usd", "active"} <= set(rows.columns):
+        return rows.iloc[0:0]
     traded = pd.to_numeric(rows["volume_usd"], errors="coerce").fillna(0.0) > 0.0
     return rows[rows["active"].map(_truthy) & traded]
 
 
 def market_probabilities(snapshot: pd.DataFrame, event_kind: str, named: list[str]) -> dict[str, float] | None:
     """Polymarket yes prices of the listed markets of an event, normalised to 1; non-named outcomes -> 'other'."""
-    if "benchmark" not in snapshot:
+    if not {"benchmark", "event_kind", "yes_price"} <= set(snapshot.columns):
         return None
     rows = _listed_markets(snapshot, event_kind)
     total = float(rows["yes_price"].sum()) if len(rows) else 0.0
@@ -255,7 +299,7 @@ def market_probabilities(snapshot: pd.DataFrame, event_kind: str, named: list[st
 
 def market_binary(snapshot: pd.DataFrame, event_kind: str) -> float | None:
     """Yes price of a single-market (binary) event."""
-    if "benchmark" not in snapshot:
+    if not {"benchmark", "event_kind", "yes_price"} <= set(snapshot.columns):
         return None
     rows = _listed_markets(snapshot, event_kind)
     if len(rows) != 1:
@@ -265,7 +309,7 @@ def market_binary(snapshot: pd.DataFrame, event_kind: str) -> float | None:
 
 def displayed_probabilities(snapshot: pd.DataFrame, probability_event: str, named: list[str]) -> dict | None:
     """PollingData probabilities as displayed (percent -> 0..1); remainder below 100 -> 'other' (Addendum 06 s.3)."""
-    if "benchmark" not in snapshot or "probability_event" not in snapshot:
+    if not set(snapshot.columns) >= PD_PROBABILITY_COLUMNS:
         return None
     rows = snapshot[
         (snapshot["benchmark"] == "PollingData")
@@ -290,7 +334,7 @@ def displayed_probabilities(snapshot: pd.DataFrame, probability_event: str, name
 
 def displayed_binary(snapshot: pd.DataFrame, probability_event: str) -> float | None:
     """A single probability PollingData displayed for a yes/no event (percent -> 0..1)."""
-    if "benchmark" not in snapshot or "probability_event" not in snapshot:
+    if not set(snapshot.columns) >= PD_PROBABILITY_COLUMNS:
         return None
     rows = snapshot[
         (snapshot["benchmark"] == "PollingData")
@@ -302,7 +346,7 @@ def displayed_binary(snapshot: pd.DataFrame, probability_event: str) -> float | 
 
 def displayed_first_place(snapshot: pd.DataFrame) -> dict[str, float]:
     """PollingData's displayed chance of finishing first in round 1, per displayed ballot candidate (0..1)."""
-    if "benchmark" not in snapshot or "probability_event" not in snapshot:
+    if not set(snapshot.columns) >= PD_PROBABILITY_COLUMNS:
         return {}
     rows = snapshot[
         (snapshot["benchmark"] == "PollingData")
