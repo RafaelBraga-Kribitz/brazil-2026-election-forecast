@@ -25,8 +25,9 @@ status, the poll revision and the pair; a cached fit is reused only if its poll 
 set, otherwise it is refitted.
 
 Writes outputs/runoff_2026.json. With --freeze-dir (FINAL only) also writes runoff.json, runoff.csv,
-poll_snapshot.csv, baseline_snapshot.csv (baselines B and C plus data/manual/benchmarks_2026_runoff_freeze.csv when
-present) and MODEL_VERSION.txt into that directory, then rewrites its forecast_hash.txt over every file in it.
+poll_snapshot.csv, draws.npz (every model's draws, PREREG_ADDENDUM_06 s.1), baseline_snapshot.csv (baselines B
+and C plus data/manual/benchmarks_2026_runoff_freeze.csv when present) and MODEL_VERSION.txt into that directory,
+then rewrites its forecast_hash.txt over every file in it.
 """
 
 from __future__ import annotations
@@ -44,7 +45,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from brfc import baselines, conditional, config, election_day, pipeline, runoff
+from brfc import baselines, conditional, config, election_day, freeze, pipeline, runoff
 from brfc.data import load_polls, load_results
 from brfc.names import _key, canonical_candidate
 from brfc.provenance import sha256_file, utc_now_iso
@@ -391,6 +392,7 @@ def write_freeze(fz: Path, doc: dict, res: dict, commit: str) -> None:
     (fz / "runoff.json").write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     table(doc).to_csv(fz / "runoff.csv", index=False)
     res["fit"].kept_rows.to_csv(fz / "poll_snapshot.csv", index=False)
+    freeze.save_draws(fz / freeze.DRAWS_FILE, res["draws"], res["categories"])  # Addendum 06 s.1
     bsnap = pd.DataFrame(
         [
             {k: v for k, v in r.items() if k != "point"} | {f"point_{c}": p for c, p in (r["point"] or {}).items()}

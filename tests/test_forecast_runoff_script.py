@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from brfc import config, model, pipeline
+from brfc import config, freeze, model, pipeline
 from brfc.provenance import sha256_file
 from tests.conftest import poll_rows
 
@@ -36,6 +36,7 @@ FREEZE_FILES = {
     "runoff.json",
     "runoff.csv",
     "poll_snapshot.csv",
+    "draws.npz",
     "baseline_snapshot.csv",
     "MODEL_VERSION.txt",
     "forecast_hash.txt",
@@ -296,6 +297,10 @@ def test_output_schema_and_freeze_package(env):
     assert all(sha256_file(fz / n) == h for n, h in hashed.items())
     csv = pd.read_csv(fz / "runoff.csv")
     assert set(csv["model"]) == {"F", "E", "E0", "B", "C"} and set(csv["category"]) == set(PAIR)
+    cats, draws = freeze.load_draws(fz / freeze.DRAWS_FILE)  # Addendum 06 s.1: the draws behind the summaries
+    assert cats == list(PAIR) and set(draws) == {"F", "E", "E0", "B", "C"}
+    for m, rows in ((m, doc["models"][m]["categories"]) for m in draws):
+        assert [r["mean"] for r in rows] == pytest.approx(list(draws[m].mean(axis=0)), abs=1e-9), m
     snap = pd.read_csv(fz / "poll_snapshot.csv")
     assert set(snap["candidate"]) == set(PAIR) and snap["poll_id"].nunique() == N_EVE_POLLS
     assert pd.to_datetime(snap["field_end"]).dt.date.min() > E1

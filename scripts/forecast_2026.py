@@ -5,7 +5,8 @@ Usage:
   python scripts/forecast_2026.py --status FINAL --cutoff 2026-10-03      (after refresh_2026_polls.py --at <freeze>)
 
 Writes outputs/forecast_latest.json, appends outputs/forecast_history.csv, writes outputs/poll_snapshot.csv and
-outputs/baseline_comparison_2026.csv. With --status FINAL also writes the freeze package to outputs/freeze/.
+outputs/baseline_comparison_2026.csv. With --status FINAL also writes the freeze package to outputs/freeze/,
+including every model's draws (draws.npz, PREREG_ADDENDUM_06 s.1).
 """
 
 from __future__ import annotations
@@ -18,7 +19,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from brfc import config, forecast
+from brfc import config, forecast, freeze
 from brfc.data import load_polls, load_results
 from brfc.pipeline import MODEL_LABELS
 from brfc.provenance import sha256_file, utc_now_iso
@@ -112,6 +113,7 @@ def main() -> None:
             fz / "forecast.csv", index=False
         )
         fit.kept_rows.to_csv(fz / "poll_snapshot.csv", index=False)
+        freeze.save_draws(fz / freeze.DRAWS_FILE, res["draws"], cats)  # Addendum 06 s.1
         bench = config.DATA / "manual" / "benchmarks_2026_freeze.csv"
         bsnap = res["baselines"]
         if bench.exists():

@@ -4,7 +4,7 @@ PY = uv run python
 # $(call require,VAR): stop with a message when a required variable is empty
 require = $(if $(strip $($(1))),,$(error $(1) is required, e.g. make $@ $(1)=...))
 
-.PHONY: setup lint test reparse readiness verify backtest sensitivity revision-2014 runoff-backtest forecast president runoff-2026 report figures all reproduce
+.PHONY: setup lint test reparse readiness verify backtest sensitivity revision-2014 runoff-backtest forecast president runoff-2026 score report figures all reproduce
 
 setup:        ## install the locked environment
 	uv sync --locked
@@ -56,6 +56,10 @@ runoff-2026:  ## 2026 runoff after the first round (STATUS CUTOFF PAIR_A PAIR_B 
 	$(call require,PAIR_A)
 	$(call require,PAIR_B)
 	$(PY) scripts/forecast_2026_runoff.py --status $(STATUS) --cutoff $(CUTOFF) --pair "$(PAIR_A)" "$(PAIR_B)" $(if $(FREEZE_DIR),--freeze-dir $(FREEZE_DIR))
+
+score:        ## 2026 scorecard from a frozen package and data/manual/results_2026.csv (STAGE=r1|president|runoff)
+	$(call require,STAGE)
+	$(PY) scripts/score_2026.py --stage $(STAGE)
 
 report:       ## regenerate docs/historical-backtest.md and docs/runoff-backtest.md from outputs/
 	$(PY) scripts/build_report.py

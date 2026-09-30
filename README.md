@@ -122,7 +122,7 @@ Percentages are rounded separately, so parts may not add up exactly. Five pairs 
 5. **Diagnostics.** The pre-registered criteria are R-hat ≤ 1.01, bulk and tail ESS ≥ 400 and divergences ≤ 1%, with up to three sampling attempts. The 2026 PRELIMINARY first-round fit has R-hat 1.005, minimum bulk ESS 795, minimum tail ESS 1409 and 0 divergences.
 6. **Validation and decision.** A LOEO backtest compares the model against baselines B, C and D (section below). The FINAL forecast is frozen, hashed and scored against TSE results.
 
-The binding specification is [`PREREG.md`](PREREG.md) with addenda 01-05 (for example [`PREREG_ADDENDUM_04.md`](PREREG_ADDENDUM_04.md)); the prose version is [`docs/methodology.md`](docs/methodology.md).
+The binding specification is [`PREREG.md`](PREREG.md) with addenda 01-06 (for example [`PREREG_ADDENDUM_04.md`](PREREG_ADDENDUM_04.md)); the prose version is [`docs/methodology.md`](docs/methodology.md).
 
 ## Data
 
@@ -272,9 +272,9 @@ make figures              # every figure from outputs/
 
 | Path | Responsibility |
 |---|---|
-| [`PREREG.md`](PREREG.md) | Binding design. Its commit precedes the backtest commits in local time, but the first external timestamp (the first GitHub push) came after the historical backtest (see [Validation](#validation)). The dated addenda 01-05 beside it say what changed and when |
-| [`src/brfc/`](src/brfc/) | Package: ingest, transform, model, election-day term, baselines, scoring, runoff, conditional forecast, figures |
-| [`scripts/`](scripts/) | Entry points: fits, evaluation, verification, 2026 forecasts, report builder |
+| [`PREREG.md`](PREREG.md) | Binding design. Its commit precedes the backtest commits in local time, but the first external timestamp (the first GitHub push) came after the historical backtest (see [Validation](#validation)). The dated addenda 01-06 beside it say what changed and when |
+| [`src/brfc/`](src/brfc/) | Package: ingest, transform, model, election-day term, baselines, scoring, runoff, conditional forecast, freeze packages, 2026 scorecard, figures |
+| [`scripts/`](scripts/) | Entry points: fits, evaluation, verification, 2026 forecasts, 2026 scorecard, report builder |
 | [`data/interim/`](data/interim/) | Parsed poll tables with provenance (CC BY-SA 4.0) |
 | [`data/manual/`](data/manual/) | Official results, verification records, 2026 ballot, 2014 research |
 | [`outputs/`](outputs/) | Every table, criterion and forecast quoted in this README |
@@ -302,7 +302,7 @@ make figures              # every figure from outputs/
 As of 2026-09-29: the historical and runoff backtests and the PRELIMINARY 2026 forecast (cutoff 2026-09-29) are committed. Next milestones:
 
 - FINAL freeze of the first-round and conditional forecasts at 2026-10-04T01:00Z (Saturday 2026-10-03, 22:00 BRT);
-- the first-round scorecard after the TSE result;
+- the first-round scorecard after the TSE result, computed by `scripts/score_2026.py` under rules committed before the freeze ([`PREREG_ADDENDUM_06.md`](PREREG_ADDENDUM_06.md));
 - if a runoff is held, the runoff freeze at 2026-10-25T01:00Z.
 
 ## License

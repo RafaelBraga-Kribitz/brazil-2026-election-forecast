@@ -141,8 +141,8 @@ git diff --stat data
 
 - **Order.** Run this after A3: it adds `data\manual\benchmarks_2026_freeze.csv` to
   `outputs\freeze\baseline_snapshot.csv`.
-- **Files written.** `outputs\freeze\` receives `forecast.json`, `forecast.csv`, `poll_snapshot.csv`,
-  `baseline_snapshot.csv`, `MODEL_VERSION.txt` and `forecast_hash.txt`.
+- **Files written.** `outputs\freeze\` receives `forecast.json`, `forecast.csv`, `poll_snapshot.csv`, `draws.npz`
+  (every model's draws, Addendum 06 s.1), `baseline_snapshot.csv`, `MODEL_VERSION.txt` and `forecast_hash.txt`.
 - **Check `forecast.json`.**
   - `status` is `FINAL` and `information_cutoff_date` is `2026-10-03`.
   - `poll_source` holds the oldids from A4.
@@ -179,7 +179,9 @@ format as `forecast_2026.py`, then verify it:
 Get-Content outputs\freeze\forecast_hash.txt
 ```
 
-The verification must print `unhashed: [] ; mismatched: []`.
+The verification must print `unhashed: [] ; mismatched: []`. The same check, as the scorecard runs it:
+`.venv\Scripts\python.exe -c "from brfc.freeze import verify_package; print(verify_package('outputs/freeze'))"`
+must print `[]`.
 
 ### A8. Commit, tag, push
 
@@ -197,7 +199,7 @@ git rev-parse HEAD freeze-2026-r1
 - **After the push.** Figures (`make figures`) and any report are built from the frozen files. They are not part of
   the hashed package.
 - **Scoring.** The scorecard is later produced from `outputs\freeze\` and the TSE final totals, whatever the result
-  (PREREG s.11).
+  (PREREG s.11). See section C.
 
 ## B. Runoff freeze (only if a runoff is held)
 
@@ -288,8 +290,9 @@ Get-ChildItem outputs\freeze_runoff
   (`data\manual\benchmarks_2026_runoff_freeze.csv`) into `baseline_snapshot.csv`.
 - **Files written.**
   - `outputs\runoff_2026.json`.
-  - In `outputs\freeze_runoff\`: `runoff.json`, `runoff.csv`, `poll_snapshot.csv`, `baseline_snapshot.csv` and
-    `MODEL_VERSION.txt`, then `forecast_hash.txt`, rewritten over every file in the directory.
+  - In `outputs\freeze_runoff\`: `runoff.json`, `runoff.csv`, `poll_snapshot.csv`, `draws.npz`,
+    `baseline_snapshot.csv` and `MODEL_VERSION.txt`, then `forecast_hash.txt`, rewritten over every file in the
+    directory.
 - **Check `runoff.json`.**
   - `status` is `FINAL`, `information_cutoff_date` is `2026-10-24` and `registered_freeze_utc` is
     `2026-10-25T01:00:00Z`.
@@ -331,7 +334,57 @@ git rev-parse HEAD freeze-2026-r2
 
 - **Check the push.** The tag appears on GitHub and CI passes on the commit.
 - **Scoring.** The runoff scorecard is later produced from `outputs\freeze_runoff\` and the TSE final runoff totals,
-  whatever the result.
+  whatever the result. See section C.
+
+## C. Scoring (after the TSE count)
+
+The rules are [`PREREG_ADDENDUM_06.md`](../PREREG_ADDENDUM_06.md). The scoring code was committed before the freeze
+and is not changed after the result is known.
+
+### C1. Enter the TSE count
+
+- **When.** Once the TSE results site shows 100% of polling sections totalled for the round.
+- **Read the page in a browser.** Open the TSE results site (`https://resultados.tse.jus.br/`), office Presidente,
+  Brasil. Type every ballot candidate's votes, the blank and null votes and the valid total exactly as displayed.
+  If a plain request to TSE's published results data succeeds, save the raw response with a provenance record. If
+  it is refused, the browser reading is the source. Never work around a refusal.
+- **Evidence.** Save a full-page screenshot as `data\raw\tse\results_2026_r<round>.png` (git-ignored). Hash it with
+  `(Get-FileHash <file> -Algorithm SHA256).Hash.ToLower()`, and save the page with the Wayback Machine.
+- **File.** `data\manual\results_2026.csv`, with the columns of `data\manual\results_secondary.csv`:
+  - one row per ballot candidate, with `election` 2026 and the round;
+  - `total_valid_votes`, `blank_votes` and `null_votes` as displayed;
+  - the page URL in `source_url` and the reading time in `retrieved_utc`;
+  - the screenshot hash and the archive URL in `notes`.
+  Votes that TSE does not count as valid (for example "anulados sub judice") stay out of the valid total and are
+  named in `notes`.
+
+### C2. Score
+
+```powershell
+.venv\Scripts\python.exe scripts\score_2026.py --stage r1
+.venv\Scripts\python.exe scripts\score_2026.py --stage president      # only if a candidate was elected outright
+```
+
+- **Checks first.** The script stops, and writes nothing, if either check fails:
+  - `outputs\freeze\forecast_hash.txt` does not verify;
+  - the result file fails the Addendum 06 s.2 checks: a ballot candidate missing, a name not on the ballot, or votes
+    not summing to the valid total.
+- **Files written.** `outputs\scorecard_2026_r1.json`, `.csv` and `_categories.csv`, and `docs\scorecard-2026.md`.
+  The frozen package is only read.
+- **After the runoff count.** Add the round-2 rows to `results_2026.csv`, then run `--stage runoff` and
+  `--stage president`.
+
+### C3. Commit and push
+
+```powershell
+git add data\manual\results_2026.csv outputs\scorecard_2026_* docs\scorecard-2026.md
+git status --short              # nothing in outputs\freeze\ or outputs\freeze_runoff\; nothing under src\ or scripts\
+git commit -m "2026 first-round scorecard (TSE count, 100% of sections)"
+git push origin main
+```
+
+- **Post-mortem.** It is written afterwards, in its own file. It keeps pre-election information apart from
+  post-election analysis and does not change the scorecard.
 
 ## If a step fails
 
@@ -345,3 +398,5 @@ git rev-parse HEAD freeze-2026-r2
 | `forecast_2026_runoff.py` stops before fitting | Read the message. The usual causes are a missing `--pair`, a name not on the 2026 ballot, a FINAL cutoff other than 2026-10-24, or a `--freeze-dir` holding the first-round package. Nothing is written. Correct the command and rerun B4. |
 | `forecast_2026_runoff.py` stops with "missing historical round-2 eve fits" | The historical round-2 fits are not in `data\cache\fits\`. Run `.venv\Scripts\python.exe scripts\run_backtest_fits.py --workers 6` (fits only cells that are not cached; do not use `make backtest`, whose `--repair` step refits cells that already used all three attempts). Then rerun B4. |
 | An error found after the tag is pushed | New commit plus a dated addendum. The frozen files and the tag stay as they are. |
+| `score_2026.py` stops: the package does not verify | Do not score. Find the change with `git diff freeze-2026-r1 -- outputs/freeze` and restore the tagged files with `git checkout freeze-2026-r1 -- outputs/freeze`. |
+| `score_2026.py` stops: the result file fails a check | Correct the typed values against the TSE page. Never edit a value to make a check pass. |
