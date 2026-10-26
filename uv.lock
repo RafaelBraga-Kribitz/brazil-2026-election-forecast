@@ -26,11 +26,21 @@ wheels = [
 ]
 
 [[package]]
+name = "bk-viz"
+version = "2.0.0"
+source = { git = "https://github.com/RafaelBraga-Kribitz/bk-viz?rev=fe8125a3043f49a798ef24740b23f81c46863562#fe8125a3043f49a798ef24740b23f81c46863562" }
+dependencies = [
+    { name = "fonttools" },
+    { name = "matplotlib" },
+]
+
+[[package]]
 name = "brazil-2026-forecast"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "arviz" },
+    { name = "bk-viz" },
     { name = "contourpy" },
     { name = "kiwisolver" },
     { name = "llvmlite" },
@@ -57,6 +67,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "arviz", specifier = "==0.23.4" },
+    { name = "bk-viz", git = "https://github.com/RafaelBraga-Kribitz/bk-viz?rev=fe8125a3043f49a798ef24740b23f81c46863562" },
     { name = "contourpy", specifier = "==1.3.3" },
     { name = "kiwisolver", specifier = "==1.5.0" },
     { name = "llvmlite", specifier = "==0.47.0" },
