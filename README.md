@@ -3,9 +3,9 @@
 ![Project banner for the Brazil 2026 Election Forecast: title, tagline and repository status on the design-system surface. ILLUSTRATIVE.](docs/assets/hero.png)
 
 [![CI](https://github.com/RafaelBraga-Kribitz/brazil-2026-election-forecast/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaelBraga-Kribitz/brazil-2026-election-forecast/actions/workflows/ci.yml)
-[![Python 3.12,<3.13](https://img.shields.io/badge/python-3.12,<3.13-blue)](pyproject.toml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Status: In development](https://img.shields.io/badge/status-In%20development-blue)](#status)
+[![Python 3.12,<3.13](https://img.shields.io/badge/python-3.12,<3.13-5A5C61?labelColor=26282C)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-5A5C61?labelColor=26282C)](LICENSE)
+[![Status: In development](https://img.shields.io/badge/status-In%20development-5A5C61?labelColor=26282C)](#status)
 
 
 **Status:** In development
@@ -164,13 +164,33 @@ The PollingData average and Polymarket prices are captured at the FINAL freeze a
 The pipeline has two stages. Stage 1 parses pinned poll tables into per-cutoff information sets and fits the random walks without ever reading results. Stage 2 evaluates them leave one election out against the official results. The same code then produces the 2026 first-round and conditional forecasts that are frozen and scored.
 
 ```mermaid
-%%{init: {"theme": "base", "fontFamily": "Söhne Mono, ui-monospace, SFMono-Regular, Menlo, monospace", "themeVariables": {
-  "background": "#E6E6E6", "primaryColor": "#E6E6E6", "primaryTextColor": "#282828",
-  "primaryBorderColor": "#A0A0A0", "lineColor": "#A0A0A0", "textColor": "#282828",
-  "mainBkg": "#E6E6E6", "nodeBorder": "#A0A0A0", "clusterBkg": "#E6E6E6",
-  "clusterBorder": "#A0A0A0", "edgeLabelBackground": "#E6E6E6", "titleColor": "#282828",
-  "fontFamily": "Söhne Mono, ui-monospace, SFMono-Regular, Menlo, monospace", "fontSize": "13px"
-}, "flowchart": {"curve": "linear", "htmlLabels": true, "padding": 8}}}%%
+%%{init: {
+  "theme": "base",
+  "fontFamily": "BKribitz, system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif",
+  "themeVariables": {
+    "background": "#E4E6EA",
+    "primaryColor": "#DCDEE2",
+    "primaryTextColor": "#26282C",
+    "primaryBorderColor": "#26282C",
+    "secondaryColor": "#E4E6EA",
+    "secondaryTextColor": "#26282C",
+    "secondaryBorderColor": "#5A5C61",
+    "tertiaryColor": "#E4E6EA",
+    "tertiaryTextColor": "#26282C",
+    "tertiaryBorderColor": "#C2C4CA",
+    "lineColor": "#5A5C61",
+    "textColor": "#26282C",
+    "mainBkg": "#DCDEE2",
+    "nodeBorder": "#26282C",
+    "clusterBkg": "#E4E6EA",
+    "clusterBorder": "#C2C4CA",
+    "edgeLabelBackground": "#E4E6EA",
+    "titleColor": "#26282C",
+    "fontFamily": "BKribitz, system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif",
+    "fontSize": "14px"
+  },
+  "flowchart": { "curve": "linear", "htmlLabels": true, "padding": 8 }
+}}%%
 flowchart TD
 
 subgraph group_sources["Sources"]
@@ -221,8 +241,8 @@ node_pres --> node_freeze
 node_backtest --> node_report
 node_pres --> node_report
 
-classDef node fill:#E6E6E6,stroke:#A0A0A0,stroke-width:1px,color:#282828
-classDef accent fill:#E6E6E6,stroke:#FA6400,stroke-width:1px,color:#282828
+classDef node fill:#DCDEE2,stroke:#26282C,stroke-width:1px,color:#26282C
+classDef accent fill:#DCDEE2,stroke:#2F4BE0,stroke-width:1px,color:#26282C
 
 class node_wiki,node_manual,node_tse,node_ingest,node_transform,node_model,node_h2h,node_day,node_score,node_backtest,node_r1,node_pres,node_freeze,node_report node
 class node_pres accent
