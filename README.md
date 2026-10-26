@@ -164,33 +164,7 @@ The PollingData average and Polymarket prices are captured at the FINAL freeze a
 The pipeline has two stages. Stage 1 parses pinned poll tables into per-cutoff information sets and fits the random walks without ever reading results. Stage 2 evaluates them leave one election out against the official results. The same code then produces the 2026 first-round and conditional forecasts that are frozen and scored.
 
 ```mermaid
-%%{init: {
-  "theme": "base",
-  "fontFamily": "BKribitz, system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif",
-  "themeVariables": {
-    "background": "#E4E6EA",
-    "primaryColor": "#DCDEE2",
-    "primaryTextColor": "#26282C",
-    "primaryBorderColor": "#26282C",
-    "secondaryColor": "#E4E6EA",
-    "secondaryTextColor": "#26282C",
-    "secondaryBorderColor": "#5A5C61",
-    "tertiaryColor": "#E4E6EA",
-    "tertiaryTextColor": "#26282C",
-    "tertiaryBorderColor": "#C2C4CA",
-    "lineColor": "#5A5C61",
-    "textColor": "#26282C",
-    "mainBkg": "#DCDEE2",
-    "nodeBorder": "#26282C",
-    "clusterBkg": "#E4E6EA",
-    "clusterBorder": "#C2C4CA",
-    "edgeLabelBackground": "#E4E6EA",
-    "titleColor": "#26282C",
-    "fontFamily": "BKribitz, system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif",
-    "fontSize": "14px"
-  },
-  "flowchart": { "curve": "linear", "htmlLabels": true, "padding": 8 }
-}}%%
+%%{init: {"theme":"base","fontFamily":"BKribitz, system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif","themeVariables":{"background":"#E4E6EA","primaryColor":"#DCDEE2","primaryTextColor":"#26282C","primaryBorderColor":"#26282C","secondaryColor":"#E4E6EA","secondaryTextColor":"#26282C","secondaryBorderColor":"#5A5C61","tertiaryColor":"#E4E6EA","tertiaryTextColor":"#26282C","tertiaryBorderColor":"#C2C4CA","lineColor":"#5A5C61","textColor":"#26282C","mainBkg":"#DCDEE2","nodeBorder":"#26282C","clusterBkg":"#E4E6EA","clusterBorder":"#C2C4CA","edgeLabelBackground":"#E4E6EA","titleColor":"#26282C","fontFamily":"BKribitz, system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif","fontSize":"14px"},"flowchart":{"curve":"linear","htmlLabels":true,"padding":8}}}%%
 flowchart TD
 
 subgraph group_sources["Sources"]
