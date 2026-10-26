@@ -16,7 +16,13 @@ How accurate and how well calibrated is a pre-registered Bayesian aggregation of
 
 **Decision rule.** The forecast frozen on Saturday 2026-10-03 at 22:00 BRT (2026-10-04T01:00:00Z) is scored against the official TSE results and published whatever the result. Frozen files are never rewritten; corrections go into dated addenda.
 
-**Current forecast: PRELIMINARY (cutoff 2026-09-29), not the frozen forecast.** Under this model, Lula has a 50.5% probability of being elected: 10.7% from an outright first-round win and 39.9% via the runoff pair Flávio Bolsonaro vs Lula (parts rounded separately). For Flávio Bolsonaro the figure is 49.5%: 4.3% outright and 45.2% via that pair. The pair has an 85.0% probability; pairs without a head-to-head fit have 0.0%. Neither probability is far from 50%, and the difference between them is smaller than the spread across the reported model combinations: Lula's probability ranges from 41.6% (F × E0, diagnostic) to 55.8% (F × F), and Flávio Bolsonaro's from 44.2% to 58.4%. In the runoff pair, the median valid-vote shares are 50.3% for Flávio Bolsonaro and 49.7% for Lula; the 80% equal-tailed posterior predictive intervals are 45.5% to 55.1% and 44.9% to 54.5%, and both contain 50%.
+**Outcome (updated 2026-10-26).** The registered freeze of 2026-10-03 did not happen, so the registered scorecard cannot be computed. The last forecast published before the first round, the PRELIMINARY run below (cutoff 2026-09-29, committed 2026-09-29), is scored unchanged instead, and labelled UNREGISTERED ([`docs/scorecard-2026-unregistered.md`](docs/scorecard-2026-unregistered.md)). Model F's first-round shares missed by 1.06 percentage points on average, with all 6 results inside its 80% intervals, the lowest share error of every model and baseline. It called first place wrong: it gave Flávio Bolsonaro a 36% chance of finishing first, and he did (47.03% to 45.16%). It gave the Flávio Bolsonaro vs Lula runoff 85% and Lula a 50.5% chance of being elected; Lula was elected with 51.79% of valid votes, inside the 80% interval of the head-to-head forecast. Results are the TSE count at 100% of sections as reported by secondary sources, pending the TSE reading.
+
+![Dot-and-interval chart of the five named candidates' first-round shares: model F's forecast mean with 80% and 94% intervals, and the result as a diamond. Flávio Bolsonaro's result sits near the top of his 80% interval; Lula's sits just below his forecast mean. UNREGISTERED.](figures/scorecard_2026_unregistered.png)
+
+*Close on shares, wrong on first place: the pattern the backtest's criterion H3 warned about. Source: `outputs/scorecard_2026_unregistered.json`.*
+
+**Forecast as published before the vote: PRELIMINARY (cutoff 2026-09-29), not the frozen forecast.** Under this model, Lula has a 50.5% probability of being elected: 10.7% from an outright first-round win and 39.9% via the runoff pair Flávio Bolsonaro vs Lula (parts rounded separately). For Flávio Bolsonaro the figure is 49.5%: 4.3% outright and 45.2% via that pair. The pair has an 85.0% probability; pairs without a head-to-head fit have 0.0%. Neither probability is far from 50%, and the difference between them is smaller than the spread across the reported model combinations: Lula's probability ranges from 41.6% (F × E0, diagnostic) to 55.8% (F × F), and Flávio Bolsonaro's from 44.2% to 58.4%. In the runoff pair, the median valid-vote shares are 50.3% for Flávio Bolsonaro and 49.7% for Lula; the 80% equal-tailed posterior predictive intervals are 45.5% to 55.1% and 44.9% to 54.5%, and both contain 50%.
 
 **Historical evidence.** In the leave-one-election-out backtest at the eve horizon (6 rounds, 2014-2022), the primary model F had a share error of 1.38 pp, against 2.07 pp for a 14-day poll average (baseline B). Of its 21 eve categories, 19 (90%) fell inside its 94% equal-tailed posterior predictive intervals; in the first round alone it was 13 of 15. The 21 are not independent checks: 6 are the two complementary shares of the 3 runoffs, and categories within an election are correlated. Two more misses would have failed criterion H2. Its first-place probabilities scored worse than baseline B's (Brier 0.075 vs 0.034), so pre-registered criterion H3 is **not met**. At earlier first-round cutoffs its intervals were too narrow, and its first-place Brier was worse than B's and E's at every first-round horizon (see [Limitations](#limitations)). For who was elected, the conditional forecast scored a Brier of 0.109 against 0.115 for baseline B; with error-scale prior 6 it scores 0.128, so that comparison depends on a prior choice. Three elections are weak evidence, and one live election cannot establish skill.
 
@@ -313,17 +319,16 @@ make reproduce            # all of the above from a clean clone, plus sensitivit
 
 **Status:** In development
 
-As of 2026-09-30:
+As of 2026-10-26:
 - The historical and runoff backtests and the PRELIMINARY 2026 forecast (cutoff 2026-09-29) are committed.
 - A clean clone reproduced every output.
-- The 2026 scoring code is committed under rules fixed before the freeze.
-- The freeze procedure was rehearsed end to end on a copy of the repository.
+- The registered FINAL freeze (2026-10-03) and the runoff freeze (2026-10-24) were not carried out, so the registered scorecard (`scripts/score_2026.py`, [`PREREG_ADDENDUM_06.md`](PREREG_ADDENDUM_06.md)) cannot run.
+- The PRELIMINARY forecast is scored against the 2026 results by `scripts/score_2026_unregistered.py` and labelled UNREGISTERED.
 
 Next milestones:
 
-- FINAL freeze of the first-round and conditional forecasts at 2026-10-04T01:00Z (Saturday 2026-10-03, 22:00 BRT);
-- the first-round scorecard after the TSE result, computed by `scripts/score_2026.py` under rules committed before the freeze ([`PREREG_ADDENDUM_06.md`](PREREG_ADDENDUM_06.md));
-- if a runoff is held, the runoff freeze at 2026-10-25T01:00Z.
+- replace the secondary result rows in `data/manual/results_2026_secondary.csv` with the TSE reading and rerun the unregistered scorecard;
+- a dated addendum recording that the freeze was missed and why.
 
 ## License
 

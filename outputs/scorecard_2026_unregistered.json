@@ -1,0 +1,124 @@
+{
+  "label": "UNREGISTERED: scores the PRELIMINARY forecast (cutoff 2026-09-29); the registered freeze did not happen",
+  "forecast_files": {
+    "first_round": "outputs/forecast_latest.json",
+    "first_round_generated_utc": "2026-09-29T16:59:51Z",
+    "president": "outputs/president_2026.json",
+    "president_generated_utc": "2026-09-29T19:01:11Z",
+    "information_cutoff": "2026-09-29"
+  },
+  "results_file": "data/manual/results_2026_secondary.csv",
+  "first_round": {
+    "actual": {
+      "Lula": 45.1627679106361,
+      "Flávio Bolsonaro": 47.02777235637371,
+      "Augusto Cury": 2.8906506468339503,
+      "Renan Santos": 2.2429751260318582,
+      "Ronaldo Caiado": 2.1836804632002935,
+      "Others": 0.4921534969240895
+    },
+    "total_valid_votes": 119300788,
+    "models": {
+      "F": {
+        "mae": 1.0550230672245697,
+        "margin_pred": -1.7624408034999988,
+        "margin_actual": 1.8650044457376111,
+        "margin_error": -3.62744524923761,
+        "coverage_80": 1.0,
+        "coverage_94": 1.0,
+        "n_categories": 6,
+        "p_actual_first": 0.3575,
+        "brier_first": 0.8256125000000001,
+        "p_first_round_win": 0.14975,
+        "brier_first_round_win": 0.0224250625
+      },
+      "E": {
+        "mae": 2.344125178686603,
+        "margin_pred": -3.795561819200003,
+        "margin_actual": 1.8650044457376111,
+        "margin_error": -5.660566264937614,
+        "coverage_80": 0.8333333333333334,
+        "coverage_94": 1.0,
+        "n_categories": 6,
+        "p_actual_first": 0.22775,
+        "brier_first": 1.192740125,
+        "p_first_round_win": 0.07925,
+        "brier_first_round_win": 0.0062805625000000006
+      },
+      "E0": {
+        "mae": 2.0641111919866026,
+        "margin_pred": -3.8718720241999947,
+        "margin_actual": 1.8650044457376111,
+        "margin_error": -5.736876469937606,
+        "coverage_80": 0.5,
+        "coverage_94": 0.5,
+        "n_categories": 6,
+        "p_actual_first": 0.0535,
+        "brier_first": 1.7917245,
+        "p_first_round_win": 0.004,
+        "brier_first_round_win": 1.6e-05
+      }
+    },
+    "baselines": {
+      "B": {
+        "mae": 2.2203617083691274,
+        "margin_pred": -2.5673075780870676,
+        "margin_actual": 1.8650044457376111,
+        "margin_error": -4.432312023824679,
+        "p_actual_first": 0.38,
+        "brier_first": 0.7688,
+        "coverage_80": 0.8333333333333334,
+        "coverage_94": 1.0
+      },
+      "C": {
+        "mae": 2.582031940855123,
+        "margin_pred": -4.444444444444443,
+        "margin_actual": 1.8650044457376111,
+        "margin_error": -6.309448890182054,
+        "p_actual_first": 0.329,
+        "brier_first": 0.9004820000000001,
+        "coverage_80": 0.8333333333333334,
+        "coverage_94": 1.0
+      },
+      "D": {
+        "mae": 1.6247257961264026,
+        "margin_pred": -3.1827515400410746,
+        "margin_actual": 1.8650044457376111,
+        "margin_error": -5.047755985778686,
+        "p_actual_first": 0.16825,
+        "brier_first": 1.3836161249999999,
+        "coverage_80": 0.6666666666666666,
+        "coverage_94": 1.0
+      }
+    }
+  },
+  "runoff_result": {
+    "shares": {
+      "Lula": 51.7851828842626,
+      "Flávio Bolsonaro": 48.2148171157374
+    },
+    "total_valid_votes": 124082273
+  },
+  "president": {
+    "elected": "Lula",
+    "p_elected": 0.5050546875,
+    "brier_elected": 0.4899417247314452,
+    "brier_elected_coin_flip": 0.5,
+    "log_elected": -0.6830885634907331,
+    "p_runoff_pair": 0.85025,
+    "runoff_share_candidate": "Flávio Bolsonaro",
+    "runoff_share_median": 50.283997756192534,
+    "runoff_share_actual": 48.2148171157374,
+    "runoff_share_error": 2.069180640455137,
+    "runoff_in80": true,
+    "runoff_in94": true,
+    "runoff_interval80": [
+      45.50495217862189,
+      55.132663225641096
+    ],
+    "runoff_interval94": [
+      42.799090404489895,
+      57.58059246563806
+    ]
+  }
+}
